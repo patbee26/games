@@ -1,0 +1,1058 @@
+<title>The Portfolio</title>
+<style>
+/* ============ tokens: dark-first ============ */
+:root{
+  --bg:#0E1318; --surface:#161C23; --surface-2:#1C232B; --line:#28313A; --line-soft:#1E262E;
+  --ink:#E8EDF2; --ink-2:#98A5B2; --ink-3:#68747F;
+  --brass:#D4A254; --brass-soft:rgba(212,162,84,.13); --brass-line:rgba(212,162,84,.34);
+  --gain:#4FB286; --loss:#D8636B;
+  --p1:#D4A254; --p2:#6FA3CC; --p3:#9B8AC8; --p4:#C79AB6; --pai:#8A98A6;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -16px rgba(0,0,0,.7);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,ui-serif,serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#E7EAEE; --surface:#FFFFFF; --surface-2:#F2F4F7; --line:#D6DBE2; --line-soft:#E6E9EE;
+    --ink:#161B21; --ink-2:#56606B; --ink-3:#7C8792;
+    --brass:#8A6216; --brass-soft:rgba(138,98,22,.09); --brass-line:rgba(138,98,22,.34);
+    --gain:#1C7A54; --loss:#AE3542;
+    --p1:#8A6216; --p2:#31688F; --p3:#5D4E9B; --p4:#9A5480; --pai:#5C6873;
+    --shadow:0 1px 2px rgba(16,22,28,.05), 0 10px 28px -18px rgba(16,22,28,.28);
+  }
+}
+:root[data-theme="light"]{
+  --bg:#E7EAEE; --surface:#FFFFFF; --surface-2:#F2F4F7; --line:#D6DBE2; --line-soft:#E6E9EE;
+  --ink:#161B21; --ink-2:#56606B; --ink-3:#7C8792;
+  --brass:#8A6216; --brass-soft:rgba(138,98,22,.09); --brass-line:rgba(138,98,22,.34);
+  --gain:#1C7A54; --loss:#AE3542;
+  --p1:#8A6216; --p2:#31688F; --p3:#5D4E9B; --p4:#9A5480; --pai:#5C6873;
+  --shadow:0 1px 2px rgba(16,22,28,.05), 0 10px 28px -18px rgba(16,22,28,.28);
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--sans); font-size:15px; line-height:1.5;
+  -webkit-font-smoothing:antialiased; margin:0;
+}
+.num{font-family:var(--mono); font-variant-numeric:tabular-nums; letter-spacing:-.01em}
+.up{color:var(--gain)} .down{color:var(--loss)}
+.label{
+  font-size:10.5px; font-weight:600; letter-spacing:.11em; text-transform:uppercase;
+  color:var(--ink-3);
+}
+:focus-visible{outline:2px solid var(--brass); outline-offset:2px; border-radius:3px}
+
+/* ============ shell ============ */
+.wrap{max-width:1180px; margin:0 auto; padding:0 20px}
+
+.topbar{
+  position:sticky; top:0; z-index:20;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.topbar__in{display:flex; align-items:center; gap:16px; height:60px}
+.mark{display:flex; align-items:baseline; gap:10px; margin-right:auto; min-width:0}
+.mark__name{
+  font-family:var(--serif); font-size:21px; letter-spacing:.005em;
+  font-weight:600;
+}
+.mark__name b{color:var(--brass); font-weight:600}
+.mark__the{font-size:15px; color:var(--ink-3); font-weight:400; letter-spacing:.03em}
+.chip{
+  font-size:9.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  border:1px solid var(--line); color:var(--ink-3);
+  padding:3px 6px; border-radius:4px; white-space:nowrap;
+}
+
+.bell{
+  display:flex; align-items:center; gap:9px;
+  background:var(--brass-soft); border:1px solid var(--brass-line);
+  padding:6px 12px; border-radius:6px;
+}
+.bell__dot{
+  width:6px; height:6px; border-radius:50%; background:var(--brass);
+  animation:breathe 3.2s ease-in-out infinite; flex:none;
+}
+@keyframes breathe{0%,100%{opacity:1}50%{opacity:.32}}
+@media (prefers-reduced-motion:reduce){ .bell__dot{animation:none} }
+.bell__txt{display:flex; flex-direction:column; line-height:1.15}
+.bell__txt small{font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); font-weight:600}
+.bell__time{font-family:var(--mono); font-size:14.5px; font-variant-numeric:tabular-nums; color:var(--brass); font-weight:600}
+
+.iconbtn{
+  background:none; border:1px solid var(--line); color:var(--ink-2);
+  width:34px; height:34px; border-radius:6px; cursor:pointer; flex:none;
+  display:grid; place-items:center; font-size:14px;
+}
+.iconbtn:hover{background:var(--surface-2); color:var(--ink)}
+.avatar{
+  width:34px; height:34px; border-radius:50%; flex:none;
+  display:grid; place-items:center; font-size:12.5px; font-weight:700;
+  background:var(--brass-soft); color:var(--brass); border:1px solid var(--brass-line);
+}
+
+/* ============ hero ============ */
+.hero{padding:30px 0 4px}
+.stats{display:flex; flex-wrap:wrap; align-items:flex-end; gap:34px 44px; margin-bottom:22px}
+.stat__k{margin-bottom:5px}
+.stat__v{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:20px; letter-spacing:-.015em}
+.stat--lead .stat__v{font-size:44px; font-weight:500; letter-spacing:-.03em; line-height:1}
+.stat--head .stat__v{font-size:27px; letter-spacing:-.02em}
+.stat__sub{font-size:11.5px; color:var(--ink-3); margin-top:5px}
+
+.card{
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:8px; box-shadow:var(--shadow);
+}
+.chartcard{padding:16px 16px 12px}
+.chartcard__top{display:flex; align-items:center; gap:12px; margin-bottom:6px; flex-wrap:wrap}
+.seg{display:flex; gap:2px; margin-left:auto; background:var(--surface-2); padding:2px; border-radius:6px}
+.seg button{
+  font-family:var(--mono); font-size:11px; letter-spacing:.04em;
+  background:none; border:0; color:var(--ink-3); cursor:pointer;
+  padding:5px 11px; border-radius:4px;
+}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--surface); color:var(--brass); box-shadow:0 1px 2px rgba(0,0,0,.18)}
+#chart{display:block; width:100%}
+.legend{
+  display:flex; flex-wrap:wrap; gap:6px 18px; padding-top:10px; margin-top:10px;
+  border-top:1px solid var(--line-soft);
+}
+.leg{display:flex; align-items:center; gap:7px; font-size:12px; color:var(--ink-2)}
+.leg svg{flex:none}
+.leg--me{color:var(--ink); font-weight:600}
+
+/* ============ columns ============ */
+.cols{display:grid; grid-template-columns:1fr; gap:18px; padding:22px 0 40px}
+@media (min-width:940px){ .cols{grid-template-columns:minmax(0,1.62fr) minmax(0,1fr); align-items:start} }
+.col{display:flex; flex-direction:column; gap:18px; min-width:0}
+@media (min-width:940px){ .rail{position:sticky; top:78px} }
+
+.sec__head{display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--line-soft)}
+.sec__head .label{margin-right:auto}
+.sec__body{padding:16px}
+
+/* ============ brief ============ */
+.brief__body{padding:18px 20px 16px; font-family:var(--serif)}
+.brief h3{
+  font-size:21px; font-weight:600; line-height:1.3; margin:0 0 12px;
+  text-wrap:balance; letter-spacing:.005em;
+}
+.brief p{margin:0 0 15px; font-size:16.5px; line-height:1.62; color:var(--ink-2); max-width:64ch}
+.brief p:last-child{margin-bottom:0}
+.brief p strong{color:var(--ink); font-weight:600}
+.brief__foot{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  padding:12px 20px; border-top:1px solid var(--line-soft); background:var(--surface-2);
+  border-radius:0 0 7px 7px;
+}
+.react{
+  display:inline-flex; align-items:center; gap:5px; cursor:pointer;
+  background:var(--surface); border:1px solid var(--line); color:var(--ink-2);
+  border-radius:20px; padding:3px 10px; font-size:12px; font-family:var(--sans);
+}
+.react:hover{border-color:var(--brass-line); color:var(--ink)}
+.react[aria-pressed="true"]{background:var(--brass-soft); border-color:var(--brass-line); color:var(--brass)}
+.react .n{font-family:var(--mono); font-size:11px}
+.thread{display:flex; flex-direction:column; gap:11px; padding:14px 20px 16px; border-top:1px solid var(--line-soft)}
+.msg{display:flex; gap:10px; align-items:flex-start}
+.dot{
+  width:24px; height:24px; border-radius:50%; flex:none; margin-top:1px;
+  display:grid; place-items:center; font-size:10.5px; font-weight:700; color:var(--bg);
+}
+.msg__b{font-size:13.5px; color:var(--ink-2); line-height:1.5}
+.msg__b b{color:var(--ink); font-weight:600; font-size:13px; margin-right:7px}
+.msg__b time{color:var(--ink-3); font-size:11px}
+
+/* ============ sealed ============ */
+.sealed{
+  border:1px dashed var(--brass-line); border-radius:8px; background:var(--brass-soft);
+  padding:16px 18px; display:flex; gap:14px; align-items:center;
+}
+.sealed__icon{
+  width:34px; height:34px; border-radius:50%; flex:none; display:grid; place-items:center;
+  border:1px dashed var(--brass-line); color:var(--brass);
+}
+.sealed__t{font-size:13.5px; color:var(--ink); font-weight:600; margin-bottom:3px}
+.sealed__d{font-size:12.5px; color:var(--ink-2)}
+.sealed__d span{font-family:var(--mono); color:var(--brass)}
+
+.journal{padding:18px 20px; font-family:var(--serif)}
+.journal blockquote{
+  margin:0; font-size:16px; line-height:1.62; color:var(--ink-2); max-width:62ch;
+}
+.journal cite{
+  display:block; margin-top:12px; font-style:normal;
+  font-family:var(--mono); font-size:11px; letter-spacing:.05em; color:var(--ink-3);
+}
+
+/* ============ tables ============ */
+.scroll{overflow-x:auto}
+table{width:100%; border-collapse:collapse; font-size:13px; min-width:520px}
+th{
+  text-align:right; padding:0 16px 9px; font-size:9.5px; font-weight:600;
+  letter-spacing:.11em; text-transform:uppercase; color:var(--ink-3);
+  border-bottom:1px solid var(--line-soft); white-space:nowrap;
+}
+th:first-child, td:first-child{text-align:left}
+td{padding:11px 16px; text-align:right; border-bottom:1px solid var(--line-soft); white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--surface-2)}
+.sym{display:flex; align-items:center; gap:9px}
+.sym__t{font-family:var(--mono); font-size:13px; font-weight:600; letter-spacing:.01em}
+.sym__n{font-size:11px; color:var(--ink-3); margin-top:1px}
+.kind{
+  font-size:8.5px; font-weight:700; letter-spacing:.08em; padding:2px 4px; border-radius:3px;
+  border:1px solid var(--line); color:var(--ink-3);
+}
+.stale{color:var(--ink-3)}
+.stale em{font-style:normal; font-size:10px; letter-spacing:.06em; text-transform:uppercase}
+.live{display:inline-flex; align-items:center; gap:5px; justify-content:flex-end}
+.live::before{
+  content:""; width:5px; height:5px; border-radius:50%; background:currentColor;
+  animation:breathe 2.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion:reduce){ .live::before{animation:none} }
+
+.wbar{width:70px; height:5px; background:var(--surface-2); border-radius:3px; position:relative; margin-left:auto}
+.wbar i{position:absolute; inset:0 auto 0 0; background:var(--ink-3); border-radius:3px}
+.wbar b{position:absolute; top:-3px; bottom:-3px; width:1px; background:var(--brass); left:83.3%}
+.wbar.near i{background:var(--brass)}
+
+tr.pending td{background:var(--brass-soft)}
+tr.pending td:first-child{box-shadow:inset 2px 0 0 var(--brass-line)}
+.atopen{font-family:var(--mono); font-size:11.5px; color:var(--brass); letter-spacing:.02em}
+
+/* ============ leaderboard ============ */
+.lb{display:flex; flex-direction:column}
+.lb__row{
+  display:grid; grid-template-columns:16px 1fr auto; gap:11px; align-items:center;
+  padding:11px 16px; border-bottom:1px solid var(--line-soft);
+}
+.lb__row:last-child{border-bottom:0}
+.lb__row.me{background:var(--brass-soft)}
+.lb__rank{font-family:var(--mono); font-size:11px; color:var(--ink-3); text-align:right}
+.lb__name{display:flex; align-items:center; gap:7px; font-size:13.5px; font-weight:600; min-width:0}
+.lb__name .crown{color:var(--brass); flex:none}
+.lb__track{height:3px; background:var(--surface-2); border-radius:2px; margin-top:6px; position:relative}
+.lb__track i{position:absolute; top:0; bottom:0; border-radius:2px}
+.lb__nums{text-align:right}
+.lb__pct{font-family:var(--mono); font-variant-numeric:tabular-nums; font-size:15px; font-weight:600}
+.lb__alt{font-family:var(--mono); font-size:10.5px; color:var(--ink-3); margin-top:2px}
+
+/* ============ ticket ============ */
+.ticket{display:flex; flex-direction:column; gap:13px; padding:16px}
+.side{display:grid; grid-template-columns:1fr 1fr; gap:2px; background:var(--surface-2); padding:2px; border-radius:6px}
+.side button{
+  background:none; border:0; cursor:pointer; padding:8px; border-radius:4px;
+  font-family:var(--sans); font-size:12px; font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+.side button[aria-pressed="true"]{background:var(--surface); color:var(--gain); box-shadow:0 1px 2px rgba(0,0,0,.18)}
+.side button[aria-pressed="true"].sell{color:var(--loss)}
+.field{display:flex; flex-direction:column; gap:6px}
+.field input{
+  background:var(--surface-2); border:1px solid var(--line); color:var(--ink);
+  border-radius:6px; padding:9px 11px; font-family:var(--mono); font-size:14px; width:100%;
+}
+.field input::placeholder{color:var(--ink-3)}
+.est{display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink-2); padding-top:2px}
+.est b{font-family:var(--mono); font-variant-numeric:tabular-nums; color:var(--ink); font-weight:600}
+.notice{
+  display:flex; gap:9px; font-size:12px; line-height:1.5; color:var(--ink-2);
+  background:var(--brass-soft); border:1px dashed var(--brass-line);
+  padding:10px 12px; border-radius:6px;
+}
+.notice b{color:var(--brass); font-weight:600}
+.submit{
+  background:var(--brass); color:#12161B; border:0; border-radius:6px; cursor:pointer;
+  padding:11px; font-family:var(--sans); font-size:13px; font-weight:700; letter-spacing:.04em;
+}
+.submit:hover{filter:brightness(1.08)}
+:root[data-theme="light"] .submit{color:#FFF}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]) .submit{color:#FFF} }
+
+/* ============ clock card ============ */
+.clock{display:flex; flex-direction:column}
+.clock__row{display:flex; align-items:center; gap:11px; padding:12px 16px; border-bottom:1px solid var(--line-soft)}
+.clock__row:last-child{border-bottom:0}
+.clock__k{font-size:13px; font-weight:600}
+.clock__v{margin-left:auto; text-align:right}
+.pill{
+  display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:600;
+  letter-spacing:.05em; text-transform:uppercase; padding:3px 9px; border-radius:20px;
+  border:1px solid var(--line); color:var(--ink-3);
+}
+.pill.on{color:var(--gain); border-color:color-mix(in srgb, var(--gain) 40%, transparent); background:color-mix(in srgb, var(--gain) 10%, transparent)}
+.pill.off{color:var(--ink-3)}
+.clock__sub{font-size:11px; color:var(--ink-3); margin-top:3px; font-family:var(--mono)}
+
+/* ============ research desk ============ */
+.res{display:flex; flex-direction:column}
+.res__grp{padding:14px 16px 5px}
+.reslink{
+  display:flex; align-items:center; gap:12px; padding:9px 16px 10px;
+  border-bottom:1px solid var(--line-soft); text-decoration:none; color:inherit;
+}
+.reslink:last-of-type{border-bottom:0}
+.reslink:hover{background:var(--surface-2)}
+.reslink__t{font-size:13px; font-weight:600; color:var(--ink)}
+.reslink__d{font-size:11.5px; color:var(--ink-3); line-height:1.45; margin-top:2px; max-width:44ch}
+.reslink__a{margin-left:auto; flex:none; color:var(--ink-3); transition:transform .15s ease, color .15s ease}
+.reslink:hover .reslink__a{color:var(--brass); transform:translate(2px,-2px)}
+.res__foot{
+  padding:13px 16px; border-top:1px solid var(--line-soft); background:var(--surface-2);
+  font-size:11.5px; color:var(--ink-2); line-height:1.55; border-radius:0 0 7px 7px;
+}
+.res__foot b{color:var(--ink); font-weight:600}
+
+.digs{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  padding:13px 20px; border-top:1px solid var(--line-soft);
+}
+.digs .label{margin-right:2px}
+.dig{
+  display:inline-flex; align-items:center; gap:6px; text-decoration:none;
+  font-family:var(--sans); font-size:12px; color:var(--ink-2);
+  border:1px solid var(--line); border-radius:20px; padding:4px 11px;
+}
+.dig:hover{border-color:var(--brass-line); color:var(--brass); background:var(--brass-soft)}
+.dig svg{flex:none; opacity:.65}
+
+a.sym__t{color:var(--ink); text-decoration:none}
+a.sym__t:hover{color:var(--brass); text-decoration:underline; text-underline-offset:2px}
+a.sym__t::after{content:"↗"; font-size:9px; margin-left:3px; opacity:0; transition:opacity .12s ease}
+tr:hover a.sym__t::after, a.sym__t:focus-visible::after{opacity:.65}
+@media (prefers-reduced-motion:reduce){
+  .reslink__a, a.sym__t::after{transition:none}
+}
+
+/* ============ footer ============ */
+.notes{border-top:1px solid var(--line); padding:26px 0 48px}
+.notes h4{font-family:var(--serif); font-size:16px; margin:0 0 12px; font-weight:600}
+.notes ul{margin:0; padding-left:18px; display:flex; flex-direction:column; gap:8px}
+.notes li{font-size:13.5px; color:var(--ink-2); line-height:1.55; max-width:76ch}
+.notes b{color:var(--ink); font-weight:600}
+
+/* ============ svg chart classes ============ */
+.grid{stroke:var(--line-soft); stroke-width:1}
+.zero{stroke:var(--line); stroke-width:1; stroke-dasharray:2 3}
+.axis{fill:var(--ink-3); font-family:var(--mono); font-size:10px; letter-spacing:.03em}
+.curve{fill:none; stroke-width:1.5; stroke-linejoin:round; stroke-linecap:round}
+.curve.me{stroke-width:2.5}
+.curve.ai{stroke-dasharray:4 3}
+.c1{stroke:var(--p1)} .c2{stroke:var(--p2)} .c3{stroke:var(--p3)} .c4{stroke:var(--p4)} .cai{stroke:var(--pai)}
+.f1{fill:var(--p1)} .f2{fill:var(--p2)} .f3{fill:var(--p3)} .f4{fill:var(--p4)} .fai{fill:var(--pai)}
+.endcap{stroke:var(--surface); stroke-width:1.5}
+#gradArea stop{stop-color:var(--brass)}
+.hatchline{stroke:var(--line); stroke-width:1}
+.bellline{stroke:var(--brass); stroke-width:1; stroke-dasharray:3 3; opacity:.8}
+.belltag{fill:var(--brass); font-family:var(--mono); font-size:9px; letter-spacing:.11em}
+</style>
+
+<header class="topbar">
+  <div class="wrap topbar__in">
+    <div class="mark">
+      <span class="mark__name"><span class="mark__the">The</span> <b>Portfolio</b></span>
+      <span class="chip">Sample data</span>
+    </div>
+    <div class="bell">
+      <span class="bell__dot"></span>
+      <span class="bell__txt">
+        <small id="bellLabel">Next fill</small>
+        <span class="bell__time" id="bellTime">—</span>
+      </span>
+    </div>
+    <button class="iconbtn" id="themeBtn" title="Switch theme" aria-label="Switch theme">◐</button>
+    <div class="avatar" title="Patrick">PB</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ hero ============ -->
+  <section class="hero">
+    <div class="stats">
+      <div class="stat stat--lead">
+        <div class="label stat__k">Portfolio</div>
+        <div class="stat__v">$118,624</div>
+        <div class="stat__sub">Cash $14,236 · 5 positions</div>
+      </div>
+      <div class="stat stat--head">
+        <div class="label stat__k">30-day return</div>
+        <div class="stat__v up">+4.20%</div>
+        <div class="stat__sub">3rd of 5 this month</div>
+      </div>
+      <div class="stat">
+        <div class="label stat__k">All time</div>
+        <div class="stat__v up">+18.62%</div>
+        <div class="stat__sub">Since 4 Feb 2026</div>
+      </div>
+      <div class="stat">
+        <div class="label stat__k">Weekend move</div>
+        <div class="stat__v up">+$742</div>
+        <div class="stat__sub">Crypto only — equities closed</div>
+      </div>
+    </div>
+
+    <div class="card chartcard">
+      <div class="chartcard__top">
+        <span class="label">Return since inception</span>
+        <div class="seg" role="group" aria-label="Chart range">
+          <button data-range="30" aria-pressed="false">1M</button>
+          <button data-range="90" aria-pressed="false">3M</button>
+          <button data-range="0" aria-pressed="true">All</button>
+        </div>
+      </div>
+      <svg id="chart" role="img" aria-label="Equity curves for five players since February 2026. Maya leads at plus 21.6 percent, MERIDIAN at plus 24.8 percent, Patrick at plus 18.6 percent."></svg>
+      <div class="legend" id="legend"></div>
+    </div>
+  </section>
+
+  <div class="cols">
+    <!-- ============ main column ============ -->
+    <div class="col">
+
+      <!-- brief -->
+      <section class="card brief">
+        <div class="sec__head">
+          <span class="label">The brief · Saturday edition</span>
+          <span class="chip">15 Aug, 5:30 pm ET</span>
+        </div>
+        <div class="brief__body">
+          <h3>A flat week that didn't feel flat, and one earnings call that owns next week</h3>
+          <p><strong>The week that was.</strong> Equities finished roughly where they started, which rather understates how they got there. A soft inflation print on Wednesday lifted the index almost a full percent before Friday handed most of it back on thin August volume. Nothing broke; nothing resolved.</p>
+          <p><strong>While you were away.</strong> Bitcoin does not observe weekends. It is up 3.1% since Friday's close on continued ETF inflows, and three of you are holding it. Those marks are live on your dashboard right now — but nothing settles until Monday's bell.</p>
+          <p><strong>Worth knowing.</strong> Nvidia reports Thursday and is the only item on next week's calendar capable of moving the whole tape. Costco's August comps land Wednesday. Jackson Hole runs Thursday through Saturday, historically a richer source of noise than signal.</p>
+        </div>
+        <div class="digs">
+          <span class="label">Go and check</span>
+          <a class="dig" href="https://stockanalysis.com/stocks/nvda/" target="_blank" rel="noopener noreferrer">NVDA numbers <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.4 7.6L7.6 2.4M3.6 2.4h4v4"/></svg></a>
+          <a class="dig" href="https://stockanalysis.com/stocks/cost/" target="_blank" rel="noopener noreferrer">Costco comps <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.4 7.6L7.6 2.4M3.6 2.4h4v4"/></svg></a>
+          <a class="dig" href="https://fred.stlouisfed.org/series/CPIAUCSL" target="_blank" rel="noopener noreferrer">The CPI print <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.4 7.6L7.6 2.4M3.6 2.4h4v4"/></svg></a>
+          <a class="dig" href="https://www.federalreserve.gov/newsevents/calendar.htm" target="_blank" rel="noopener noreferrer">Fed calendar <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.4 7.6L7.6 2.4M3.6 2.4h4v4"/></svg></a>
+        </div>
+        <div class="brief__foot">
+          <button class="react" aria-pressed="true"><span>👀</span><span class="n">3</span></button>
+          <button class="react" aria-pressed="false"><span>🔥</span><span class="n">1</span></button>
+          <button class="react" aria-pressed="false"><span>😬</span><span class="n">2</span></button>
+        </div>
+        <div class="thread">
+          <div class="msg">
+            <span class="dot" style="background:var(--p2)">M</span>
+            <span class="msg__b"><b>Maya</b><time>6:12 pm</time><br>Selling before Nvidia prints. I have learned my lesson.</span>
+          </div>
+          <div class="msg">
+            <span class="dot" style="background:var(--p3)">R</span>
+            <span class="msg__b"><b>Rohan</b><time>6:20 pm</time><br>You said that in May.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI, sealed -->
+      <section class="card">
+        <div class="sec__head">
+          <span class="label">MERIDIAN's journal</span>
+          <span class="chip">AI player</span>
+        </div>
+        <div class="sec__body" style="padding-bottom:0">
+          <div class="sealed">
+            <span class="sealed__icon" aria-hidden="true">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V4.8a2.5 2.5 0 0 1 5 0V7"/>
+              </svg>
+            </span>
+            <span>
+              <span class="sealed__t">Monday's orders are sealed</span>
+              <span class="sealed__d">MERIDIAN has submitted. Its reasoning unseals at the bell — <span id="sealCountdown">—</span></span>
+            </span>
+          </div>
+        </div>
+        <div class="journal">
+          <blockquote>I trimmed Nvidia from 26% of the book to 19%. Not on a view about the print — I don't have one worth acting on — but because a single name at a quarter of the portfolio turns the next four weeks into a referendum on one earnings call. I would rather be less right and less wrong. The proceeds sit in cash. I looked for somewhere to put them and found nothing I liked enough to own into a Fed week.</blockquote>
+          <cite>MERIDIAN — published at Friday's open</cite>
+        </div>
+        <div class="brief__foot">
+          <button class="react" aria-pressed="false"><span>🤖</span><span class="n">4</span></button>
+          <button class="react" aria-pressed="true"><span>😤</span><span class="n">2</span></button>
+        </div>
+        <div class="thread">
+          <div class="msg">
+            <span class="dot" style="background:var(--p4)">N</span>
+            <span class="msg__b"><b>Nadia</b><time>Fri, 9:41 am</time><br>It is so smug about being risk-averse.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- positions -->
+      <section class="card">
+        <div class="sec__head">
+          <span class="label">Positions</span>
+          <span class="chip">Weight cap 25%</span>
+        </div>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr><th>Asset</th><th>Last</th><th>Change</th><th>Qty</th><th>Value</th><th>Weight</th><th>P&amp;L</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="sym"><span><a class="sym__t" href="https://stockanalysis.com/stocks/nvda/" target="_blank" rel="noopener noreferrer">NVDA</a><span class="sym__n">NVIDIA</span></span></span></td>
+                <td class="num">212.44</td>
+                <td class="num stale">+1.12% <em>Fri</em></td>
+                <td class="num">134</td>
+                <td class="num">28,467</td>
+                <td><span class="wbar near" title="24.1% of portfolio"><i style="width:80.3%"></i><b></b></span></td>
+                <td class="num up">+3,918</td>
+              </tr>
+              <tr>
+                <td><span class="sym"><span><a class="sym__t" href="https://stockanalysis.com/etf/voo/" target="_blank" rel="noopener noreferrer">VOO</a><span class="sym__n">Vanguard S&amp;P 500</span></span></span></td>
+                <td class="num">648.10</td>
+                <td class="num stale">−0.28% <em>Fri</em></td>
+                <td class="num">41</td>
+                <td class="num">26,572</td>
+                <td><span class="wbar" title="22.4% of portfolio"><i style="width:74.7%"></i><b></b></span></td>
+                <td class="num up">+1,204</td>
+              </tr>
+              <tr>
+                <td><span class="sym"><span><a class="sym__t" href="https://www.coingecko.com/en/coins/bitcoin" target="_blank" rel="noopener noreferrer">BTC</a><span class="sym__n">Bitcoin</span></span><span class="kind">CRYPTO</span></span></td>
+                <td class="num">118,412</td>
+                <td class="num up"><span class="live">+3.11%</span></td>
+                <td class="num">0.1834</td>
+                <td class="num">21,717</td>
+                <td><span class="wbar" title="18.3% of portfolio"><i style="width:61%"></i><b></b></span></td>
+                <td class="num up">+2,640</td>
+              </tr>
+              <tr>
+                <td><span class="sym"><span><a class="sym__t" href="https://stockanalysis.com/stocks/cost/" target="_blank" rel="noopener noreferrer">COST</a><span class="sym__n">Costco</span></span></span></td>
+                <td class="num">1,040.20</td>
+                <td class="num stale">+0.44% <em>Fri</em></td>
+                <td class="num">16</td>
+                <td class="num">16,643</td>
+                <td><span class="wbar" title="14.0% of portfolio"><i style="width:46.7%"></i><b></b></span></td>
+                <td class="num down">−312</td>
+              </tr>
+              <tr>
+                <td><span class="sym"><span><a class="sym__t" href="https://www.coingecko.com/en/coins/ethereum" target="_blank" rel="noopener noreferrer">ETH</a><span class="sym__n">Ethereum</span></span><span class="kind">CRYPTO</span></span></td>
+                <td class="num">4,281.60</td>
+                <td class="num down"><span class="live">−0.86%</span></td>
+                <td class="num">2.5600</td>
+                <td class="num">10,961</td>
+                <td><span class="wbar" title="9.2% of portfolio"><i style="width:30.7%"></i><b></b></span></td>
+                <td class="num up">+588</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- sealed orders -->
+      <section class="card">
+        <div class="sec__head">
+          <span class="label">Your queued orders</span>
+          <span class="chip" id="queueChip">Fills Monday 9:30 am</span>
+        </div>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr><th>Order</th><th>Qty</th><th>Fill price</th><th>Est. value</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr class="pending">
+                <td><span class="sym"><span class="sym__t" style="color:var(--gain)">BUY</span><a class="sym__t" href="https://stockanalysis.com/stocks/amd/" target="_blank" rel="noopener noreferrer">AMD</a></span></td>
+                <td class="num">12</td>
+                <td><span class="atopen">at open</span></td>
+                <td class="num stale">~2,148</td>
+                <td><span class="chip" style="border-style:dashed; border-color:var(--brass-line); color:var(--brass)">Sealed</span></td>
+              </tr>
+              <tr class="pending">
+                <td><span class="sym"><span class="sym__t" style="color:var(--loss)">SELL</span><a class="sym__t" href="https://www.coingecko.com/en/coins/bitcoin" target="_blank" rel="noopener noreferrer">BTC</a></span></td>
+                <td class="num">0.0500</td>
+                <td><span class="atopen">at open</span></td>
+                <td class="num stale">~5,921</td>
+                <td><span class="chip" style="border-style:dashed; border-color:var(--brass-line); color:var(--brass)">Sealed</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ rail ============ -->
+    <aside class="col rail">
+
+      <section class="card clock">
+        <div class="sec__head"><span class="label">Market clock</span></div>
+        <div class="clock__row">
+          <span class="clock__k">US equities</span>
+          <span class="clock__v"><span class="pill off" id="eqPill">Closed</span><span class="clock__sub" id="eqSub">—</span></span>
+        </div>
+        <div class="clock__row">
+          <span class="clock__k">Crypto</span>
+          <span class="clock__v"><span class="pill on">Trading</span><span class="clock__sub">settles with equities</span></span>
+        </div>
+        <div class="clock__row">
+          <span class="clock__k">Next settlement</span>
+          <span class="clock__v"><span class="num" style="font-size:14px; color:var(--brass); font-weight:600" id="settleTime">—</span><span class="clock__sub" id="settleDate">—</span></span>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="sec__head">
+          <span class="label">Leaderboard</span>
+          <span class="chip">30 days</span>
+        </div>
+        <div class="lb">
+          <div class="lb__row">
+            <span class="lb__rank">1</span>
+            <span>
+              <span class="lb__name">
+                <svg class="crown" width="11" height="11" viewBox="0 0 12 12" fill="currentColor" aria-label="Monthly champion"><path d="M1 3.6l2.4 2L6 1.6l2.6 4 2.4-2-1 6.2H2z"/></svg>
+                Maya
+              </span>
+              <span class="lb__track"><i style="width:100%; background:var(--p2)"></i></span>
+            </span>
+            <span class="lb__nums"><span class="lb__pct up">+8.4%</span><span class="lb__alt">+21.6% all</span></span>
+          </div>
+          <div class="lb__row">
+            <span class="lb__rank">2</span>
+            <span>
+              <span class="lb__name">MERIDIAN <span class="chip">AI</span></span>
+              <span class="lb__track"><i style="width:73%; background:var(--pai)"></i></span>
+            </span>
+            <span class="lb__nums"><span class="lb__pct up">+6.1%</span><span class="lb__alt">+24.8% all</span></span>
+          </div>
+          <div class="lb__row me">
+            <span class="lb__rank">3</span>
+            <span>
+              <span class="lb__name">Patrick <span class="chip" style="color:var(--brass); border-color:var(--brass-line)">You</span></span>
+              <span class="lb__track"><i style="width:50%; background:var(--p1)"></i></span>
+            </span>
+            <span class="lb__nums"><span class="lb__pct up">+4.2%</span><span class="lb__alt">+18.6% all</span></span>
+          </div>
+          <div class="lb__row">
+            <span class="lb__rank">4</span>
+            <span>
+              <span class="lb__name">Rohan</span>
+              <span class="lb__track"><i style="width:23%; background:var(--p3)"></i></span>
+            </span>
+            <span class="lb__nums"><span class="lb__pct up">+1.9%</span><span class="lb__alt">+6.2% all</span></span>
+          </div>
+          <div class="lb__row">
+            <span class="lb__rank">5</span>
+            <span>
+              <span class="lb__name">Nadia</span>
+              <span class="lb__track"><i style="width:27%; background:var(--loss)"></i></span>
+            </span>
+            <span class="lb__nums"><span class="lb__pct down">−2.3%</span><span class="lb__alt">+9.4% all</span></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="sec__head"><span class="label">New order</span></div>
+        <div class="ticket">
+          <div class="side" role="group" aria-label="Order side">
+            <button aria-pressed="true">Buy</button>
+            <button class="sell" aria-pressed="false">Sell</button>
+          </div>
+          <div class="field">
+            <label class="label" for="f-sym">Symbol</label>
+            <input id="f-sym" value="VOO" spellcheck="false">
+          </div>
+          <div class="field">
+            <label class="label" for="f-qty">Quantity</label>
+            <input id="f-qty" value="8" inputmode="decimal">
+          </div>
+          <div class="est"><span>Estimated at Friday's close</span><b>$5,184.80</b></div>
+          <div class="est"><span>Weight after fill</span><b>26.8%</b></div>
+          <div class="notice">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex:none; margin-top:1px; color:var(--brass)"><circle cx="8" cy="8" r="6.3"/><path d="M8 5.2v3.4M8 11h.01"/></svg>
+            <span><b>Fills at Monday's open.</b> You won't know your price until the bell, and nobody sees this order until it executes.</span>
+          </div>
+          <button class="submit">Queue order</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="sec__head">
+          <span class="label">Research desk</span>
+          <span class="chip">All free</span>
+        </div>
+        <div class="res">
+
+          <div class="res__grp"><span class="label">Start here</span></div>
+          <a class="reslink" href="https://www.investor.gov/" target="_blank" rel="noopener noreferrer">
+            <span>
+              <span class="reslink__t">Investor.gov</span>
+              <span class="reslink__d">The SEC's own plain-English basics. Start here if "P/E ratio" means nothing to you yet.</span>
+            </span>
+            <svg class="reslink__a" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9L9 3M4.4 3H9v4.6"/></svg>
+          </a>
+          <a class="reslink" href="https://stockanalysis.com/" target="_blank" rel="noopener noreferrer">
+            <span>
+              <span class="reslink__t">StockAnalysis</span>
+              <span class="reslink__d">Every number about a company on one clean page. No account, no paywall.</span>
+            </span>
+            <svg class="reslink__a" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9L9 3M4.4 3H9v4.6"/></svg>
+          </a>
+
+          <div class="res__grp"><span class="label">Company research</span></div>
+          <a class="reslink" href="https://www.sec.gov/edgar/search/" target="_blank" rel="noopener noreferrer">
+            <span>
+              <span class="reslink__t">SEC EDGAR</span>
+              <span class="reslink__d">The filings themselves — every 10-K and 10-Q, before anyone summarised it for you.</span>
+            </span>
+            <svg class="reslink__a" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9L9 3M4.4 3H9v4.6"/></svg>
+          </a>
+          <a class="reslink" href="https://finviz.com/" target="_blank" rel="noopener noreferrer">
+            <span>
+              <span class="reslink__t">Finviz</span>
+              <span class="reslink__d">Screener for finding things, and a one-glance snapshot of any ticker.</span>
+            </span>
+            <svg class="reslink__a" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9L9 3M4.4 3H9v4.6"/></svg>
+          </a>
+          <a class="reslink" href="https://finance.yahoo.com/" target="_blank" rel="noopener noreferrer">
+            <span>
+              <span class="reslink__t">Yahoo Finance</span>
+              <span class="reslink__d">Quotes, headlines and the earnings calendar in one place.</span>
+            </span>
+            <svg class="reslink__a" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9L9 3M4.4 3H9v4.6"/></svg>
+          </a>
+
+          <div class="res__grp"><span class="label">Crypto</span></div>
+          <a class="reslink" href="https://www.coingecko.com/" target="_blank" rel="noopener noreferrer">
+            <span>
+              <span class="reslink__t">CoinGecko</span>
+              <span class="reslink__d">Prices, supply, and where the volume actually is.</span>
+            </span>
+            <svg class="reslink__a" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9L9 3M4.4 3H9v4.6"/></svg>
+          </a>
+          <a class="reslink" href="https://messari.io/" target="_blank" rel="noopener noreferrer">
+            <span>
+              <span class="reslink__t">Messari</span>
+              <span class="reslink__d">Written research on the major protocols, for when the chart isn't the argument.</span>
+            </span>
+            <svg class="reslink__a" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9L9 3M4.4 3H9v4.6"/></svg>
+          </a>
+
+          <div class="res__grp"><span class="label">The wider picture</span></div>
+          <a class="reslink" href="https://fred.stlouisfed.org/" target="_blank" rel="noopener noreferrer">
+            <span>
+              <span class="reslink__t">FRED</span>
+              <span class="reslink__d">The actual economic data — inflation, rates, employment — free from the St. Louis Fed.</span>
+            </span>
+            <svg class="reslink__a" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9L9 3M4.4 3H9v4.6"/></svg>
+          </a>
+          <a class="reslink" href="https://tradingeconomics.com/calendar" target="_blank" rel="noopener noreferrer">
+            <span>
+              <span class="reslink__t">Economic calendar</span>
+              <span class="reslink__d">What's scheduled this week, and what the consensus already expects.</span>
+            </span>
+            <svg class="reslink__a" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9L9 3M4.4 3H9v4.6"/></svg>
+          </a>
+          <a class="reslink" href="https://www.reuters.com/markets/" target="_blank" rel="noopener noreferrer">
+            <span>
+              <span class="reslink__t">Reuters Markets</span>
+              <span class="reslink__d">Wire-service coverage. Facts arrive here before the opinions do.</span>
+            </span>
+            <svg class="reslink__a" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9L9 3M4.4 3H9v4.6"/></svg>
+          </a>
+
+        </div>
+        <div class="res__foot">
+          <b>MERIDIAN reads the same list.</b> The AI player gets no source you don't, and sees nothing that isn't here — same brief, same links, same 9:30 deadline.
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <section class="notes">
+    <h4>What to look at</h4>
+    <ul>
+      <li><b>The bell line.</b> Every curve stops at a dashed brass rule with the day beyond it hatched out. The chart says what the game is: nothing is settled until tomorrow's open. The countdown in the header is live and computes the real next open in Eastern time, skipping weekends and market holidays.</li>
+      <li><b>MERIDIAN is drawn, not labelled.</b> The AI's equity curve is the dashed grey line — non-human is readable from form before you reach the legend. Its journal shows both states at once: Monday's orders sealed, Friday's reasoning published and already being argued with.</li>
+      <li><b>The weekend split.</b> Equity rows show Friday's close, greyed and tagged. Crypto rows show live marks with a pulsing dot. Your position moves all weekend; you still can't act until Monday.</li>
+      <li><b>30-day is the headline.</b> All-time sits underneath it in both the stat strip and the leaderboard, so a family member down over the year can still be having the best month.</li>
+      <li><b>The 25% cap is shown, not just enforced.</b> Each weight bar carries a brass tick at the cap — NVDA sits just under it. The order ticket surfaces post-fill weight before you commit.</li>
+      <li><b>Research sits in two places, on purpose.</b> The standing list lives in the rail, but the links that matter are the ones under the brief — you get curious about Nvidia while reading about Nvidia, not an hour later. Every ticker in your positions is itself a link out. All ten sources are free and none need an account.</li>
+      <li><b>The research list is also the fairness rule.</b> MERIDIAN reads exactly this list and nothing else. If the AI had a data feed the family didn't, the game would be theatre — so the sources are published rather than implied.</li>
+      <li><b>Both themes are built.</b> The toggle beside your avatar switches them; left alone, the page follows the system setting.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- theme ---------- */
+  var btn = document.getElementById('themeBtn');
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.getAttribute('data-theme');
+    if(!cur){
+      var dark = !window.matchMedia('(prefers-color-scheme: light)').matches;
+      cur = dark ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+    draw();
+  });
+
+  /* ---------- market clock (real, Eastern time) ---------- */
+  var HOLIDAYS = {
+    '2026-01-01':1,'2026-01-19':1,'2026-02-16':1,'2026-04-03':1,'2026-05-25':1,
+    '2026-06-19':1,'2026-07-03':1,'2026-09-07':1,'2026-11-26':1,'2026-12-25':1,
+    '2027-01-01':1,'2027-01-18':1,'2027-02-15':1,'2027-03-26':1,'2027-05-31':1,
+    '2027-06-18':1,'2027-07-05':1,'2027-09-06':1,'2027-11-25':1,'2027-12-24':1
+  };
+  var ETF = new Intl.DateTimeFormat('en-CA', {
+    timeZone:'America/New_York', hourCycle:'h23', weekday:'short',
+    year:'numeric', month:'2-digit', day:'2-digit',
+    hour:'2-digit', minute:'2-digit', second:'2-digit'
+  });
+  function et(d){
+    var o = {}, parts = ETF.formatToParts(d);
+    for(var i=0;i<parts.length;i++) if(parts[i].type!=='literal') o[parts[i].type]=parts[i].value;
+    o.key = o.year+'-'+o.month+'-'+o.day;
+    return o;
+  }
+  function offset(d){
+    var o = et(d);
+    return Date.UTC(+o.year, +o.month-1, +o.day, +o.hour, +o.minute, +o.second) - Math.floor(d.getTime()/1000)*1000;
+  }
+  function instantFor(y, m, d, h, mi){
+    var naive = Date.UTC(y, m-1, d, h, mi, 0);
+    var t = new Date(naive - offset(new Date(naive)));
+    return new Date(naive - offset(t));
+  }
+  function tradingDay(o){ return o.weekday!=='Sat' && o.weekday!=='Sun' && !HOLIDAYS[o.key]; }
+
+  function nextOpen(now){
+    var o = et(now), y = +o.year, m = +o.month, d = +o.day;
+    for(var i=0;i<12;i++){
+      var cand = instantFor(y, m, d, 9, 30);
+      var co = et(cand);
+      if(tradingDay(co) && cand.getTime() > now.getTime()) return cand;
+      var nx = new Date(Date.UTC(y, m-1, d) + 864e5);
+      y = nx.getUTCFullYear(); m = nx.getUTCMonth()+1; d = nx.getUTCDate();
+    }
+    return null;
+  }
+  function marketOpen(now){
+    var o = et(now);
+    if(!tradingDay(o)) return false;
+    var mins = +o.hour*60 + +o.minute;
+    return mins >= 570 && mins < 960;
+  }
+  function span(ms){
+    var s = Math.max(0, Math.floor(ms/1000));
+    var h = Math.floor(s/3600), mi = Math.floor(s%3600/60), sec = s%60;
+    function p(n){ return (n<10?'0':'')+n; }
+    return h + 'h ' + p(mi) + 'm ' + p(sec) + 's';
+  }
+  var DAYNAME = {Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday'};
+  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function tickClock(){
+    var now = new Date();
+    var open = nextOpen(now);
+    if(!open) return;
+    var oo = et(open);
+    var day = DAYNAME[oo.weekday] || oo.weekday;
+    var live = marketOpen(now);
+
+    document.getElementById('bellLabel').textContent = live ? 'Market open' : 'Next fill';
+    document.getElementById('bellTime').textContent = span(open - now);
+    document.getElementById('sealCountdown').textContent = 'in ' + span(open - now);
+    document.getElementById('queueChip').textContent = 'Fills ' + day + ' 9:30 am';
+
+    var pill = document.getElementById('eqPill');
+    pill.textContent = live ? 'Open' : 'Closed';
+    pill.className = 'pill ' + (live ? 'on' : 'off');
+    document.getElementById('eqSub').textContent = live ? 'closes 4:00 pm ET' : (oo.weekday==='Sat'||oo.weekday==='Sun' ? 'weekend' : 'after hours');
+
+    document.getElementById('settleTime').textContent = span(open - now);
+    document.getElementById('settleDate').textContent = day + ' ' + (+oo.day) + ' ' + MONTHS[+oo.month-1] + ', 9:30 ET';
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  /* ---------- series ---------- */
+  function rng(seed){ return function(){
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    var t = Math.imul(seed ^ seed>>>15, 1 | seed);
+    t = t + Math.imul(t ^ t>>>7, 61 | t) ^ t;
+    return ((t ^ t>>>14) >>> 0) / 4294967296;
+  }; }
+
+  var N = 134; // trading days since 4 Feb
+  var PLAYERS = [
+    {name:'Maya',     key:'2',  end:21.6, vol:1.15, seed:11},
+    {name:'MERIDIAN', key:'ai', end:24.8, vol:0.72, seed:23, ai:true},
+    {name:'Patrick',  key:'1',  end:18.6, vol:1.30, seed:37, me:true},
+    {name:'Nadia',    key:'4',  end: 9.4, vol:1.55, seed:53},
+    {name:'Rohan',    key:'3',  end: 6.2, vol:0.95, seed:71}
+  ];
+
+  PLAYERS.forEach(function(p){
+    var r = rng(p.seed), v = 0, raw = [0];
+    for(var i=1;i<N;i++){
+      v += (r() - 0.48) * p.vol * 1.7 + (r() < 0.06 ? (r()-0.5) * p.vol * 5 : 0);
+      raw.push(v);
+    }
+    var drift = (p.end - raw[N-1]) / (N-1);
+    p.series = raw.map(function(x, i){ return x + drift * i; });
+  });
+
+  /* ---------- chart ---------- */
+  var svg = document.getElementById('chart');
+  var NS = 'http://www.w3.org/2000/svg';
+  var range = 0;
+
+  function el(tag, attrs){
+    var n = document.createElementNS(NS, tag);
+    for(var k in attrs) if(attrs[k] != null) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+
+  function draw(){
+    var W = Math.max(320, svg.parentNode.clientWidth - 32);
+    var H = W < 620 ? 216 : 300;
+    var padL = 40, padT = 18, padB = 26, futureW = W < 620 ? 42 : 62;
+    var bellX = W - futureW;
+    var plotW = bellX - padL, plotH = H - padT - padB;
+
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('width', W);
+    svg.setAttribute('height', H);
+
+    var start = range ? Math.max(0, N - range) : 0;
+    var len = N - start;
+
+    var lo = Infinity, hi = -Infinity;
+    PLAYERS.forEach(function(p){
+      for(var i=start;i<N;i++){
+        var v = p.series[i] - (range ? p.series[start] : 0);
+        if(v < lo) lo = v; if(v > hi) hi = v;
+      }
+    });
+    var pad = (hi - lo) * 0.14 || 1;
+    lo -= pad; hi += pad;
+
+    function X(i){ return padL + (i - start) / (len - 1) * plotW; }
+    function Y(v){ return padT + (hi - v) / (hi - lo) * plotH; }
+
+    var defs = el('defs');
+    var grad = el('linearGradient', {id:'gradArea', x1:0, y1:0, x2:0, y2:1});
+    grad.appendChild(el('stop', {offset:'0%', 'stop-opacity':'0.20'}));
+    grad.appendChild(el('stop', {offset:'100%', 'stop-opacity':'0'}));
+    defs.appendChild(grad);
+    var pat = el('pattern', {id:'hatch', width:7, height:7, patternUnits:'userSpaceOnUse', patternTransform:'rotate(45)'});
+    pat.appendChild(el('line', {x1:0, y1:0, x2:0, y2:7, 'class':'hatchline'}));
+    defs.appendChild(pat);
+    svg.appendChild(defs);
+
+    /* gridlines */
+    var step = (hi - lo) > 26 ? 10 : (hi - lo) > 11 ? 5 : 2;
+    for(var g = Math.ceil(lo/step)*step; g <= hi; g += step){
+      var y = Y(g);
+      svg.appendChild(el('line', {x1:padL, y1:y, x2:bellX, y2:y, 'class': g === 0 ? 'zero' : 'grid'}));
+      var t = el('text', {x:padL - 8, y:y + 3.5, 'class':'axis', 'text-anchor':'end'});
+      t.textContent = (g > 0 ? '+' : '') + g + '%';
+      svg.appendChild(t);
+    }
+
+    /* month ticks */
+    var MON = ['Feb','Mar','Apr','May','Jun','Jul','Aug'];
+    var perMonth = N / MON.length;
+    for(var m = 0; m < MON.length; m++){
+      var idx = Math.round(m * perMonth);
+      if(idx < start) continue;
+      var xm = X(idx);
+      if(xm < padL + 6 || xm > bellX - 10) continue;
+      var lt = el('text', {x:xm, y:H - 8, 'class':'axis', 'text-anchor':'middle'});
+      lt.textContent = MON[m];
+      svg.appendChild(lt);
+    }
+
+    /* future zone */
+    svg.appendChild(el('rect', {x:bellX, y:padT, width:futureW - 8, height:plotH, fill:'url(#hatch)', opacity:'0.55'}));
+    svg.appendChild(el('line', {x1:bellX, y1:padT - 8, x2:bellX, y2:padT + plotH, 'class':'bellline'}));
+    var tag = el('text', {x:bellX + 5, y:padT - 4, 'class':'belltag'});
+    tag.textContent = W < 620 ? 'OPEN' : 'NEXT OPEN';
+    svg.appendChild(tag);
+
+    /* curves */
+    PLAYERS.forEach(function(p){
+      var base = range ? p.series[start] : 0;
+      var d = '';
+      for(var i = start; i < N; i++) d += (i === start ? 'M' : 'L') + X(i).toFixed(1) + ' ' + Y(p.series[i] - base).toFixed(1);
+
+      if(p.me){
+        var area = d + 'L' + X(N-1).toFixed(1) + ' ' + (padT + plotH) + 'L' + padL + ' ' + (padT + plotH) + 'Z';
+        svg.appendChild(el('path', {d:area, fill:'url(#gradArea)', stroke:'none'}));
+      }
+      svg.appendChild(el('path', {
+        d: d,
+        'class': 'curve c' + p.key + (p.me ? ' me' : '') + (p.ai ? ' ai' : ''),
+        opacity: p.me ? 1 : 0.72
+      }));
+      svg.appendChild(el('circle', {
+        cx: X(N-1), cy: Y(p.series[N-1] - base), r: p.me ? 4 : 3,
+        'class': 'f' + p.key + ' endcap'
+      }));
+    });
+  }
+
+  /* legend */
+  (function(){
+    var box = document.getElementById('legend');
+    PLAYERS.forEach(function(p){
+      var s = document.createElement('span');
+      s.className = 'leg' + (p.me ? ' leg--me' : '');
+      s.innerHTML = '<svg width="18" height="8" aria-hidden="true">' +
+        '<line x1="0" y1="4" x2="18" y2="4" class="curve c' + p.key + (p.me ? ' me' : '') + (p.ai ? ' ai' : '') + '"/>' +
+        '</svg>' + p.name + (p.me ? ' (you)' : '') + (p.ai ? ' <span class="chip" style="margin-left:2px">AI</span>' : '');
+      box.appendChild(s);
+    });
+  })();
+
+  /* range toggle */
+  Array.prototype.forEach.call(document.querySelectorAll('.seg button'), function(b){
+    b.addEventListener('click', function(){
+      Array.prototype.forEach.call(document.querySelectorAll('.seg button'), function(o){ o.setAttribute('aria-pressed','false'); });
+      b.setAttribute('aria-pressed','true');
+      range = +b.dataset.range;
+      draw();
+    });
+  });
+
+  /* buy / sell toggle */
+  Array.prototype.forEach.call(document.querySelectorAll('.side button'), function(b){
+    b.addEventListener('click', function(){
+      Array.prototype.forEach.call(document.querySelectorAll('.side button'), function(o){ o.setAttribute('aria-pressed','false'); });
+      b.setAttribute('aria-pressed','true');
+    });
+  });
+
+  /* reactions */
+  Array.prototype.forEach.call(document.querySelectorAll('.react'), function(b){
+    b.addEventListener('click', function(){
+      var on = b.getAttribute('aria-pressed') === 'true';
+      var n = b.querySelector('.n');
+      b.setAttribute('aria-pressed', on ? 'false' : 'true');
+      n.textContent = +n.textContent + (on ? -1 : 1);
+    });
+  });
+
+  draw();
+  var rt;
+  window.addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(draw, 120); });
+})();
+</script>
