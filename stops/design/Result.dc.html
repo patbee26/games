@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #0B0C0D; color: #ECEAE6; font-family: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #E8A33D; text-decoration: none; } a:hover { color: #F2BC6B; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+    .lab { text-transform: uppercase; letter-spacing: 0.15em; font-size: 10px; font-weight: 600; color: #71777E; }
+    .tick { width: 1px; height: 7px; background: #2E3237; }
+    .tickL { width: 1px; height: 13px; background: #454A50; }
+    .big { font-size: 34px; font-weight: 500; color: #F2F0EC; letter-spacing: -0.01em; line-height: 1 }
+  </style>
+</helmet>
+
+<div style="width: 390px; height: 844px; background: #0B0C0D; display: flex; flex-direction: column; overflow: hidden">
+
+  <div style="display: flex; align-items: center; gap: 12px; padding: 26px 18px 0">
+    <div style="color: #8A9098">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg>
+    </div>
+    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
+      <div style="font-size: 15px; font-weight: 600; color: #ECEAE6">Sports &amp; action</div>
+      <div style="font-size: 11.5px; color: #71777E">Bright overcast &middot; 70&ndash;200 mm</div>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: center; width: 38px; height: 34px; border: 1px solid #23262A; border-radius: 9px; color: #5C6268">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.2 14.6A8.6 8.6 0 0 1 9.4 3.8a8.6 8.6 0 1 0 10.8 10.8z"></path></svg>
+    </div>
+  </div>
+
+  <div style="padding: 20px 18px 0">
+    <div style="display: flex; align-items: baseline; justify-content: space-between">
+      <div class="lab">Metered light</div>
+      <div class="mono" style="font-size: 12px; color: #E8A33D; font-weight: 600">EV 13</div>
+    </div>
+    <div style="position: relative; margin-top: 14px; height: 26px">
+      <div style="position: absolute; left: 0; right: 0; top: 13px; display: flex; align-items: flex-start; justify-content: space-between">
+        <div class="tickL"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+        <div class="tickL"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+        <div class="tickL"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+        <div class="tickL"></div>
+      </div>
+      <div style="position: absolute; left: 75%; top: 0; width: 2px; height: 26px; background: #E8A33D; transform: translateX(-1px)"></div>
+      <div style="position: absolute; left: 75%; top: 0; width: 8px; height: 8px; background: #E8A33D; border-radius: 1px; transform: translateX(-4px) rotate(45deg)"></div>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 4px">
+      <div class="mono" style="font-size: 9.5px; color: #5C6268">4 &middot; candles</div>
+      <div class="mono" style="font-size: 9.5px; color: #5C6268">10</div>
+      <div class="mono" style="font-size: 9.5px; color: #5C6268">16 &middot; snow</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px; border-top: 1px solid #1D2023">
+
+    <div style="display: flex; align-items: center; gap: 14px; padding: 0 18px; height: 88px; border-bottom: 1px solid #1D2023">
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 5px">
+        <div class="lab">Shutter</div>
+        <div style="font-size: 12.5px; color: #8A9098">Stops a running player dead</div>
+      </div>
+      <div class="mono big">1/1000</div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px; padding: 0 18px; height: 88px; border-bottom: 1px solid #1D2023">
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 5px">
+        <div class="lab">Aperture</div>
+        <div style="font-size: 12.5px; color: #8A9098">Wide open &mdash; your lens has no more</div>
+      </div>
+      <div class="mono big">f/4</div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px; padding: 0 18px; height: 88px; background: #17150F; border-bottom: 1px solid #342C1B">
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; align-items: center; gap: 8px">
+          <div class="lab" style="color: #E8A33D">ISO</div>
+          <div class="mono" style="font-size: 9px; font-weight: 600; letter-spacing: 0.1em; color: #14100A; background: #E8A33D; padding: 2px 6px; border-radius: 3px">SOLVES IT</div>
+        </div>
+        <div style="font-size: 12.5px; color: #A08B62">Takes the last stop, +1</div>
+      </div>
+      <div class="mono big" style="color: #F4C57E">200</div>
+    </div>
+
+  </div>
+
+  <div style="padding: 18px 18px 0">
+    <div class="mono" style="font-size: 11px; color: #6B7178; line-height: 1.7; letter-spacing: -0.01em">
+      f/4 at 1/1000 &nbsp;=&nbsp; EV 14<br>
+      scene is &nbsp;EV 13 &nbsp;&rarr;&nbsp; 1 stop short &nbsp;&rarr;&nbsp; ISO 100 &times; 2
+    </div>
+  </div>
+
+  <div style="padding: 20px 18px 0">
+    <div class="lab">Change one thing</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; padding: 11px 18px 0">
+    <div style="height: 58px; padding: 0 13px; display: flex; flex-direction: column; justify-content: center; gap: 4px; background: #141618; border: 1px solid #23262A; border-radius: 11px">
+      <div style="font-size: 13px; font-weight: 600; color: #DDE0E4">Blur the background</div>
+      <div class="mono" style="font-size: 10.5px; color: #E8A33D">f/2.8 &middot; ISO 100</div>
+    </div>
+    <div style="height: 58px; padding: 0 13px; display: flex; flex-direction: column; justify-content: center; gap: 4px; background: #141618; border: 1px solid #23262A; border-radius: 11px">
+      <div style="font-size: 13px; font-weight: 600; color: #DDE0E4">Freeze harder</div>
+      <div class="mono" style="font-size: 10.5px; color: #E8A33D">1/2000 &middot; ISO 400</div>
+    </div>
+    <div style="height: 58px; padding: 0 13px; display: flex; flex-direction: column; justify-content: center; gap: 4px; background: #141618; border: 1px solid #23262A; border-radius: 11px">
+      <div style="font-size: 13px; font-weight: 600; color: #DDE0E4">Whole team sharp</div>
+      <div class="mono" style="font-size: 10.5px; color: #E8A33D">f/8 &middot; ISO 800</div>
+    </div>
+    <div style="height: 58px; padding: 0 13px; display: flex; flex-direction: column; justify-content: center; gap: 4px; background: #141618; border: 1px solid #23262A; border-radius: 11px">
+      <div style="font-size: 13px; font-weight: 600; color: #DDE0E4">Cleanest file</div>
+      <div class="mono" style="font-size: 10.5px; color: #E8A33D">ISO 100 &middot; 1/500</div>
+    </div>
+  </div>
+
+  <div style="margin-top: auto; display: flex; gap: 11px; align-items: flex-start; padding: 22px 18px 26px; border-top: 1px solid #1D2023">
+    <div style="color: #E8A33D; flex-shrink: 0; margin-top: 1px">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"></circle><path d="M12 11.2v5.4M12 7.9v.1"></path></svg>
+    </div>
+    <div style="font-size: 12.5px; color: #8A9098; line-height: 1.5">Meter off the grass, not the sky. White cloud will talk your camera down a stop.</div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

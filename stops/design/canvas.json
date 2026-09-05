@@ -1,0 +1,18 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html",     "title": "1 · What are you shooting",  "x": 0,    "y": 0,   "w": 390, "h": 844 },
+    { "file": "Light.dc.html",    "title": "2 · How is the light",       "x": 490,  "y": 0,   "w": 390, "h": 844 },
+    { "file": "Result.dc.html",   "title": "3 · The settings",           "x": 980,  "y": 0,   "w": 390, "h": 844 },
+    { "file": "Tradeoff.dc.html", "title": "3b · One stop short",        "x": 1470, "y": 0,   "w": 390, "h": 844 },
+    { "file": "Cheat.dc.html",    "title": "Guide · the stops ladder",   "x": 0,    "y": 984, "w": 390, "h": 844 },
+    { "file": "Gear.dc.html",     "title": "Your gear",                  "x": 490,  "y": 984, "w": 390, "h": 844 },
+    { "file": "HomeAlt.dc.html",  "title": "Alternate model · one screen","x": 980, "y": 984, "w": 390, "h": 844 }
+  ],
+  "annotations": [
+    { "id": "flow", "x": 0, "y": -150, "w": 860, "text": "THE CORE FLOW\nTwo taps from opening the app to numbers on the dial. Scene sets which of the three the app is allowed to move; light sets the target EV; the third variable falls out of the maths." },
+    { "id": "honest", "x": 1470, "y": -150, "w": 390, "text": "THE SCREEN A PRINTED CARD CANNOT HAVE\nWhen the answer falls outside your lens and your ISO ceiling, the app says so and prices the three ways out. This is the whole reason to build it." },
+    { "id": "ref", "x": 0, "y": 870, "w": 860, "text": "REFERENCE + SETUP\nThe guide tab is what you look up rather than compute. The gear profile is three numbers — widest aperture, ISO ceiling, hand-held floor — and it is what makes every answer yours instead of generic." },
+    { "id": "alt", "x": 980, "y": 870, "w": 390, "text": "ALTERNATE INTERACTION MODEL\nOne screen, no navigation: describe the situation physically rather than naming a genre. Faster once you know it, more thinking at 6am on a touchline. Worth deciding before anything gets built." }
+  ],
+  "launch": { "view": "canvas" }
+}

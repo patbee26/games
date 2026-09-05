@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #0B0C0D; color: #ECEAE6; font-family: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #E8A33D; text-decoration: none; } a:hover { color: #F2BC6B; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+    .lab { text-transform: uppercase; letter-spacing: 0.15em; font-size: 10px; font-weight: 600; color: #71777E; }
+    .chip { display: flex; align-items: center; justify-content: center; height: 44px; border-radius: 9px; background: #1A1D20; font-size: 13px; font-weight: 500; color: #8A9098; }
+    .lens { display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 15px; border-top: 1px solid #1D2023; }
+  </style>
+</helmet>
+
+<div style="width: 390px; height: 844px; background: #0B0C0D; display: flex; flex-direction: column; overflow: hidden">
+
+  <div style="padding: 26px 18px 0">
+    <div style="font-size: 27px; font-weight: 600; letter-spacing: -0.01em">Your gear</div>
+    <div style="margin-top: 8px; font-size: 13.5px; color: #8A9098; line-height: 1.5">Three numbers. They are the whole reason your answers differ from a printed chart.</div>
+  </div>
+
+  <div style="margin: 18px 18px 0; background: #141618; border: 1px solid #23262A; border-radius: 12px; display: flex; align-items: center; gap: 13px; padding: 14px 15px">
+    <div style="color: #8A9098">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.4h3.6L8.4 5.6h7.2l1.8 2.8H21v10.2H3z"></path><circle cx="12" cy="13.2" r="3.3"></circle></svg>
+    </div>
+    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px">
+      <div class="lab">Body</div>
+      <div style="font-size: 14.5px; font-weight: 500; color: #DDE0E4">APS-C mirrorless &middot; 1.5&times; crop</div>
+    </div>
+    <div style="color: #4E545A">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+    </div>
+  </div>
+
+  <div style="margin: 12px 18px 0; background: #141618; border: 1px solid #23262A; border-radius: 12px; padding: 14px 15px 15px">
+    <div style="display: flex; align-items: baseline; justify-content: space-between">
+      <div class="lab">Highest ISO I will accept</div>
+      <div class="mono" style="font-size: 22px; font-weight: 500; color: #E8A33D">6400</div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 13px">
+      <div class="mono chip">1600</div>
+      <div class="mono chip">3200</div>
+      <div class="mono chip" style="background: #E8A33D; color: #14100A; font-weight: 600">6400</div>
+      <div class="mono chip">12800</div>
+      <div class="mono chip" style="font-size: 12px">25600</div>
+    </div>
+  </div>
+
+  <div style="margin: 12px 18px 0; background: #141618; border: 1px solid #23262A; border-radius: 12px; overflow: hidden">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 15px 11px">
+      <div class="lab">Lenses</div>
+      <div class="mono" style="font-size: 10px; color: #5C6268; letter-spacing: 0.1em">WIDEST</div>
+    </div>
+
+    <div class="lens">
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px">
+        <div style="font-size: 14.5px; font-weight: 500; color: #DDE0E4">18&ndash;55 mm</div>
+        <div style="font-size: 11px; color: #6B7178">stabilised</div>
+      </div>
+      <div class="mono" style="font-size: 14px; color: #A3A8AE">f/3.5&ndash;5.6</div>
+    </div>
+
+    <div class="lens">
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px">
+        <div style="font-size: 14.5px; font-weight: 500; color: #DDE0E4">55&ndash;200 mm</div>
+        <div style="font-size: 11px; color: #6B7178">stabilised</div>
+      </div>
+      <div class="mono" style="font-size: 14px; color: #A3A8AE">f/4&ndash;5.6</div>
+    </div>
+
+    <div class="lens">
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 3px">
+        <div style="font-size: 14.5px; font-weight: 500; color: #DDE0E4">35 mm</div>
+        <div style="font-size: 11px; color: #6B7178">no stabilisation</div>
+      </div>
+      <div class="mono" style="font-size: 14px; color: #A3A8AE">f/1.8</div>
+    </div>
+
+    <div class="lens" style="justify-content: center; color: #E8A33D">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+      <span style="font-size: 13.5px; font-weight: 600">Add a lens</span>
+    </div>
+  </div>
+
+  <div style="margin: 12px 18px 0; background: #131518; border: 1px solid #23262A; border-radius: 12px; padding: 13px 15px; display: flex; align-items: center; gap: 13px">
+    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px">
+      <div class="lab">Slowest I trust hand-held</div>
+      <div style="font-size: 12.5px; color: #8A9098">Set once. The app will not suggest slower without saying so.</div>
+    </div>
+    <div class="mono" style="font-size: 18px; color: #DDE0E4">1/60</div>
+  </div>
+
+  <div style="margin-top: auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid #1D2023; background: #0E0F11">
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; height: 68px; color: #6B7178">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 12L4.6 7.6M12 12h8.9M12 12l-4.4 7.7"></path></svg>
+      <span style="font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em">Shoot</span>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; height: 68px; color: #6B7178">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2C10 4.7 7.5 4.2 4 4.2v13c3.5 0 6 .5 8 2 2-1.5 4.5-2 8-2v-13c-3.5 0-6 .5-8 2z"></path><path d="M12 6.2v13"></path></svg>
+      <span style="font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em">Guide</span>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; height: 68px; color: #E8A33D">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h9M17.5 7H20M4 17h4.5M13 17h7"></path><circle cx="15" cy="7" r="2.2"></circle><circle cx="10.5" cy="17" r="2.2"></circle></svg>
+      <span style="font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em">Gear</span>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

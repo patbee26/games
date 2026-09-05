@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #0B0C0D; color: #ECEAE6; font-family: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #E8A33D; text-decoration: none; } a:hover { color: #F2BC6B; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+    .lab { text-transform: uppercase; letter-spacing: 0.15em; font-size: 10px; font-weight: 600; color: #71777E; }
+    .tick { width: 1px; height: 7px; background: #2E3237; }
+    .tickL { width: 1px; height: 13px; background: #454A50; }
+  </style>
+</helmet>
+
+<div style="width: 390px; height: 844px; background: #0B0C0D; display: flex; flex-direction: column; overflow: hidden">
+
+  <div style="display: flex; align-items: center; gap: 12px; padding: 26px 18px 0">
+    <div style="color: #8A9098">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg>
+    </div>
+    <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px">
+      <div style="font-size: 15px; font-weight: 600; color: #ECEAE6">Indoor sports</div>
+      <div style="font-size: 11.5px; color: #71777E">School gym &middot; 55&ndash;200 mm at 200</div>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: center; width: 38px; height: 34px; border: 1px solid #23262A; border-radius: 9px; color: #5C6268">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.2 14.6A8.6 8.6 0 0 1 9.4 3.8a8.6 8.6 0 1 0 10.8 10.8z"></path></svg>
+    </div>
+  </div>
+
+  <div style="padding: 18px 18px 0">
+    <div style="display: flex; align-items: baseline; justify-content: space-between">
+      <div class="lab">Metered light</div>
+      <div class="mono" style="font-size: 12px; color: #E8A33D; font-weight: 600">EV 7 &middot; dim gym</div>
+    </div>
+    <div style="position: relative; margin-top: 12px; height: 24px">
+      <div style="position: absolute; left: 0; right: 0; top: 11px; display: flex; align-items: flex-start; justify-content: space-between">
+        <div class="tickL"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+        <div class="tickL"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+        <div class="tickL"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+        <div class="tickL"></div>
+      </div>
+      <div style="position: absolute; left: 25%; top: 0; width: 2px; height: 24px; background: #E8A33D; transform: translateX(-1px)"></div>
+      <div style="position: absolute; left: 25%; top: 0; width: 8px; height: 8px; background: #E8A33D; border-radius: 1px; transform: translateX(-4px) rotate(45deg)"></div>
+    </div>
+  </div>
+
+  <div style="padding: 16px 18px 0">
+    <div class="lab" style="margin-bottom: 11px">What the shot needs</div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: #141618; border: 1px solid #23262A; border-radius: 12px; overflow: hidden">
+      <div style="padding: 13px 12px; display: flex; flex-direction: column; gap: 5px; border-right: 1px solid #23262A">
+        <div class="lab" style="font-size: 9px">Shutter</div>
+        <div class="mono" style="font-size: 20px; color: #F2F0EC">1/500</div>
+        <div style="font-size: 10.5px; color: #6B7178">minimum</div>
+      </div>
+      <div style="padding: 13px 12px; display: flex; flex-direction: column; gap: 5px; border-right: 1px solid #23262A">
+        <div class="lab" style="font-size: 9px">Aperture</div>
+        <div class="mono" style="font-size: 20px; color: #F2F0EC">f/5.6</div>
+        <div style="font-size: 10.5px; color: #6B7178">wide open</div>
+      </div>
+      <div style="padding: 13px 12px; display: flex; flex-direction: column; gap: 5px; background: #1C1310">
+        <div class="lab" style="font-size: 9px; color: #E0704F">ISO</div>
+        <div class="mono" style="font-size: 20px; color: #E0704F">12800</div>
+        <div class="mono" style="font-size: 10.5px; color: #96604F">cap 6400</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin: 16px 18px 0; padding: 14px 15px; background: #1A1211; border: 1px solid #40241C; border-radius: 12px; display: flex; gap: 12px">
+    <div style="color: #E0704F; flex-shrink: 0; margin-top: 2px">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.2l8.6 15H3.4z"></path><path d="M12 10.4v3.6M12 16.9v.1"></path></svg>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 5px">
+      <div style="font-size: 15px; font-weight: 700; color: #F0A188">You are one stop short.</div>
+      <div style="font-size: 12.5px; color: #A08278; line-height: 1.5">Your 55&ndash;200 is only f/5.6 at the long end. That is the limit here, not the camera.</div>
+    </div>
+  </div>
+
+  <div style="padding: 20px 18px 0">
+    <div class="lab">Three ways to buy that stop</div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 9px; padding: 11px 18px 0">
+
+    <div style="padding: 12px 14px; background: #191B1E; border: 1px solid #33373C; border-radius: 12px; display: flex; flex-direction: column; gap: 6px">
+      <div style="display: flex; align-items: center; gap: 9px">
+        <div style="font-size: 14.5px; font-weight: 600; color: #ECEAE6; flex-grow: 1">Slow to 1/250</div>
+        <div class="mono" style="font-size: 9px; font-weight: 600; letter-spacing: 0.1em; color: #14100A; background: #E8A33D; padding: 2px 6px; border-radius: 3px">BEST BET</div>
+      </div>
+      <div style="font-size: 12px; color: #8A9098; line-height: 1.45">Hands and feet smear a little. Faces stay sharp, and that is what you keep.</div>
+      <div class="mono" style="font-size: 11px; color: #E8A33D">1/250 &middot; f/5.6 &middot; ISO 6400</div>
+    </div>
+
+    <div style="padding: 12px 14px; background: #141618; border: 1px solid #23262A; border-radius: 12px; display: flex; flex-direction: column; gap: 6px">
+      <div style="font-size: 14.5px; font-weight: 600; color: #ECEAE6">Zoom back to 90 mm</div>
+      <div style="font-size: 12px; color: #8A9098; line-height: 1.45">Your lens opens to f/4.5 there. Buys two thirds of a stop &mdash; crop the rest back later.</div>
+      <div class="mono" style="font-size: 11px; color: #E8A33D">1/500 &middot; f/4.5 &middot; ISO 6400 &nbsp;<span style="color: #6B7178">(&minus;&#8531; stop)</span></div>
+    </div>
+
+    <div style="padding: 12px 14px; background: #141618; border: 1px solid #23262A; border-radius: 12px; display: flex; flex-direction: column; gap: 6px">
+      <div style="font-size: 14.5px; font-weight: 600; color: #ECEAE6">Lift the ISO cap</div>
+      <div style="font-size: 12px; color: #8A9098; line-height: 1.45">Grain is fixable. Blur is not. Raise your ceiling for the night and shoot raw.</div>
+      <div class="mono" style="font-size: 11px; color: #E8A33D">1/500 &middot; f/5.6 &middot; ISO 12800</div>
+    </div>
+
+  </div>
+
+  <div style="margin-top: auto; padding: 18px 18px 26px">
+    <div style="font-size: 11.5px; color: #5C6268; line-height: 1.5; text-align: center">No setting here is free. Pick the one whose cost you can live with.</div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
