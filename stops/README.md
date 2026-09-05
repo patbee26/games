@@ -80,6 +80,36 @@ Later, if they earn their place:
 - **Meter it** with the phone camera, as a sanity check against the description.
 - **Night mode** — red on black, to keep dark-adapted eyes for astro.
 
+## Example pictures
+
+Two different things, with very different costs.
+
+**A live preview beside the settings** — a diagram that behaves like a photograph.
+Aperture drives background blur, shutter drives motion ghosting, ISO drives grain,
+exposure error drives brightness; all four are plain CSS and SVG filters, GPU
+composited, smooth on a phone if the canvas stays small. Two or three days, most of it
+art direction rather than engineering. This is what teaches the tradeoff, which no
+photograph can.
+
+The trap: depth of field depends on focal length, subject distance and sensor size, not
+just f-number. Show lush bokeh at f/4 to someone holding an 18-55 at 24 mm and the app
+has taught them something false. So the blur must be driven from the real depth-of-field
+maths using the focal length already in the gear profile, and the panel must be labelled
+a diagram rather than a photograph.
+
+**Real photographs in the guide tab** — a reference gallery. Trivial code, and the
+sourcing is the entire job: the EXIF has to genuinely match the settings shown, which
+rules out Unsplash and Pexels (EXIF stripped, unsearchable by aperture) and leaves
+Flickr's Creative Commons corpus, with per-photo attribution. Far better: read the
+photographer's own library, pull the EXIF, file each shot under the scene it matches.
+No licensing question, and the examples are the user's own past work at those settings.
+Half a day of code, plus a build step. The curation is a month of evenings.
+
+Adding either changes two things already decided: photo tiles on the home screen would
+pull the visual direction from instrument-panel toward gallery, and a preview on the
+settings screen displaces the EV tick scale, the maths ledger, and turns the
+"change one thing" chips into the controls themselves.
+
 ## Open questions
 
 1. **Two-step picker, or one screen?** The mockups show both. The picker is faster cold;
@@ -88,5 +118,7 @@ Later, if they earn their place:
    learned. This decision shapes everything else and should be made first.
 2. **How many scenes?** Eight cover most days; twenty-two covers the year. More scenes
    is more scrolling at the moment you least want it.
-3. **Thirds or full stops?** Cameras step in thirds. Advice in full stops is easier to
+3. **Do example pictures come before or after v1?** They are the difference between a
+   calculator and a field guide, and they are also the longest pole in the tent.
+4. **Thirds or full stops?** Cameras step in thirds. Advice in full stops is easier to
    remember and easier to act on.
