@@ -7,7 +7,8 @@ possible with the gear in your hand.
 > **Status: built and working.** Working name. The app is in [`app/`](app/); the
 > mockups it was built from are in [`design/`](design/).
 
-**Mockups:** <https://claude.ai/code/artifact/c6c120c6-308c-433e-99f2-f6010ba2b3da>
+**Open it on your phone:** <https://claude.ai/code/artifact/940a0144-f133-4cfc-a88a-eda1d1575a9d>
+**Mockups it was built from:** <https://claude.ai/code/artifact/c6c120c6-308c-433e-99f2-f6010ba2b3da>
 
 ## Running it
 
@@ -19,6 +20,12 @@ npm run serve       # http://localhost:8080
 There is no build step and no dependencies. `app/` is the deployable artefact
 exactly as it sits — point any static host at that directory. On a phone, open it
 and use *Add to Home Screen*; after the first load it works with no signal at all.
+
+`node app/tools/bundle.mjs` flattens the whole thing into a single self-contained
+page at `app/dist/stops.html` — that is what the link above serves. It is a copy
+for sharing, not something the app depends on, and being one page it has no
+service worker, so it needs a connection to open. The version in `app/` is the one
+that works in a canyon.
 
 ---
 
