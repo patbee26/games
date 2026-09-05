@@ -1,0 +1,600 @@
+import { SCENES, LIGHT, sceneById, lightById } from './data.js';
+import { recommend, describeStops } from './exposure.js';
+import { loadGear, saveGear, chooseLens, DEFAULT_GEAR } from './gear.js';
+import { widestAt, handheldFloor } from './optics.js';
+import { previewHtml, previewCaption } from './preview.js';
+import { icon } from './icons.js';
+import { snapShutter, snapAperture, snapIso, FULL_STOPS } from './ladders.js';
+
+const LAST_KEY = 'stops.last.v1';
+
+const state = {
+  tab: 'shoot',
+  step: 'scenes',
+  sceneId: null,
+  lightId: null,
+  lensId: null,
+  focal: null,
+  lock: {},
+  guideTab: 'stops',
+  allLight: false,
+  editingLens: null,
+  gear: loadGear(),
+};
+
+const app = document.getElementById('app');
+const tabs = document.getElementById('tabs');
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ------------------------------------------------------------------ solving */
+
+function lensFor(scene) {
+  const auto = chooseLens(state.gear, scene.focal);
+  const lens = state.gear.lenses.find((l) => l.id === state.lensId) ?? auto.lens;
+  const wanted = state.focal ?? auto.focal;
+  return { lens, focal: Math.min(Math.max(wanted, lens.min), lens.max) };
+}
+
+function currentSolve() {
+  const scene = sceneById(state.sceneId);
+  const light = lightById(state.lightId);
+  if (!scene || !light) return null;
+  const { lens, focal } = lensFor(scene);
+  return { scene, light, ...recommend({ scene, ev: light.ev, gear: state.gear, lens, focal, lock: state.lock }) };
+}
+
+function rememberLast() {
+  try {
+    localStorage.setItem(LAST_KEY, JSON.stringify({ sceneId: state.sceneId, lightId: state.lightId }));
+  } catch { /* storage unavailable — the resume card simply will not appear */ }
+}
+
+function readLast() {
+  try {
+    const raw = localStorage.getItem(LAST_KEY);
+    if (!raw) return null;
+    const last = JSON.parse(raw);
+    return sceneById(last.sceneId) && lightById(last.lightId) ? last : null;
+  } catch { return null; }
+}
+
+/* ------------------------------------------------------------------- screens */
+
+function scenesScreen() {
+  const last = readLast();
+  let resume = '';
+  if (last) {
+    const scene = sceneById(last.sceneId);
+    const light = lightById(last.lightId);
+    const { lens, focal } = chooseLens(state.gear, scene.focal);
+    const r = recommend({ scene, ev: light.ev, gear: state.gear, lens, focal });
+    resume = `<button class="card resume mt-16" data-act="resume" data-scene="${scene.id}" data-light="${light.id}">
+      <div class="resume__body">
+        <span class="lab">Pick up where you left off</span>
+        <span class="resume__now">${esc(scene.name)} · ${esc(light.name)}</span>
+      </div>
+      <span class="resume__set">${r.shutter.label}<br>${r.aperture.label} · ${r.iso.label}</span>
+      <span style="color:var(--ink-4)">${icon('chevron', 16)}</span>
+    </button>`;
+  }
+
+  const tiles = SCENES.map((s) => `<button class="tile" data-act="scene" data-id="${s.id}">
+      <span class="tile__icon">${icon(s.icon, 22)}</span>
+      <span><span class="tile__name">${esc(s.name)}</span><span class="tile__hint">${esc(s.hint)}</span></span>
+    </button>`).join('');
+
+  return `<div class="screen">
+    <div class="bar">
+      <span class="wordmark">${icon('aperture', 17)}<span>STOPS</span></span>
+      <span style="flex:1"></span>
+      <button data-act="tab" data-id="gear" style="color:var(--ink-3)" aria-label="Your gear">${icon('sliders', 20)}</button>
+    </div>
+    <h1 class="h1 mt-18">What are you shooting?</h1>
+    ${resume}
+    <span class="lab mt-22">Scenes</span>
+    <div class="grid-2 mt-12">${tiles}</div>
+  </div>`;
+}
+
+function lightScreen() {
+  const scene = sceneById(state.sceneId);
+  const shown = state.allLight ? LIGHT : LIGHT.filter((l) => l.common);
+  const rows = shown.map((l) => `<button class="row" data-act="light" data-id="${l.id}"
+      aria-pressed="${state.lightId === l.id}">
+      <span class="row__dot"></span>
+      <span class="row__body"><span class="row__name">${esc(l.name)}</span><span class="row__sub">${esc(l.sub)}</span></span>
+      <span class="row__ev mono">EV ${l.ev}</span>
+    </button>`).join('');
+
+  const more = state.allLight ? '' :
+    `<div class="center mt-16"><button data-act="all-light" style="color:var(--amber);font-size:12.5px;font-weight:500">
+      Show all ${LIGHT.length} conditions</button></div>`;
+
+  return `<div class="screen">
+    <div class="bar">
+      <button class="back" data-act="back" aria-label="Back">${icon('back', 20)}</button>
+      <span class="bar__title"><span class="bar__name">${esc(scene.name)}</span></span>
+      <span class="mono" style="font-size:11px;color:var(--ink-4);letter-spacing:.08em">2 / 2</span>
+    </div>
+    <h1 class="h1 mt-18">How is the light?</h1>
+    <div class="card rows mt-18">${rows}</div>
+    ${more}
+  </div>`;
+}
+
+function chipRow(kind, values, current, widest) {
+  return values.map((v) => {
+    const label = kind === 'shutter' ? v.label : v.label;
+    const unavailable = kind === 'aperture' && v.N < widest - 0.02;
+    const on = kind === 'shutter'
+      ? Math.abs(Math.log2(v.s / current)) < 0.08
+      : Math.abs(Math.log2(v.N / current)) < 0.04;
+    return `<button class="chip${unavailable ? ' chip--out' : ''}" aria-pressed="${on}"
+      ${unavailable ? 'disabled' : `data-act="lock-${kind}" data-v="${kind === 'shutter' ? v.s : v.N}"`}>${label}</button>`;
+  }).join('');
+}
+
+function resultScreen() {
+  const r = currentSolve();
+  if (!r) return scenesScreen();
+  const { scene, light } = r;
+  const caption = previewCaption(scene, r);
+  const locked = state.lock.t != null || state.lock.N != null;
+
+  const shutterChoices = [r.shutter.s / 4, r.shutter.s / 2, r.shutter.s, r.shutter.s * 2].map(snapShutter);
+  const apertureChoices = [r.aperture.N / 2, r.aperture.N / 1.414, r.aperture.N, r.aperture.N * 1.414].map(snapAperture);
+
+  const isoRowClass = r.shortfallStops > 0.05 ? 'vrow vrow--capped'
+    : r.solvedBy === 'iso' ? 'vrow vrow--solved' : 'vrow';
+  const isoBadge = r.shortfallStops > 0.05
+    ? '<span class="badge badge--warn">AT YOUR CAP</span>'
+    : r.solvedBy === 'iso' ? '<span class="badge">SOLVES IT</span>' : '';
+  const isoWhy = r.shortfallStops > 0.05 ? 'You said you would go no higher'
+    : r.solvedBy === 'iso' ? 'The app moves this one, never you'
+    : 'Base ISO — the cleanest file your camera makes';
+
+  let alert = '';
+  if (r.shortfallStops > 0.05) {
+    alert = `<div class="card card--warn alert mt-16">
+      <span class="alert__icon">${icon('warning', 19)}</span>
+      <span><span class="alert__title">You are ${describeStops(r.shortfallStops)} short.</span>
+      <span class="alert__body">${esc(shortfallReason(r))}</span></span></div>`;
+  } else if (r.overStops > 0.05) {
+    alert = `<div class="card card--warn alert mt-16">
+      <span class="alert__icon">${icon('warning', 19)}</span>
+      <span><span class="alert__title">${describeStops(r.overStops)} too much light.</span>
+      <span class="alert__body">${esc(overReason(r))}</span></span></div>`;
+  }
+
+  const ways = r.ways.length ? `<span class="lab mt-22">Three ways to buy it back</span>
+    <div class="stack mt-12" style="gap:9px">${r.ways.map((w, i) => `
+      <div class="card way${i === 0 ? ' card--warm' : ''}">
+        <span class="way__head"><span class="way__title">${esc(w.title)}</span>
+        ${i === 0 ? '<span class="badge">BEST BET</span>' : ''}</span>
+        <span class="way__detail">${esc(w.detail)}</span>
+        <button class="way__set" data-act="way" data-id="${w.id}">
+          ${w.settings.shutter.label} · ${w.settings.aperture.label} · ISO ${w.settings.iso.label} →</button>
+      </div>`).join('')}</div>` : '';
+
+  const zoom = r.lens.min !== r.lens.max ? `
+    <div class="card field mt-12">
+      <span class="field__body"><span class="lab">Focal length</span>
+      <span class="field__hint">${esc(r.lens.name)} · widest here is f/${snapAperture(r.widest).N}</span></span>
+      <span class="stepper">
+        <button data-act="focal" data-v="-1" aria-label="Shorter">${icon('minus', 18)}</button>
+        <span class="stepper__value">${Math.round(r.focal)} mm</span>
+        <button data-act="focal" data-v="1" aria-label="Longer">${icon('plus', 18)}</button>
+      </span>
+    </div>` : '';
+
+  return `<div class="screen">
+    <div class="bar">
+      <button class="back" data-act="back" aria-label="Back">${icon('back', 20)}</button>
+      <span class="bar__title">
+        <span class="bar__name">${esc(scene.name)}</span>
+        <span class="bar__meta">${esc(light.name)} · <span class="mono" style="color:var(--amber-dim)">EV ${light.ev}</span> · ${Math.round(r.focal)} mm</span>
+      </span>
+    </div>
+
+    <div class="mt-18">${previewHtml({ result: r, scene, gear: state.gear })}</div>
+    <div class="preview__caption"><span>${esc(caption.left)}</span><span class="mono">${esc(caption.right)}</span></div>
+    ${alert}
+
+    <div class="mt-16" style="margin-left:calc(var(--pad) * -1); margin-right:calc(var(--pad) * -1); border-top:1px solid #1D2023">
+      <div class="vrow${r.solvedBy === 'shutter' ? ' vrow--solved' : ''}">
+        <span class="vrow__body"><span class="lab">Shutter</span>
+        <span class="vrow__why">${esc(shutterWhy(r))}</span></span>
+        <span class="vrow__num">${r.shutter.label}</span>
+      </div>
+      <div class="vrow${r.solvedBy === 'aperture' ? ' vrow--solved' : ''}">
+        <span class="vrow__body"><span class="lab">Aperture</span>
+        <span class="vrow__why">${esc(apertureWhy(r))}</span></span>
+        <span class="vrow__num">${r.aperture.label}</span>
+      </div>
+      <div class="${isoRowClass}">
+        <span class="vrow__body">
+          <span style="display:flex;align-items:center;gap:8px">
+            <span class="lab" style="color:${r.shortfallStops > 0.05 ? 'var(--warn)' : r.solvedBy === 'iso' ? 'var(--amber)' : 'var(--ink-3)'}">ISO</span>${isoBadge}</span>
+          <span class="vrow__why">${esc(isoWhy)}</span></span>
+        <span class="vrow__num">${r.iso.label}</span>
+      </div>
+    </div>
+
+    <span class="lab mt-18">Shutter</span>
+    <div class="grid-4 mt-8">${chipRow('shutter', shutterChoices, r.shutter.s, r.widest)}</div>
+    <span class="lab mt-16">Aperture</span>
+    <div class="grid-4 mt-8">${chipRow('aperture', apertureChoices, r.aperture.N, r.widest)}</div>
+    ${zoom}
+    ${locked ? `<div class="center mt-16"><button data-act="unlock" style="color:var(--amber);font-size:12.5px;font-weight:500">
+      Back to the app's own answer</button></div>` : ''}
+    ${ways}
+
+    <div class="note" style="padding-left:0;padding-right:0">
+      <span class="note__icon">${icon('info', 17)}</span>
+      <span class="note__text">${esc(scene.tip)}</span>
+    </div>
+  </div>`;
+}
+
+function shutterWhy(r) {
+  if (state.lock.t != null) return 'Your choice — the app is working around it';
+  if (r.solvedBy === 'shutter') return 'Takes up whatever the other two leave';
+  if (r.scene.shutterRule === '500') return r.scene.shutterWhy;
+  const floor = r.floor;
+  if (!r.scene.tripod && Math.abs(Math.log2(r.shutter.s / floor)) < 0.08) {
+    return 'The slowest you said you trust hand-held';
+  }
+  return r.scene.shutterWhy ?? 'Fast enough for what is moving here';
+}
+
+function apertureWhy(r) {
+  if (state.lock.N != null) return 'Your choice — the app is working around it';
+  if (Math.abs(Math.log2(r.aperture.N / r.widest)) < 0.04) return 'Wide open — your lens has no more to give';
+  if (r.solvedBy === 'aperture') return 'Opened up to find the light';
+  return r.scene.apertureWhy ?? 'Deep enough for this subject';
+}
+
+function shortfallReason(r) {
+  const wideOpen = Math.abs(Math.log2(r.aperture.N / r.widest)) < 0.04;
+  if (wideOpen && r.lens.min !== r.lens.max) {
+    return `Your ${r.lens.name} is only f/${snapAperture(r.widest).N} at ${Math.round(r.focal)} mm. That is the limit here, not the camera.`;
+  }
+  if (wideOpen) return `Wide open at f/${snapAperture(r.widest).N} and still short. There is no more light to gather.`;
+  return 'Even at your ISO ceiling the frame comes up dark.';
+}
+
+function overReason(r) {
+  if (r.scene.nd) {
+    return `Keeping ${r.shutter.label} in this light needs a ${Math.round(r.overStops)}-stop ND filter. A polariser is worth two of them.`;
+  }
+  return 'Close down, go faster, or wait for the light to drop.';
+}
+
+/* --------------------------------------------------------------------- guide */
+
+const GUIDE = {
+  shutter: [
+    ['A still portrait', '1/160'], ['Someone walking', '1/250'], ['Children, dogs', '1/500'],
+    ['A running player', '1/1000'], ['Birds in flight', '1/2000'], ['Panning a cyclist', '1/60'],
+    ['Silky water', '1s or longer'],
+  ],
+  aperture: [
+    ['One eye sharp', 'f/1.8'], ['One whole face', 'f/2.8'], ['Two people side by side', 'f/4'],
+    ['A small group', 'f/5.6'], ['Two rows of people', 'f/8'], ['Front to back landscape', 'f/11'],
+  ],
+};
+
+function guideScreen() {
+  const tabsHtml = ['stops', 'shutter', 'aperture', 'rules'].map((t) =>
+    `<button data-act="guide-tab" data-v="${t}" aria-pressed="${state.guideTab === t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('');
+
+  let body = '';
+  if (state.guideTab === 'stops') {
+    const cells = FULL_STOPS.shutter.map((_, i) =>
+      `<span class="ladder__cell">${FULL_STOPS.shutter[i]}</span>
+       <span class="ladder__cell">${FULL_STOPS.aperture[i]}</span>
+       <span class="ladder__cell">${FULL_STOPS.iso[i]}</span>`).join('');
+    body = `<p class="sub mt-18" style="font-size:14.5px">Every step down is <strong style="color:var(--ink)">one stop brighter</strong>.
+      Give a stop in one column, take it back in another, and the exposure holds.</p>
+      <div style="display:flex;align-items:center;gap:7px;color:var(--amber)" class="mt-12">
+        ${icon('down', 14)}<span class="mono" style="font-size:10.5px;letter-spacing:.1em;font-weight:500">MORE LIGHT</span>
+      </div>
+      <div class="card mt-12" style="overflow:hidden">
+        <div class="ladder">
+          <span class="lab ladder__head">Shutter</span><span class="lab ladder__head">Aperture</span><span class="lab ladder__head">ISO</span>
+          ${cells}
+        </div>
+      </div>`;
+  } else if (state.guideTab === 'rules') {
+    body = `<div class="card mt-18 deftable">
+      ${[
+        ['Sunny 16', 'f/16 at 1/ISO'],
+        ['Hand-held floor', '1 ÷ (focal × crop)'],
+        ['Stabilised lens', '3 rows slower'],
+        ['Stars, before they trail', '500 ÷ (focal × crop)'],
+        ['Doubling ISO', '+1 stop'],
+        ['Opening one f-stop', '+1 stop'],
+        ['A 10-stop ND', '1/500 → 2s'],
+      ].map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}
+    </div>
+    <p class="muted mt-16">Every rule here is a starting point. The camera's meter and your own eyes outrank all of them.</p>`;
+  } else {
+    const rows = GUIDE[state.guideTab];
+    body = `<div class="card mt-18 deftable">
+      ${rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</div>`;
+  }
+
+  return `<div class="screen">
+    <h1 class="h1">Field guide</h1>
+    <div class="seg mt-16">${tabsHtml}</div>
+    ${body}
+  </div>`;
+}
+
+/* ---------------------------------------------------------------------- gear */
+
+const ISO_CEILINGS = [1600, 3200, 6400, 12800, 25600];
+const SLOWEST = [1 / 125, 1 / 60, 1 / 30, 1 / 15];
+const CROPS = [[1, 'Full frame'], [1.5, 'APS-C'], [1.6, 'APS-C (Canon)'], [2, 'Micro Four Thirds']];
+const WIDEST_CHOICES = [1.4, 1.8, 2, 2.8, 3.5, 4, 5.6];
+
+function gearScreen() {
+  const g = state.gear;
+  const cropName = (CROPS.find(([c]) => c === g.crop) ?? [g.crop, 'Custom'])[1];
+
+  const lenses = g.lenses.map((l) => {
+    const open = state.editingLens === l.id;
+    const zoom = l.min !== l.max;
+    const wide = zoom ? `f/${l.wideMin}–${l.wideMax}` : `f/${l.wideMin}`;
+    // Only say the range when the lens is not already named after it.
+    const range = zoom ? `${l.min}–${l.max} mm` : `${l.min} mm`;
+    const sub = [l.name.includes(String(l.min)) ? null : range, l.stabilised ? 'stabilised' : null]
+      .filter(Boolean).join(' · ');
+    const editor = !open ? '' : `<div style="padding:4px 15px 15px;border-top:1px solid #1D2023">
+      <span class="lab">Name</span>
+      <input data-act="lens-name" data-id="${l.id}" value="${esc(l.name)}" class="mt-8"
+        style="width:100%;min-height:44px;padding:0 12px;background:var(--card-2);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:inherit">
+      <div class="grid-2 mt-12">
+        <span><span class="lab">Shortest</span>
+        <input type="number" inputmode="numeric" data-act="lens-min" data-id="${l.id}" value="${l.min}" class="mt-8"
+          style="width:100%;min-height:44px;padding:0 12px;background:var(--card-2);border:1px solid var(--line);border-radius:10px;color:var(--ink);font-family:var(--data)"></span>
+        <span><span class="lab">Longest</span>
+        <input type="number" inputmode="numeric" data-act="lens-max" data-id="${l.id}" value="${l.max}" class="mt-8"
+          style="width:100%;min-height:44px;padding:0 12px;background:var(--card-2);border:1px solid var(--line);border-radius:10px;color:var(--ink);font-family:var(--data)"></span>
+      </div>
+      <span class="lab mt-12" style="display:block">Widest aperture${zoom ? ' at the short end' : ''}</span>
+      <div class="grid-4 mt-8">${WIDEST_CHOICES.map((v) =>
+        `<button class="chip" data-act="lens-wide-min" data-id="${l.id}" data-v="${v}" aria-pressed="${l.wideMin === v}">f/${v}</button>`).join('')}</div>
+      ${zoom ? `<span class="lab mt-12" style="display:block">Widest at the long end</span>
+      <div class="grid-4 mt-8">${WIDEST_CHOICES.map((v) =>
+        `<button class="chip" data-act="lens-wide-max" data-id="${l.id}" data-v="${v}" aria-pressed="${l.wideMax === v}">f/${v}</button>`).join('')}</div>` : ''}
+      <div class="grid-2 mt-12">
+        <button class="chip" data-act="lens-is" data-id="${l.id}" aria-pressed="${!!l.stabilised}">Stabilised</button>
+        <button class="chip" data-act="lens-remove" data-id="${l.id}" style="color:var(--warn)">Remove</button>
+      </div>
+    </div>`;
+
+    return `<div><button class="lens" data-act="lens-edit" data-id="${l.id}" aria-expanded="${open}">
+      <span style="color:var(--ink-3)">${icon('lens', 20)}</span>
+      <span class="lens__body"><span class="lens__name">${esc(l.name)}</span>
+      ${sub ? `<span class="lens__sub">${esc(sub)}</span>` : ''}</span>
+      <span class="lens__wide mono">${wide}</span>
+    </button>${editor}</div>`;
+  }).join('');
+
+  return `<div class="screen">
+    <h1 class="h1">Your gear</h1>
+    <p class="sub">Three numbers do most of the work, and they are the whole reason your answers differ from a printed chart.</p>
+
+    <button class="card field mt-18" data-act="crop">
+      <span style="color:var(--ink-3)">${icon('camera', 21)}</span>
+      <span class="field__body"><span class="lab">Sensor</span><span class="field__value">${esc(cropName)} · ${g.crop}× crop</span></span>
+      <span style="color:var(--ink-4)">${icon('chevron', 16)}</span>
+    </button>
+
+    <div class="card mt-12" style="padding:14px 15px 15px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between">
+        <span class="lab">Highest ISO I will accept</span>
+        <span class="mono" style="font-size:22px;font-weight:500;color:var(--amber)">${g.isoCeiling}</span>
+      </div>
+      <div class="grid-5 mt-12">${ISO_CEILINGS.map((v) =>
+        `<button class="chip" data-act="iso-ceiling" data-v="${v}" aria-pressed="${g.isoCeiling === v}"
+          style="font-size:${v > 9999 ? '11.5' : '13'}px">${v}</button>`).join('')}</div>
+    </div>
+
+    <div class="card mt-12" style="overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 15px 11px">
+        <span class="lab">Lenses</span><span class="mono" style="font-size:10px;color:var(--ink-4);letter-spacing:.1em">WIDEST</span>
+      </div>
+      ${lenses}
+      <button class="lens" data-act="lens-add" style="justify-content:center;color:var(--amber)">
+        ${icon('plus', 15)}<span style="font-size:13.5px;font-weight:600">Add a lens</span></button>
+    </div>
+
+    <div class="card mt-12" style="padding:14px 15px 15px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between">
+        <span class="lab">Slowest I trust hand-held</span>
+        <span class="mono" style="font-size:18px">${snapShutter(g.userSlowest).label}</span>
+      </div>
+      <p class="field__hint mt-8">The app will not suggest anything slower without saying so.</p>
+      <div class="grid-4 mt-12">${SLOWEST.map((s) =>
+        `<button class="chip" data-act="slowest" data-v="${s}" aria-pressed="${Math.abs(g.userSlowest - s) < 1e-9}">${snapShutter(s).label}</button>`).join('')}</div>
+    </div>
+
+    <div class="card mt-12" style="padding:14px 15px 15px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between">
+        <span class="lab">Stops my stabiliser buys</span>
+        <span class="mono" style="font-size:18px">${g.stabiliserStops}</span>
+      </div>
+      <div class="grid-5 mt-12">${[0, 1, 2, 3, 4].map((v) =>
+        `<button class="chip" data-act="stab" data-v="${v}" aria-pressed="${g.stabiliserStops === v}">${v}</button>`).join('')}</div>
+    </div>
+
+    <div class="center mt-18"><button data-act="reset-gear" class="muted" style="text-decoration:underline">Reset to the example kit</button></div>
+  </div>`;
+}
+
+/* -------------------------------------------------------------------- render */
+
+function screenHtml() {
+  if (state.tab === 'guide') return guideScreen();
+  if (state.tab === 'gear') return gearScreen();
+  if (state.step === 'light') return lightScreen();
+  if (state.step === 'result') return resultScreen();
+  return scenesScreen();
+}
+
+const TABS = [['shoot', 'Shoot', 'aperture'], ['guide', 'Guide', 'book'], ['gear', 'Gear', 'sliders']];
+
+function render({ keepScroll = false } = {}) {
+  const scroll = app.scrollTop;
+  app.innerHTML = screenHtml();
+  tabs.innerHTML = TABS.map(([id, label, ic]) =>
+    `<button data-act="tab" data-id="${id}" ${state.tab === id ? 'aria-current="page"' : ''}>
+      ${icon(ic, 21)}<span>${label}</span></button>`).join('');
+  app.scrollTop = keepScroll ? scroll : 0;
+}
+
+/* -------------------------------------------------------------------- events */
+
+const FOCALS = [14, 16, 18, 20, 24, 28, 35, 40, 50, 60, 70, 85, 100, 105, 135, 150, 180, 200, 250, 300, 400, 500, 600];
+
+function stepFocal(direction) {
+  const r = currentSolve();
+  const { lens } = lensFor(r.scene);
+  const usable = FOCALS.filter((f) => f >= lens.min && f <= lens.max);
+  if (!usable.length) return;
+  let index = usable.findIndex((f) => f >= r.focal - 0.01);
+  if (index < 0) index = usable.length - 1;
+  const next = usable[Math.min(Math.max(index + direction, 0), usable.length - 1)];
+  state.focal = next;
+  state.lensId = lens.id;
+}
+
+function commitGear() {
+  saveGear(state.gear);
+  state.lock = {};
+}
+
+app.addEventListener('click', (event) => {
+  const el = event.target.closest('[data-act]');
+  if (!el || el.disabled) return;
+  const act = el.dataset.act;
+  const id = el.dataset.id;
+  const v = el.dataset.v;
+  const g = state.gear;
+  let keepScroll = false;
+
+  switch (act) {
+    case 'scene':
+      state.sceneId = id; state.lightId = null; state.lensId = null; state.focal = null;
+      state.lock = {}; state.allLight = false; state.step = 'light';
+      break;
+    case 'light':
+      state.lightId = id; state.step = 'result'; rememberLast();
+      break;
+    case 'all-light': state.allLight = true; keepScroll = true; break;
+    case 'resume':
+      state.sceneId = el.dataset.scene; state.lightId = el.dataset.light;
+      state.lensId = null; state.focal = null; state.lock = {}; state.step = 'result';
+      break;
+    case 'back':
+      state.step = state.step === 'result' ? 'light' : 'scenes';
+      if (state.step === 'light') state.lock = {};
+      break;
+    case 'tab':
+      state.tab = id;
+      if (id === 'shoot' && !state.sceneId) state.step = 'scenes';
+      break;
+    case 'lock-shutter': state.lock = { ...state.lock, t: Number(v) }; keepScroll = true; break;
+    case 'lock-aperture': state.lock = { ...state.lock, N: Number(v) }; keepScroll = true; break;
+    case 'unlock': state.lock = {}; keepScroll = true; break;
+    case 'focal': stepFocal(Number(v)); keepScroll = true; break;
+    case 'way': {
+      const r = currentSolve();
+      const way = r.ways.find((w) => w.id === id);
+      if (!way) break;
+      if (way.id === 'iso') {
+        g.isoCeiling = way.settings.iso.v;
+        saveGear(g);
+      } else if (way.id === 'zoom') {
+        state.focal = r.lens.min; state.lensId = r.lens.id;
+      } else {
+        state.lock = { ...state.lock, t: way.settings.shutter.s };
+      }
+      keepScroll = true;
+      break;
+    }
+    case 'guide-tab': state.guideTab = v; break;
+    case 'iso-ceiling': g.isoCeiling = Number(v); commitGear(); keepScroll = true; break;
+    case 'slowest': g.userSlowest = Number(v); commitGear(); keepScroll = true; break;
+    case 'stab': g.stabiliserStops = Number(v); commitGear(); keepScroll = true; break;
+    case 'crop': {
+      const index = CROPS.findIndex(([c]) => c === g.crop);
+      g.crop = CROPS[(index + 1) % CROPS.length][0];
+      commitGear(); keepScroll = true;
+      break;
+    }
+    case 'lens-edit': state.editingLens = state.editingLens === id ? null : id; keepScroll = true; break;
+    case 'lens-add': {
+      const lens = { id: 'l' + Date.now().toString(36), name: 'New lens', min: 35, max: 35, wideMin: 2.8, wideMax: 2.8, stabilised: false };
+      g.lenses.push(lens); state.editingLens = lens.id; commitGear(); keepScroll = true;
+      break;
+    }
+    case 'lens-remove':
+      if (g.lenses.length <= 1) break;
+      g.lenses = g.lenses.filter((l) => l.id !== id);
+      if (state.lensId === id) { state.lensId = null; state.focal = null; }
+      state.editingLens = null; commitGear(); keepScroll = true;
+      break;
+    case 'lens-is': {
+      const lens = g.lenses.find((l) => l.id === id);
+      lens.stabilised = !lens.stabilised; commitGear(); keepScroll = true;
+      break;
+    }
+    case 'lens-wide-min': case 'lens-wide-max': {
+      const lens = g.lenses.find((l) => l.id === id);
+      const key = act === 'lens-wide-min' ? 'wideMin' : 'wideMax';
+      lens[key] = Number(v);
+      if (lens.min === lens.max) lens.wideMax = lens.wideMin;
+      if (lens.wideMax < lens.wideMin) lens.wideMax = lens.wideMin;
+      commitGear(); keepScroll = true;
+      break;
+    }
+    case 'reset-gear':
+      state.gear = structuredClone(DEFAULT_GEAR);
+      state.lensId = null; state.focal = null; state.editingLens = null;
+      commitGear();
+      break;
+    default: return;
+  }
+  render({ keepScroll });
+});
+
+app.addEventListener('change', (event) => {
+  const el = event.target.closest('[data-act]');
+  if (!el) return;
+  const lens = state.gear.lenses.find((l) => l.id === el.dataset.id);
+  if (!lens) return;
+  if (el.dataset.act === 'lens-name') lens.name = el.value.slice(0, 40) || 'Lens';
+  if (el.dataset.act === 'lens-min') lens.min = Math.min(Math.max(Number(el.value) || 1, 1), 2000);
+  if (el.dataset.act === 'lens-max') lens.max = Math.min(Math.max(Number(el.value) || lens.min, lens.min), 2000);
+  if (lens.min === lens.max) lens.wideMax = lens.wideMin;
+  state.lensId = null; state.focal = null;
+  commitGear();
+  render({ keepScroll: true });
+});
+
+tabs.addEventListener('click', (event) => {
+  const el = event.target.closest('[data-act="tab"]');
+  if (!el) return;
+  state.tab = el.dataset.id;
+  if (state.tab === 'shoot' && !state.sceneId) state.step = 'scenes';
+  render();
+});
+
+render();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}

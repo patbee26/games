@@ -4,11 +4,21 @@ A photography field guide for the phone. Two taps from "what am I shooting" to
 three numbers on the camera dial — and an honest answer when the shot is not
 possible with the gear in your hand.
 
-> **Status: mockups only, nothing built.** Working name. This document records the
-> approach; `design/` holds the screens.
+> **Status: built and working.** Working name. The app is in [`app/`](app/); the
+> mockups it was built from are in [`design/`](design/).
 
 **Mockups:** <https://claude.ai/code/artifact/c6c120c6-308c-433e-99f2-f6010ba2b3da>
-Source artboards are committed under [`design/`](design/).
+
+## Running it
+
+```
+npm test            # the engine's own tests, no dependencies
+npm run serve       # http://localhost:8080
+```
+
+There is no build step and no dependencies. `app/` is the deployable artefact
+exactly as it sits — point any static host at that directory. On a phone, open it
+and use *Add to Home Screen*; after the first load it works with no signal at all.
 
 ---
 
@@ -66,19 +76,40 @@ the only reason the app can say "you are one stop short" instead of "try ISO 128
   subject, aperture by how much must be sharp, the reciprocal and 500 rules.
 - **Gear** — the profile.
 
-## Build
+## How it is built
 
-A static progressive web app. No backend, no accounts, no sign-in, no network at
-runtime — gyms, canyons and aeroplanes are exactly where this gets used. Vanilla JS or
-a small Svelte build, a service worker, add-to-home-screen, profile in `localStorage`.
-Hosts free on Netlify. One HTML file, one JS file, one manifest.
+A static progressive web app: no backend, no accounts, no sign-in, no network at
+runtime. Gyms, canyons and aeroplanes are exactly where this gets used, so the
+service worker caches everything — including the two typefaces — on first load.
+The gear profile lives in `localStorage`. Total payload is around 270 KB, most of
+it the fonts.
 
-Later, if they earn their place:
+| File | What it is |
+|---|---|
+| [`app/js/exposure.js`](app/js/exposure.js) | The solver. Anchors, relaxation order, shortfall, ways out. |
+| [`app/js/optics.js`](app/js/optics.js) | Depth of field, motion blur, the hand-held floor, zoom aperture curves. |
+| [`app/js/ladders.js`](app/js/ladders.js) | Third-stop shutter, aperture and ISO values, and snapping onto them. |
+| [`app/js/data.js`](app/js/data.js) | The content: 18 scenes, 15 light conditions. |
+| [`app/js/preview.js`](app/js/preview.js) | The live preview, driven by the optics above. |
+| [`app/js/app.js`](app/js/app.js) | Screens, routing, the gear editor. |
+| [`app/test/`](app/test/) | 21 tests over the engine. `node --test`, no dependencies. |
 
-- **Guess the light** from clock, date and GPS → sun altitude → predicted EV. Runs
-  offline; saves the second tap outdoors.
+Nothing the app suggests is off the dial: every value is snapped to a real
+third-stop position, and the snapping happens *before* the final variable is
+re-solved so the three numbers always expose the scene they claim to. There is a
+test for exactly that.
+
+### Not built, deliberately
+
+- **Example photographs.** See below — the sourcing is a month of evenings and it
+  wants your own library, not a stranger's.
+- **Guess the light** from clock, date and GPS → sun altitude → predicted EV. Would
+  run offline and save the second tap outdoors.
 - **Meter it** with the phone camera, as a sanity check against the description.
 - **Night mode** — red on black, to keep dark-adapted eyes for astro.
+
+The last three were in the mockups. They are not in the app rather than being in it
+as dead buttons.
 
 ## Example pictures
 
@@ -110,15 +141,25 @@ pull the visual direction from instrument-panel toward gallery, and a preview on
 settings screen displaces the EV tick scale, the maths ledger, and turns the
 "change one thing" chips into the controls themselves.
 
-## Open questions
+## Decisions taken while building
 
-1. **Two-step picker, or one screen?** The mockups show both. The picker is faster cold;
-   the one-screen model ("how fast is it moving / how much must be sharp / how bright")
-   describes the situation physically instead of naming a genre, and is faster once
-   learned. This decision shapes everything else and should be made first.
-2. **How many scenes?** Eight cover most days; twenty-two covers the year. More scenes
-   is more scrolling at the moment you least want it.
-3. **Do example pictures come before or after v1?** They are the difference between a
-   calculator and a field guide, and they are also the longest pole in the tent.
-4. **Thirds or full stops?** Cameras step in thirds. Advice in full stops is easier to
-   remember and easier to act on.
+1. **Two-step picker, not the one-screen model.** The picker is faster cold, and cold is
+   the state you are in when you open this. The one-screen alternative is still drawn in
+   the mockups and is still the better idea once you know the app; it is a fork worth
+   revisiting rather than one that has been closed.
+2. **Anchors on whole stops, the solved variable on thirds.** The number the subject
+   dictates is memorable (1/1000, f/8); the number the app works out lands wherever the
+   light puts it, which on a real camera is a third-stop position.
+3. **Eighteen scenes.** Enough to cover a year without turning the first screen into a
+   scrolling problem.
+
+## Still open
+
+- **Do example photographs come before or after this?** They are the difference between
+  a calculator and a field guide, and the longest pole in the tent.
+- **The default kit is a slow one** — an 18–55 and a 55–200. That is honest, and it means
+  the app's first answers are ISO-heavy and its previews are not very blurry. Right for
+  most people, underwhelming for anyone arriving with fast glass.
+- **Exposure compensation** has no home yet: snow, backlit subjects and silhouettes all
+  want the meter deliberately disagreed with, and the app currently has nothing to say
+  about that.
