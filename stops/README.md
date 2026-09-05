@@ -97,26 +97,51 @@ it the fonts.
 | [`app/js/optics.js`](app/js/optics.js) | Depth of field, motion blur, the hand-held floor, zoom aperture curves. |
 | [`app/js/ladders.js`](app/js/ladders.js) | Third-stop shutter, aperture and ISO values, and snapping onto them. |
 | [`app/js/data.js`](app/js/data.js) | The content: 18 scenes, 15 light conditions. |
+| [`app/js/sun.js`](app/js/sun.js) | Solar position (NOAA), and the altitude → EV model. |
 | [`app/js/preview.js`](app/js/preview.js) | The live preview, driven by the optics above. |
 | [`app/js/app.js`](app/js/app.js) | Screens, routing, the gear editor. |
-| [`app/test/`](app/test/) | 21 tests over the engine. `node --test`, no dependencies. |
+| [`app/test/`](app/test/) | 33 tests over the engine, optics and astronomy. `node --test`, no dependencies. |
 
 Nothing the app suggests is off the dial: every value is snapped to a real
 third-stop position, and the snapping happens *before* the final variable is
 re-solved so the three numbers always expose the scene they claim to. There is a
 test for exactly that.
 
+## Working the light out from the sun
+
+Outdoors, the light screen offers *Work it out from the sun*: position from the
+phone, time from its clock, and the NOAA solar-position algorithm gives the sun's
+altitude to a fraction of a degree. A piecewise curve turns that altitude into the
+brightest the scene can be — anchored at the top by the sunny 16 rule, at the
+bottom by a moonless night, with the conventional twilight values between.
+
+The honest part is what it does **not** claim. Position fixes the ceiling; it says
+nothing about cloud, and cloud is worth up to three and a half stops. So the app
+does not guess: it shows the four skies with the EV each one implies and lets the
+photographer pick the one they are standing under. One tap, and more accurate than
+scrolling a list, because the time and place are real.
+
+Two consequences fall out of the model rather than being special-cased. Cloud stops
+mattering as the sun sets — it cannot block a sun that is not there — so below the
+horizon the four options collapse to one. And past −18°, astronomical twilight is
+over and the curve goes flat: a sun 40° down is no darker than one 20° down.
+
+Geolocation needs a secure origin and the user's permission. Denied or unavailable,
+it says so and the descriptive list is still there; a previously allowed position is
+reused rather than wasted. GPS itself needs no signal, so the estimate works offline.
+
 ### Not built, deliberately
 
 - **Example photographs.** See below — the sourcing is a month of evenings and it
   wants your own library, not a stranger's.
-- **Guess the light** from clock, date and GPS → sun altitude → predicted EV. Would
-  run offline and save the second tap outdoors.
-- **Meter it** with the phone camera, as a sanity check against the description.
+- **Metering with the phone camera.** Auto-exposure normalises every frame, so pixels
+  alone can never give absolute light; you need the exposure the camera *chose*.
+  Chrome on Android exposes `exposureTime` and `iso`; iOS is listed as an unsupported
+  platform in the [spec's implementation status](https://github.com/w3c/mediacapture-image/blob/main/implementation-status.md),
+  so in an iPhone browser it cannot be done at all. A *relative* spot meter — compare
+  two areas of the frame, get the difference in stops — would work everywhere, and is
+  the more useful feature anyway.
 - **Night mode** — red on black, to keep dark-adapted eyes for astro.
-
-The last three were in the mockups. They are not in the app rather than being in it
-as dead buttons.
 
 ## Example pictures
 
@@ -149,6 +174,10 @@ settings screen displaces the EV tick scale, the maths ledger, and turns the
 "change one thing" chips into the controls themselves.
 
 ## Decisions taken while building
+
+0. **The sun estimate asks about cloud rather than guessing it.** A single computed
+   number would have looked more impressive and been wrong up to three stops of the
+   time.
 
 1. **Two-step picker, not the one-screen model.** The picker is faster cold, and cold is
    the state you are in when you open this. The one-screen alternative is still drawn in

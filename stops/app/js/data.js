@@ -81,20 +81,20 @@ export const SCENES = [
     tip: 'Pre-focus at three metres. At f/8 almost everything from two to six is sharp.',
   },
   {
-    id: 'indoor', name: 'Indoors, no flash', hint: 'ISO leads', icon: 'indoor',
+    id: 'indoor', indoors: true, name: 'Indoors, no flash', hint: 'ISO leads', icon: 'indoor',
     aperture: 'widest', give: ['aperture', 'iso'],
     focal: 35, subject: 3, background: 6, speed: 0.5,
     tip: 'Turn the subject towards the window. One good light beats three bad ones.',
   },
   {
-    id: 'concert', name: 'Concert & stage', hint: 'ISO leads', icon: 'concert',
+    id: 'concert', indoors: true, name: 'Concert & stage', hint: 'ISO leads', icon: 'concert',
     shutter: 1 / 250, aperture: 'widest', give: ['aperture', 'iso'],
     focal: 85, subject: 10, background: 20, speed: 1.5,
     shutterWhy: 'A singer moves more than you expect',
     tip: 'Meter for the face under the spotlight and let the background go black.',
   },
   {
-    id: 'food', name: 'Food & tabletop', hint: 'aperture leads', icon: 'food',
+    id: 'food', indoors: true, name: 'Food & tabletop', hint: 'aperture leads', icon: 'food',
     shutter: 1 / 125, aperture: 4, give: ['iso', 'shutter'],
     focal: 50, subject: 0.6, background: 1.5, speed: 0,
     apertureWhy: 'The near edge sharp, the back soft',

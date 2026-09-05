@@ -5,8 +5,10 @@ import { widestAt, handheldFloor } from './optics.js';
 import { previewHtml, previewCaption } from './preview.js';
 import { icon } from './icons.js';
 import { snapShutter, snapAperture, snapIso, FULL_STOPS } from './ladders.js';
+import { estimateLight, SKY } from './sun.js';
 
-const LAST_KEY = 'stops.last.v1';
+const LAST_KEY = 'stops.last.v2';
+const PLACE_KEY = 'stops.place.v1';
 
 const state = {
   tab: 'shoot',
@@ -19,6 +21,8 @@ const state = {
   guideTab: 'stops',
   allLight: false,
   editingLens: null,
+  customLight: null,
+  sun: { status: 'idle' },
   gear: loadGear(),
 };
 
@@ -35,9 +39,58 @@ function lensFor(scene) {
   return { lens, focal: Math.min(Math.max(wanted, lens.min), lens.max) };
 }
 
+/** The sun estimate is a light condition like any other, so nothing else cares. */
+function currentLight() {
+  return state.lightId === 'sun' ? state.customLight : lightById(state.lightId);
+}
+
+function savePlace(coords) {
+  try {
+    localStorage.setItem(PLACE_KEY, JSON.stringify({
+      latitude: coords.latitude, longitude: coords.longitude, at: Date.now(),
+    }));
+  } catch { /* nothing to do: the estimate still works, it just will not be remembered */ }
+}
+
+function readPlace() {
+  try {
+    const place = JSON.parse(localStorage.getItem(PLACE_KEY) ?? 'null');
+    return place && Number.isFinite(place.latitude) ? place : null;
+  } catch { return null; }
+}
+
+function locate() {
+  if (!navigator.geolocation) {
+    state.sun = { status: 'denied', why: 'This browser will not share a location.' };
+    render({ keepScroll: true });
+    return;
+  }
+  state.sun = { status: 'locating' };
+  render({ keepScroll: true });
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      savePlace(position.coords);
+      state.sun = { status: 'ready', place: { latitude: position.coords.latitude, longitude: position.coords.longitude } };
+      render({ keepScroll: true });
+    },
+    (error) => {
+      // A stored position from earlier is worth far more than nothing: the sun
+      // moves, a photographer usually does not move far.
+      const remembered = readPlace();
+      state.sun = remembered
+        ? { status: 'ready', place: remembered, remembered: true }
+        : { status: 'denied', why: error.code === 1
+            ? 'Location is off for this site, so the sun cannot be placed.'
+            : 'Could not get a position just now.' };
+      render({ keepScroll: true });
+    },
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 },
+  );
+}
+
 function currentSolve() {
   const scene = sceneById(state.sceneId);
-  const light = lightById(state.lightId);
+  const light = currentLight();
   if (!scene || !light) return null;
   const { lens, focal } = lensFor(scene);
   return { scene, light, ...recommend({ scene, ev: light.ev, gear: state.gear, lens, focal, lock: state.lock }) };
@@ -45,16 +98,30 @@ function currentSolve() {
 
 function rememberLast() {
   try {
-    localStorage.setItem(LAST_KEY, JSON.stringify({ sceneId: state.sceneId, lightId: state.lightId }));
+    localStorage.setItem(LAST_KEY, JSON.stringify({
+      sceneId: state.sceneId,
+      lightId: state.lightId,
+      sky: state.customLight?.cover?.id ?? null,
+    }));
   } catch { /* storage unavailable — the resume card simply will not appear */ }
 }
 
+/**
+ * A remembered sun estimate is re-run against the clock rather than replayed:
+ * the light an hour ago is not the light now, and pretending otherwise would be
+ * the one thing this feature exists to avoid.
+ */
 function readLast() {
   try {
-    const raw = localStorage.getItem(LAST_KEY);
-    if (!raw) return null;
-    const last = JSON.parse(raw);
-    return sceneById(last.sceneId) && lightById(last.lightId) ? last : null;
+    const last = JSON.parse(localStorage.getItem(LAST_KEY) ?? 'null');
+    if (!last || !sceneById(last.sceneId)) return null;
+    if (last.lightId === 'sun') {
+      const place = readPlace();
+      if (!place) return null;
+      return { ...last, light: estimateLight({ date: new Date(), ...place, sky: last.sky }) };
+    }
+    const light = lightById(last.lightId);
+    return light ? { ...last, light } : null;
   } catch { return null; }
 }
 
@@ -65,10 +132,10 @@ function scenesScreen() {
   let resume = '';
   if (last) {
     const scene = sceneById(last.sceneId);
-    const light = lightById(last.lightId);
+    const light = last.light;
     const { lens, focal } = chooseLens(state.gear, scene.focal);
     const r = recommend({ scene, ev: light.ev, gear: state.gear, lens, focal });
-    resume = `<button class="card resume mt-16" data-act="resume" data-scene="${scene.id}" data-light="${light.id}">
+    resume = `<button class="card resume mt-16" data-act="resume" data-scene="${scene.id}" data-light="${light.id}" data-sky="${last.sky ?? ''}">
       <div class="resume__body">
         <span class="lab">Pick up where you left off</span>
         <span class="resume__now">${esc(scene.name)} · ${esc(light.name)}</span>
@@ -96,6 +163,70 @@ function scenesScreen() {
   </div>`;
 }
 
+/**
+ * Position and clock fix the ceiling; only the photographer can see the cloud.
+ * So the estimate is offered as four skies with the number each one implies,
+ * rather than as a single answer the app cannot actually stand behind.
+ */
+function sunCard(scene) {
+  if (scene.indoors) return '';
+  const sun = state.sun;
+
+  if (sun.status === 'locating') {
+    return `<div class="card field mt-18">
+      <span style="color:var(--amber)">${icon('sun', 21)}</span>
+      <span class="field__body"><span class="field__value">Finding you…</span>
+      <span class="field__hint">Your phone works this out on its own. No signal needed.</span></span></div>`;
+  }
+
+  if (sun.status === 'denied') {
+    return `<div class="card field mt-18">
+      <span style="color:var(--ink-3)">${icon('sun', 21)}</span>
+      <span class="field__body"><span class="field__value" style="color:var(--ink-2)">Cannot place the sun</span>
+      <span class="field__hint">${esc(sun.why)} Describe it below instead.</span></span></div>`;
+  }
+
+  if (sun.status === 'ready') {
+    const now = new Date();
+    const options = SKY.map((sky) => ({ sky, light: estimateLight({ date: now, ...sun.place, sky: sky.id }) }));
+    const reference = options[0].light;
+    const height = reference.altitude >= 0
+      ? `Sun ${reference.altitude.toFixed(0)}° above the horizon`
+      : `Sun ${Math.abs(reference.altitude).toFixed(0)}° below the horizon`;
+
+    const body = reference.coverMatters
+      ? `<div class="grid-2 mt-12">${options.map(({ sky, light }) => `
+          <button class="tile" data-act="sun-sky" data-v="${sky.id}" style="min-height:84px">
+            <span><span class="tile__name" style="font-size:13.5px;line-height:1.2">${esc(sky.name)}</span>
+            <span class="tile__hint">${esc(sky.sub)}</span></span>
+            <span class="mono" style="font-size:17px;color:var(--amber-light)">EV ${light.ev}</span>
+          </button>`).join('')}</div>`
+      : `<button class="primary mt-12" data-act="sun-sky" data-v="clear">
+          Use it &middot; <span class="mono">&nbsp;EV ${reference.ev}</span></button>`;
+
+    return `<div class="card card--warm mt-18" style="padding:14px 15px 15px">
+      <div style="display:flex;align-items:center;gap:11px">
+        <span style="color:var(--amber)">${icon('sun', 20)}</span>
+        <span style="flex:1 1 auto">
+          <span class="lab" style="color:var(--amber-dim)">${esc(reference.name.split(',')[0])}</span>
+          <span class="field__value" style="margin-top:3px">${height}</span></span>
+      </div>
+      <p class="field__hint mt-12" style="color:var(--amber-dim)">${reference.coverMatters
+        ? 'That sets the brightest it can be. Only you can see the cloud.'
+        : 'The sun is well down, so cloud cover makes little difference now.'}</p>
+      ${body}
+      ${sun.remembered ? '<p class="muted mt-12">Using the last position you allowed.</p>' : ''}
+    </div>`;
+  }
+
+  return `<button class="card field mt-18" data-act="sun-locate">
+    <span style="color:var(--amber)">${icon('sun', 21)}</span>
+    <span class="field__body"><span class="field__value">Work it out from the sun</span>
+    <span class="field__hint">Uses where and when you are. Works with no signal.</span></span>
+    <span style="color:var(--ink-4)">${icon('chevron', 16)}</span>
+  </button>`;
+}
+
 function lightScreen() {
   const scene = sceneById(state.sceneId);
   const shown = state.allLight ? LIGHT : LIGHT.filter((l) => l.common);
@@ -117,7 +248,9 @@ function lightScreen() {
       <span class="mono" style="font-size:11px;color:var(--ink-4);letter-spacing:.08em">2 / 2</span>
     </div>
     <h1 class="h1 mt-18">How is the light?</h1>
-    <div class="card rows mt-18">${rows}</div>
+    ${sunCard(scene)}
+    <span class="lab mt-22">${scene.indoors ? 'Describe it' : 'Or describe it'}</span>
+    <div class="card rows mt-12">${rows}</div>
     ${more}
   </div>`;
 }
@@ -488,16 +621,32 @@ app.addEventListener('click', (event) => {
   switch (act) {
     case 'scene':
       state.sceneId = id; state.lightId = null; state.lensId = null; state.focal = null;
-      state.lock = {}; state.allLight = false; state.step = 'light';
+      state.lock = {}; state.allLight = false; state.customLight = null; state.step = 'light';
+      break;
+    case 'sun-locate':
+      locate();
+      return;
+    case 'sun-sky':
+      state.customLight = estimateLight({ date: new Date(), ...state.sun.place, sky: v });
+      state.lightId = 'sun'; state.step = 'result'; rememberLast();
       break;
     case 'light':
-      state.lightId = id; state.step = 'result'; rememberLast();
+      state.lightId = id; state.customLight = null; state.step = 'result'; rememberLast();
       break;
     case 'all-light': state.allLight = true; keepScroll = true; break;
-    case 'resume':
-      state.sceneId = el.dataset.scene; state.lightId = el.dataset.light;
-      state.lensId = null; state.focal = null; state.lock = {}; state.step = 'result';
+    case 'resume': {
+      state.sceneId = el.dataset.scene;
+      state.lensId = null; state.focal = null; state.lock = {};
+      if (el.dataset.light === 'sun') {
+        const place = readPlace();
+        // Re-estimated for now, not replayed from earlier. Without a position
+        // there is nothing to re-estimate from, so fall back to the picker.
+        if (!place) { state.step = 'light'; break; }
+        state.customLight = estimateLight({ date: new Date(), ...place, sky: el.dataset.sky || 'clear' });
+      }
+      state.lightId = el.dataset.light; state.step = 'result';
       break;
+    }
     case 'back':
       state.step = state.step === 'result' ? 'light' : 'scenes';
       if (state.step === 'light') state.lock = {};
