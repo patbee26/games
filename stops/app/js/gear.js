@@ -8,6 +8,8 @@ import { widestAt } from './optics.js';
 const KEY = 'stops.gear.v1';
 
 export const DEFAULT_GEAR = {
+  brand: null,
+  showHowTo: true,
   crop: 1.5,
   isoMin: 100,
   isoCeiling: 6400,

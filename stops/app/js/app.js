@@ -1,11 +1,13 @@
 import { SCENES, LIGHT, sceneById, lightById } from './data.js';
 import { recommend, describeStops } from './exposure.js';
 import { loadGear, saveGear, chooseLens, DEFAULT_GEAR } from './gear.js';
-import { widestAt, handheldFloor } from './optics.js';
+import { widestAt } from './optics.js';
 import { previewHtml, previewCaption } from './preview.js';
 import { icon } from './icons.js';
 import { snapShutter, snapAperture, snapIso, FULL_STOPS, ISO_CEILINGS } from './ladders.js';
 import { estimateLight, SKY } from './sun.js';
+import { BRANDS, brandById, HEDGE } from './cameras.js';
+import { motionThreshold } from './optics.js';
 
 const LAST_KEY = 'stops.last.v2';
 const PLACE_KEY = 'stops.place.v1';
@@ -295,6 +297,62 @@ function chipRow(kind, values, current, widest) {
  * moves the aperture, the hand-held floor and the depth of field at once, so it
  * belongs beside the numbers it decides.
  */
+/**
+ * A second recipe: the same scene judged differently, with the cost of the
+ * difference stated. One answer reads as magic; two read as a choice.
+ */
+function alternativeFor(r) {
+  const alt = r.scene.alt;
+  if (!alt) return null;
+  const derived = { ...r.scene };
+  if (alt.shutter != null) { derived.shutter = alt.shutter; derived.shutterRule = null; }
+  if (alt.shutterRule) derived.shutterRule = alt.shutterRule;
+  if (alt.aperture != null) derived.aperture = alt.aperture;
+  if (alt.tripod !== undefined) derived.tripod = alt.tripod;
+
+  const result = recommend({ scene: derived, ev: r.ev, gear: state.gear, lens: r.lens, focal: r.focal });
+  const identical = result.shutter.label === r.shutter.label
+    && result.aperture.label === r.aperture.label && result.iso.v === r.iso.v;
+  return identical ? null : { alt, result };
+}
+
+/** What a faster or slower shutter actually buys, in this scene, at this lens. */
+function shutterLesson(r) {
+  const threshold = motionThreshold({
+    focal: r.focal, crop: state.gear.crop ?? 1, speed: r.scene.speed, subject: r.scene.subject,
+  });
+  if (threshold) {
+    return `Slower than about ${snapShutter(threshold).label} and the movement starts to show. Faster costs ISO.`;
+  }
+  if (r.scene.tripod) return 'Nothing here is moving and the camera is on a tripod, so the shutter can take as long as it needs.';
+  return `Nothing here is moving, so the limit is your own hands — ${snapShutter(r.floor).label} is the slowest you said you trust.`;
+}
+
+const APERTURE_LESSON = 'Each step to the right doubles how much stays sharp, and costs one stop of light.';
+
+/** The numbers are useless until you know which dial they go on. */
+function cameraCard() {
+  const g = state.gear;
+  if (g.showHowTo === false) return '';
+  const brand = brandById(g.brand);
+  if (!brand) {
+    return `<button class="card field mt-18" data-act="tab" data-id="gear">
+      <span style="color:var(--amber)">${icon('camera', 21)}</span>
+      <span class="field__body"><span class="field__value">Which camera do you shoot?</span>
+      <span class="field__hint">Tell me, and I will say which dial to turn rather than only what to set it to.</span></span>
+      <span style="color:var(--ink-4)">${icon('chevron', 16)}</span></button>`;
+  }
+  return `<div class="card mt-18" style="padding:14px 15px 15px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="color:var(--amber)">${icon('camera', 19)}</span><span class="lab">On your ${esc(brand.name)}</span>
+    </div>
+    <ol class="howto mt-10">
+      <li>${esc(brand.manual)}</li><li>${esc(brand.dials)}</li><li>${esc(brand.iso)}</li>
+    </ol>
+    <p class="muted mt-10">${esc(HEDGE)}</p>
+  </div>`;
+}
+
 function lensSection(r) {
   const lenses = state.gear.lenses;
   const wanted = state.focal ?? r.scene.focal;
@@ -383,6 +441,16 @@ function resultScreen() {
 
   const zoom = lensSection(r);
 
+  const alternative = alternativeFor(r);
+  const altCard = alternative ? `
+    <span class="lab mt-22">Or, if you would rather</span>
+    <button class="card way mt-10" data-act="take-alt">
+      <span class="way__head"><span class="way__title">${esc(alternative.alt.name)}</span></span>
+      <span class="way__detail">${esc(alternative.alt.why)}</span>
+      <span class="way__set">${alternative.result.shutter.label} &middot; ${alternative.result.aperture.label}
+        &middot; ISO ${alternative.result.iso.label} &rarr;</span>
+    </button>` : '';
+
   return `<div class="screen">
     <div class="bar">
       <button class="back" data-act="back" aria-label="Back">${icon('back', 20)}</button>
@@ -416,10 +484,15 @@ function resultScreen() {
       </div>
     </div>
 
-    <span class="lab mt-18">Shutter</span>
+    ${altCard}
+    ${cameraCard()}
+
+    <span class="lab mt-22">Shutter</span>
     <div class="grid-4 mt-8">${chipRow('shutter', shutterChoices, r.shutter.s, r.widest)}</div>
+    <p class="lesson">${esc(shutterLesson(r))}</p>
     <span class="lab mt-16">Aperture</span>
     <div class="grid-4 mt-8">${chipRow('aperture', apertureChoices, r.aperture.N, r.widest)}</div>
+    <p class="lesson">${esc(APERTURE_LESSON)}</p>
     ${zoom}
     ${locked ? `<div class="center mt-16"><button data-act="unlock" style="color:var(--amber);font-size:12.5px;font-weight:500">
       Back to the app's own answer</button></div>` : ''}
@@ -600,6 +673,16 @@ function gearScreen() {
     <h1 class="h1">Your gear</h1>
     <p class="sub">Three numbers do most of the work, and they are the whole reason your answers differ from a printed chart.</p>
 
+    <span class="lab mt-18">Camera</span>
+    <div class="grid-auto mt-8">${BRANDS.map((brand) =>
+      `<button class="pick" data-act="brand" data-id="${brand.id}" aria-pressed="${g.brand === brand.id}">
+        <span class="pick__name">${esc(brand.name)}</span></button>`).join('')}</div>
+    <button class="card field mt-10" data-act="howto">
+      <span class="field__body"><span class="field__value">Which dial to turn</span>
+      <span class="field__hint">Show how to set these on your camera, alongside the numbers.</span></span>
+      <span class="chip" style="min-height:34px;padding:0 12px;${g.showHowTo === false ? '' : 'background:var(--amber);border-color:var(--amber);color:var(--amber-ink)'}">${g.showHowTo === false ? 'Off' : 'On'}</span>
+    </button>
+
     <button class="card field mt-18" data-act="crop">
       <span style="color:var(--ink-3)">${icon('camera', 21)}</span>
       <span class="field__body"><span class="lab">Sensor</span><span class="field__value">${esc(cropName)} · ${g.crop}× crop</span></span>
@@ -737,6 +820,15 @@ app.addEventListener('click', (event) => {
     case 'lock-shutter': state.lock = { ...state.lock, t: Number(v) }; keepScroll = true; break;
     case 'lock-aperture': state.lock = { ...state.lock, N: Number(v) }; keepScroll = true; break;
     case 'unlock': state.lock = {}; keepScroll = true; break;
+    case 'take-alt': {
+      const alternative = alternativeFor(currentSolve());
+      if (!alternative) break;
+      state.lock = { t: alternative.result.shutter.s, N: alternative.result.aperture.N };
+      keepScroll = true;
+      break;
+    }
+    case 'brand': g.brand = id; commitGear(); keepScroll = true; break;
+    case 'howto': g.showHowTo = !g.showHowTo; commitGear(); keepScroll = true; break;
     case 'focal': stepFocal(Number(v)); keepScroll = true; break;
     case 'lens-pick': {
       const lens = g.lenses.find((l) => l.id === id);

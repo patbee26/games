@@ -27,7 +27,7 @@ export const stopsBetween = (from, to) => Math.log2(to / from);
 const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
 
 function startingShutter(scene, focal, crop, floor) {
-  if (scene.shutterRule === '500') return starTrailLimit({ focal, crop });
+  if (scene.shutterRule) return Number(scene.shutterRule) / (focal * crop);
   if (scene.shutter != null) return scene.shutter;
   return floor;
 }

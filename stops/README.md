@@ -96,7 +96,8 @@ it the fonts.
 | [`app/js/exposure.js`](app/js/exposure.js) | The solver. Anchors, relaxation order, shortfall, ways out. |
 | [`app/js/optics.js`](app/js/optics.js) | Depth of field, motion blur, the hand-held floor, zoom aperture curves. |
 | [`app/js/ladders.js`](app/js/ladders.js) | Third-stop shutter, aperture and ISO values, and snapping onto them. |
-| [`app/js/data.js`](app/js/data.js) | The content: 18 scenes, 15 light conditions. |
+| [`app/js/data.js`](app/js/data.js) | The content: 18 scenes with a second recipe each, 15 light conditions. |
+| [`app/js/cameras.js`](app/js/cameras.js) | Turning the three numbers into the dials on a given marque. |
 | [`app/js/sun.js`](app/js/sun.js) | Solar position (NOAA), and the altitude → EV model. |
 | [`app/js/preview.js`](app/js/preview.js) | The live preview, driven by the optics above. |
 | [`app/js/app.js`](app/js/app.js) | Screens, routing, the gear editor. |
@@ -106,6 +107,27 @@ Nothing the app suggests is off the dial: every value is snapped to a real
 third-stop position, and the snapping happens *before* the final variable is
 re-solved so the three numbers always expose the scene they claim to. There is a
 test for exactly that.
+
+## Teaching, not just answering
+
+The app is aimed at someone learning, so an answer on its own is not the deliverable.
+
+Every scene carries **a second recipe** — the same situation judged differently, with
+the cost of the difference stated. Sports offers *Cleaner file*: half the ISO, and feet
+and hands smear a little while faces stay sharp. One answer reads as magic; two read as
+a choice, which is what photography actually is.
+
+Under the controls, **what a change would buy**, computed rather than written down:
+the motion equation says where this subject's movement starts to show at this focal
+length and distance, so a sprint at 135 mm reads *"slower than about 1/640 and the
+movement starts to show"* while a group portrait reads 1/20.
+
+And the numbers are useless until you know which dial they go on, so the settings screen
+translates them: *"Turn the mode dial to M. The dial just behind the shutter button sets
+shutter speed."* This is brand-level rather than model-level and says so on screen —
+what is written is true of a marque's usual arrangement, and a specific body can always
+differ. Fujifilm gets its own wording, because taking two dials off **A** is not the same
+gesture as turning a dial to **M**.
 
 ## Working the light out from the sun
 

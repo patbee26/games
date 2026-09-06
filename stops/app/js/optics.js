@@ -57,6 +57,16 @@ export function handheldFloor({ focal, crop = 1, stabiliserStops = 0, userSlowes
   return userSlowest ? Math.min(assisted, userSlowest) : assisted;
 }
 
+/**
+ * The shutter speed at which this subject's movement starts to be visible —
+ * where its smear crosses a given fraction of the frame width. Useful for
+ * telling a beginner what they are actually buying with a faster shutter.
+ */
+export function motionThreshold({ focal, crop = 1, speed, subject, fraction = 0.006 }) {
+  if (!speed || !focal || !subject) return null;
+  return (fraction * sensorWidth(crop) * subject) / (speed * focal);
+}
+
 /** The 500 rule: longest exposure before stars trail, in seconds. */
 export function starTrailLimit({ focal, crop = 1 }) {
   return 500 / (focal * crop);

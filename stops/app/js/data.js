@@ -29,6 +29,7 @@ export const SCENES = [
     shutter: 1 / 1000, aperture: 'widest', give: ['aperture', 'iso'],
     focal: 135, subject: 12, background: 40, speed: 8,
     shutterWhy: 'Stops a running player dead',
+    alt: { name: 'Cleaner file', why: 'Half the ISO. Feet and hands smear a little; faces stay sharp.', shutter: 1 / 500 },
     tip: 'Meter off the grass, not the sky. White cloud will talk your camera down a stop.',
   },
   {
@@ -36,6 +37,7 @@ export const SCENES = [
     shutter: 1 / 500, aperture: 'widest', give: ['aperture', 'iso'],
     focal: 50, subject: 3, background: 8, speed: 3,
     shutterWhy: 'Fast enough for a sudden bolt',
+    alt: { name: 'Cleaner file', why: 'Half the ISO, and fine until they suddenly bolt.', shutter: 1 / 250 },
     tip: 'Get down to their eye level. It matters more than any of these numbers.',
   },
   {
@@ -43,6 +45,7 @@ export const SCENES = [
     shutter: 1 / 2000, aperture: 'widest', give: ['aperture', 'iso'],
     focal: 300, subject: 20, background: 60, speed: 12,
     shutterWhy: 'Wings need this much',
+    alt: { name: 'Cleaner file', why: 'Bodies stay sharp, wingtips go soft. One stop less noise.', shutter: 1 / 1000 },
     tip: 'Focus on the eye. A sharp eye forgives a lot elsewhere.',
   },
   {
@@ -50,6 +53,7 @@ export const SCENES = [
     shutter: 1 / 160, aperture: 2, give: ['iso', 'shutter'], giveBright: ['shutter', 'aperture'],
     focal: 85, subject: 2, background: 6, speed: 0.3,
     apertureWhy: 'One face sharp, the rest melts',
+    alt: { name: 'Safer focus', why: 'Two stops more depth, so the near eye is far easier to hit.', aperture: 4 },
     tip: 'Focus on the near eye. At this aperture the far one may already be soft.',
   },
   {
@@ -57,6 +61,7 @@ export const SCENES = [
     shutter: 1 / 160, aperture: 5.6, give: ['iso', 'shutter'],
     focal: 35, subject: 4, background: 10, speed: 0.3,
     apertureWhy: 'Two rows of people stay sharp',
+    alt: { name: 'More light', why: 'A stop back from f/5.6. Watch the back row start to soften.', aperture: 4 },
     tip: 'Put the back row a step closer than feels natural. Depth of field is thinner than you think.',
   },
   {
@@ -64,6 +69,7 @@ export const SCENES = [
     aperture: 8, tripod: true, give: ['shutter', 'iso'], giveBright: ['shutter', 'aperture'],
     focal: 24, subject: 8, background: Infinity, speed: 0,
     apertureWhy: 'Front to back, without diffraction',
+    alt: { name: 'Hand-held', why: 'No tripod, so the shutter is capped and ISO carries it.', tripod: false },
     tip: 'Focus a third of the way into the scene, not on the horizon.',
   },
   {
@@ -71,6 +77,7 @@ export const SCENES = [
     aperture: 8, tripod: true, give: ['shutter', 'iso'], giveBright: ['shutter', 'aperture'],
     focal: 24, subject: 15, background: Infinity, speed: 0,
     apertureWhy: 'Sharp corner to corner',
+    alt: { name: 'Hand-held', why: 'No tripod, so the shutter is capped and ISO carries it.', tripod: false },
     tip: 'Keep the sensor parallel to the facade or the verticals will lean.',
   },
   {
@@ -78,12 +85,14 @@ export const SCENES = [
     shutter: 1 / 250, aperture: 8, give: ['iso', 'shutter'],
     focal: 35, subject: 5, background: 20, speed: 1.4,
     apertureWhy: 'Deep enough to shoot without focusing',
+    alt: { name: 'Available light', why: 'Open up rather than push ISO. Less depth to hide a focus miss.', aperture: 'widest' },
     tip: 'Pre-focus at three metres. At f/8 almost everything from two to six is sharp.',
   },
   {
     id: 'indoor', indoors: true, name: 'Indoors, no flash', hint: 'ISO leads', icon: 'indoor',
     aperture: 'widest', give: ['aperture', 'iso'],
     focal: 35, subject: 3, background: 6, speed: 0.5,
+    alt: { name: 'Steadier', why: 'Two stops faster than your floor, for insurance against shake.', shutter: 1 / 125 },
     tip: 'Turn the subject towards the window. One good light beats three bad ones.',
   },
   {
@@ -91,6 +100,7 @@ export const SCENES = [
     shutter: 1 / 250, aperture: 'widest', give: ['aperture', 'iso'],
     focal: 85, subject: 10, background: 20, speed: 1.5,
     shutterWhy: 'A singer moves more than you expect',
+    alt: { name: 'Freeze it', why: 'Sharper on a singer who will not stand still. One more stop of ISO.', shutter: 1 / 500 },
     tip: 'Meter for the face under the spotlight and let the background go black.',
   },
   {
@@ -98,6 +108,7 @@ export const SCENES = [
     shutter: 1 / 125, aperture: 4, give: ['iso', 'shutter'],
     focal: 50, subject: 0.6, background: 1.5, speed: 0,
     apertureWhy: 'The near edge sharp, the back soft',
+    alt: { name: 'The whole plate', why: 'Front to back sharp. Two stops of ISO to pay for it.', aperture: 8 },
     tip: 'Shoot towards the window, never with it behind you.',
   },
   {
@@ -105,6 +116,7 @@ export const SCENES = [
     shutter: 1 / 200, aperture: 11, give: ['iso'],
     focal: 100, subject: 0.3, background: 1, speed: 0,
     apertureWhy: 'At this distance depth of field is millimetres',
+    alt: { name: 'Less noise', why: 'Two stops cleaner, and depth of field shrinks to almost nothing.', aperture: 5.6 },
     tip: 'Rock forward and back to focus rather than turning the ring.',
   },
   {
@@ -112,6 +124,7 @@ export const SCENES = [
     aperture: 8, tripod: true, give: ['shutter', 'iso'], giveBright: ['shutter', 'aperture'],
     focal: 24, subject: 20, background: Infinity, speed: 0,
     apertureWhy: 'Turns every streetlight into a star',
+    alt: { name: 'Hand-held', why: 'No tripod, so the shutter is capped and ISO carries it.', tripod: false },
     tip: 'Use the self-timer. Pressing the shutter is enough to shake a tripod.',
   },
   {
@@ -119,6 +132,7 @@ export const SCENES = [
     shutterRule: '500', aperture: 'widest', tripod: true, lockShutter: true, give: ['iso'],
     focal: 20, subject: 1000, background: Infinity, speed: 0,
     shutterWhy: 'Longer than this and the stars streak',
+    alt: { name: 'Shorter, stack later', why: 'Half the trailing. Shoot several and stack them afterwards.', shutterRule: '250' },
     tip: 'Focus manually on the brightest star using live view at full magnification.',
   },
   {
@@ -126,6 +140,7 @@ export const SCENES = [
     shutter: 1, aperture: 11, tripod: true, lockShutter: true, give: ['iso'], giveBright: [], nd: true,
     focal: 24, subject: 6, background: 30, speed: 0,
     shutterWhy: 'Long enough to smooth the surface',
+    alt: { name: 'Keep some texture', why: 'Movement in the water rather than silk, and far less ND needed.', shutter: 1 / 4 },
     tip: 'A polariser doubles as a two-stop ND and kills the glare at the same time.',
   },
   {
@@ -133,6 +148,7 @@ export const SCENES = [
     shutter: 1 / 60, aperture: 'widest', lockShutter: true, give: ['aperture', 'iso'], giveBright: ['aperture'],
     focal: 50, subject: 8, background: 25, speed: 12,
     shutterWhy: 'Slow enough for the background to streak',
+    alt: { name: 'Safer', why: 'Easier to keep the subject sharp, with less streak behind it.', shutter: 1 / 125 },
     tip: 'Follow through after the shutter fires, the way you would with a golf swing.',
   },
   {
@@ -140,6 +156,7 @@ export const SCENES = [
     shutter: 2, aperture: 11, tripod: true, lockShutter: true, give: ['iso'], giveBright: [], nd: false,
     focal: 35, subject: 200, background: Infinity, speed: 0,
     shutterWhy: 'One full burst, start to finish',
+    alt: { name: 'One burst', why: 'A single shell rather than several overlapping.', shutter: 1 },
     tip: 'Frame wider than feels right and focus manually at infinity before it starts.',
   },
   {
@@ -147,6 +164,7 @@ export const SCENES = [
     evOverride: 15, shutter: 1 / 250, aperture: 8, give: ['iso'], giveBright: ['shutter', 'aperture'],
     focal: 300, subject: 384000000, background: Infinity, speed: 0,
     apertureWhy: 'The moon is a sunlit rock — treat it as daylight',
+    alt: { name: 'Insurance', why: 'A stop faster against shake on a long lens, paid for in ISO.', shutter: 1 / 500 },
     tip: 'The night around it is irrelevant. Meter the moon itself or everything blows out.',
   },
 ];
