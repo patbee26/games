@@ -255,6 +255,29 @@ function lightScreen() {
   </div>`;
 }
 
+/**
+ * Four apertures the lens can actually reach, always including the one in use.
+ * Centring the window on the current value instead offered f/1 and f/1.2 on a
+ * lens that opens to f/1.8 — two dead chips out of four.
+ */
+function apertureWindow(current, widest) {
+  // Anchored on the aperture in use, stepped in whole stops, and never wider
+  // than the lens goes. Anchoring on the lens maximum instead put f/8 and f/9
+  // side by side, a third of a stop apart and useless as a choice.
+  const floorN = snapAperture(widest).N;
+  const rungs = [];
+  for (let stop = -6; stop <= 6; stop += 1) {
+    const rung = snapAperture(current * Math.pow(2, stop / 2));
+    if (rung.N >= floorN - 1e-9 && rung.N <= 22 && !rungs.some((r) => r.label === rung.label)) {
+      rungs.push(rung);
+    }
+  }
+  rungs.sort((a, b) => a.N - b.N);
+  const at = rungs.findIndex((a) => Math.abs(Math.log2(a.N / current)) < 0.04);
+  const start = Math.min(Math.max(at - 1, 0), Math.max(rungs.length - 4, 0));
+  return rungs.slice(start, start + 4);
+}
+
 function chipRow(kind, values, current, widest) {
   return values.map((v) => {
     const label = kind === 'shutter' ? v.label : v.label;
@@ -267,6 +290,46 @@ function chipRow(kind, values, current, widest) {
   }).join('');
 }
 
+/**
+ * The lens is part of the answer rather than a detail of it: changing glass
+ * moves the aperture, the hand-held floor and the depth of field at once, so it
+ * belongs beside the numbers it decides.
+ */
+function lensSection(r) {
+  const lenses = state.gear.lenses;
+  const wanted = state.focal ?? r.scene.focal;
+
+  const chips = lenses.map((l) => {
+    const focal = Math.min(Math.max(wanted, l.min), l.max);
+    const wide = snapAperture(widestAt(l, focal));
+    return `<button class="pick" data-act="lens-pick" data-id="${l.id}" aria-pressed="${l.id === r.lens.id}">
+      <span class="pick__name">${esc(l.name)}</span>
+      <span class="pick__wide">f/${wide.N}${l.min === l.max ? '' : ' at ' + Math.round(focal)}</span>
+    </button>`;
+  }).join('');
+
+  // Picking a lens that cannot reach the scene's usual focal length is a real
+  // choice, not a mistake — but the photographer should be told what it costs.
+  const short = Math.abs(Math.log2(r.focal / r.scene.focal)) > 0.2
+    ? `<p class="field__hint mt-8">Not enough reach for the usual ${r.scene.focal} mm here — frame wider and crop in later.</p>`
+    : '';
+
+  const stepper = r.lens.min !== r.lens.max ? `
+    <div class="card field mt-10">
+      <span class="field__body"><span class="lab">Focal length</span>
+      <span class="field__hint">Widest here is f/${snapAperture(r.widest).N}</span></span>
+      <span class="stepper">
+        <button data-act="focal" data-v="-1" aria-label="Shorter">${icon('minus', 18)}</button>
+        <span class="stepper__value">${Math.round(r.focal)} mm</span>
+        <button data-act="focal" data-v="1" aria-label="Longer">${icon('plus', 18)}</button>
+      </span>
+    </div>` : '';
+
+  const picker = lenses.length > 1
+    ? `<span class="lab mt-18">Lens</span><div class="grid-auto mt-8">${chips}</div>${short}` : '';
+  return picker + stepper;
+}
+
 function resultScreen() {
   const r = currentSolve();
   if (!r) return scenesScreen();
@@ -275,7 +338,7 @@ function resultScreen() {
   const locked = state.lock.t != null || state.lock.N != null;
 
   const shutterChoices = [r.shutter.s / 4, r.shutter.s / 2, r.shutter.s, r.shutter.s * 2].map(snapShutter);
-  const apertureChoices = [r.aperture.N / 2, r.aperture.N / 1.414, r.aperture.N, r.aperture.N * 1.414].map(snapAperture);
+  const apertureChoices = apertureWindow(r.aperture.N, r.widest);
 
   // Never say "at your cap" unless ISO is genuinely at it: the badge used to
   // fire on any shortfall, so a frame held back by a locked shutter blamed a
@@ -318,16 +381,7 @@ function resultScreen() {
           ${w.settings.shutter.label} · ${w.settings.aperture.label} · ISO ${w.settings.iso.label} →</button>
       </div>`).join('')}</div>` : '';
 
-  const zoom = r.lens.min !== r.lens.max ? `
-    <div class="card field mt-12">
-      <span class="field__body"><span class="lab">Focal length</span>
-      <span class="field__hint">${esc(r.lens.name)} · widest here is f/${snapAperture(r.widest).N}</span></span>
-      <span class="stepper">
-        <button data-act="focal" data-v="-1" aria-label="Shorter">${icon('minus', 18)}</button>
-        <span class="stepper__value">${Math.round(r.focal)} mm</span>
-        <button data-act="focal" data-v="1" aria-label="Longer">${icon('plus', 18)}</button>
-      </span>
-    </div>` : '';
+  const zoom = lensSection(r);
 
   return `<div class="screen">
     <div class="bar">
@@ -632,7 +686,6 @@ function stepFocal(direction) {
 
 function commitGear() {
   saveGear(state.gear);
-  state.lock = {};
 }
 
 app.addEventListener('click', (event) => {
@@ -685,6 +738,15 @@ app.addEventListener('click', (event) => {
     case 'lock-aperture': state.lock = { ...state.lock, N: Number(v) }; keepScroll = true; break;
     case 'unlock': state.lock = {}; keepScroll = true; break;
     case 'focal': stepFocal(Number(v)); keepScroll = true; break;
+    case 'lens-pick': {
+      const lens = g.lenses.find((l) => l.id === id);
+      if (!lens) break;
+      const wanted = state.focal ?? sceneById(state.sceneId).focal;
+      state.lensId = lens.id;
+      state.focal = Math.min(Math.max(wanted, lens.min), lens.max);
+      keepScroll = true;
+      break;
+    }
     case 'way': {
       const r = currentSolve();
       const way = r.ways.find((w) => w.id === id);
@@ -738,7 +800,7 @@ app.addEventListener('click', (event) => {
     }
     case 'reset-gear':
       state.gear = structuredClone(DEFAULT_GEAR);
-      state.lensId = null; state.focal = null; state.editingLens = null;
+      state.lensId = null; state.focal = null; state.editingLens = null; state.lock = {};
       commitGear();
       break;
     default: return;

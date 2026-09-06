@@ -47,8 +47,10 @@ export function recommend({ scene, ev, gear, lens, focal, lock = {} }) {
     ? LONGEST_SHUTTER
     : handheldFloor({ focal, crop, stabiliserStops, userSlowest: gear.userSlowest });
 
-  let N = lock.N ?? (scene.aperture === 'widest' ? widest : clamp(scene.aperture, widest, NARROWEST));
-  let t = lock.t ?? startingShutter(scene, focal, crop, floor);
+  // Everything, a hand-picked aperture included, is bounded by the glass: a lock
+  // set on a fast lens must not survive a switch to a slow one.
+  let N = clamp(lock.N ?? (scene.aperture === 'widest' ? widest : scene.aperture), widest, NARROWEST);
+  let t = clamp(lock.t ?? startingShutter(scene, focal, crop, floor), FASTEST_SHUTTER, LONGEST_SHUTTER);
   if (lock.t == null && !scene.tripod && !scene.lockShutter) t = Math.min(t, floor);
   let iso = lock.iso ?? gear.isoMin ?? 100;
 

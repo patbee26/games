@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { settingEV, recommend, describeStops } from '../js/exposure.js';
 import { snapShutter, snapAperture, snapIso, ISO_CEILINGS, MAX_ISO } from '../js/ladders.js';
 import { DEFAULT_GEAR, chooseLens } from '../js/gear.js';
+import { widestAt } from '../js/optics.js';
 import { sceneById, lightById } from '../js/data.js';
 
 const gear = DEFAULT_GEAR;
@@ -129,6 +130,38 @@ test('suggested values are all real dial positions', () => {
       assert.equal(snapIso(r.iso.v).label, r.iso.label);
     }
   }
+});
+
+test('the app reaches for the fastest lens that covers the focal length', () => {
+  // The default kit has a 35 mm f/1.8 sitting alongside an 18–55 that is f/4.6
+  // there. Picking the zoom instead threw away nearly three stops.
+  const { lens } = chooseLens(gear, 35);
+  const covering = gear.lenses.filter((l) => l.min <= 35 && l.max >= 35);
+  const best = Math.min(...covering.map((l) => widestAt(l, 35)));
+  assert.ok(Math.abs(widestAt(lens, 35) - best) < 0.01,
+    `chose ${lens.name} at f/${widestAt(lens, 35).toFixed(1)} when f/${best.toFixed(1)} was available`);
+});
+
+test('choosing a different lens changes the answer', () => {
+  const scene = sceneById('indoor');
+  const prime = gear.lenses.find((l) => l.id === 'prime');
+  const kit = gear.lenses.find((l) => l.id === 'kit');
+  const fast = recommend({ scene, ev: 5, gear, lens: prime, focal: 35 });
+  const slow = recommend({ scene, ev: 5, gear, lens: kit, focal: 35 });
+  assert.ok(fast.aperture.N < slow.aperture.N, 'the prime should open wider');
+  assert.ok(fast.iso.v < slow.iso.v, 'and so cost less ISO');
+});
+
+test('a locked aperture cannot beat the lens it is on', () => {
+  // Lock f/1.8 on the prime, then put the same lock on the slow kit zoom.
+  const scene = sceneById('indoor');
+  const kit = gear.lenses.find((l) => l.id === 'kit');
+  const r = recommend({ scene, ev: 5, gear, lens: kit, focal: 35, lock: { N: 1.8 } });
+  // The dial has no f/4.63, so the honest answer is the nearest rung to the
+  // lens's real maximum — which is what the lens reports at this focal length.
+  assert.equal(r.aperture.label, snapAperture(widestAt(kit, 35)).label,
+    `suggested ${r.aperture.label} on a lens that only opens to f/${widestAt(kit, 35).toFixed(2)}`);
+  assert.ok(r.aperture.N > 3, 'the f/1.8 lock must not have survived the switch');
 });
 
 test('a tripod scene reaches for ISO once the shutter has run out', () => {

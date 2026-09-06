@@ -3,6 +3,8 @@
 // the slowest shutter they trust hand-held — and they are the whole reason the
 // app's answers differ from a printed chart.
 
+import { widestAt } from './optics.js';
+
 const KEY = 'stops.gear.v1';
 
 export const DEFAULT_GEAR = {
@@ -40,8 +42,10 @@ export function saveGear(gear) {
 export function chooseLens(gear, wanted) {
   const covering = gear.lenses.filter((l) => wanted >= l.min && wanted <= l.max);
   if (covering.length) {
-    // Prefer the one that is fastest at this focal length.
-    return { lens: covering[0], focal: wanted };
+    // The fastest one, which is the whole point of owning it. Taking the first
+    // in the list instead was quietly leaving nearly three stops in the bag.
+    const fastest = covering.reduce((a, b) => (widestAt(a, wanted) <= widestAt(b, wanted) ? a : b));
+    return { lens: fastest, focal: wanted };
   }
   let best = gear.lenses[0];
   let bestGap = Infinity;

@@ -100,7 +100,7 @@ it the fonts.
 | [`app/js/sun.js`](app/js/sun.js) | Solar position (NOAA), and the altitude → EV model. |
 | [`app/js/preview.js`](app/js/preview.js) | The live preview, driven by the optics above. |
 | [`app/js/app.js`](app/js/app.js) | Screens, routing, the gear editor. |
-| [`app/test/`](app/test/) | 39 tests over the engine, optics and astronomy. `node --test`, no dependencies. |
+| [`app/test/`](app/test/) | 42 tests over the engine, optics and astronomy. `node --test`, no dependencies. |
 
 Nothing the app suggests is off the dial: every value is snapped to a real
 third-stop position, and the snapping happens *before* the final variable is
@@ -186,7 +186,11 @@ settings screen displaces the EV tick scale, the maths ledger, and turns the
 2. **Anchors on whole stops, the solved variable on thirds.** The number the subject
    dictates is memorable (1/1000, f/8); the number the app works out lands wherever the
    light puts it, which on a real camera is a third-stop position.
-3. **Eighteen scenes.** Enough to cover a year without turning the first screen into a
+3. **The lens is part of the answer.** It is picked automatically — the fastest one
+   that covers the focal length — and overridden from the settings screen, because
+   changing glass moves the aperture, the hand-held floor and the depth of field
+   all at once.
+4. **Eighteen scenes.** Enough to cover a year without turning the first screen into a
    scrolling problem.
 
 ## Still open
