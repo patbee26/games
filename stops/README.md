@@ -97,7 +97,6 @@ it the fonts.
 | [`app/js/optics.js`](app/js/optics.js) | Depth of field, motion blur, the hand-held floor, zoom aperture curves. |
 | [`app/js/ladders.js`](app/js/ladders.js) | Third-stop shutter, aperture and ISO values, and snapping onto them. |
 | [`app/js/data.js`](app/js/data.js) | The content: 18 scenes with a second recipe each, 15 light conditions. |
-| [`app/js/cameras.js`](app/js/cameras.js) | Turning the three numbers into the dials on a given marque. |
 | [`app/js/sun.js`](app/js/sun.js) | Solar position (NOAA), and the altitude → EV model. |
 | [`app/js/preview.js`](app/js/preview.js) | The live preview, driven by the optics above. |
 | [`app/js/app.js`](app/js/app.js) | Screens, routing, the gear editor. |
@@ -121,13 +120,6 @@ Under the controls, **what a change would buy**, computed rather than written do
 the motion equation says where this subject's movement starts to show at this focal
 length and distance, so a sprint at 135 mm reads *"slower than about 1/640 and the
 movement starts to show"* while a group portrait reads 1/20.
-
-And the numbers are useless until you know which dial they go on, so the settings screen
-translates them: *"Turn the mode dial to M. The dial just behind the shutter button sets
-shutter speed."* This is brand-level rather than model-level and says so on screen —
-what is written is true of a marque's usual arrangement, and a specific body can always
-differ. Fujifilm gets its own wording, because taking two dials off **A** is not the same
-gesture as turning a dial to **M**.
 
 ## Working the light out from the sun
 
@@ -156,6 +148,15 @@ reused rather than wasted. GPS itself needs no signal, so the estimate works off
 
 - **Example photographs.** See below — the sourcing is a month of evenings and it
   wants your own library, not a stranger's.
+- **Naming the dials on your camera.** Built brand-level, then cut from v1. Telling a
+  beginner *which* control to turn is genuinely valuable, but doing it honestly needs
+  per-body data, and the brand-level version could only ship hedged — "your own body may
+  be laid out differently" — which in a beginner app is close to no answer at all.
+  Layout clusters into roughly thirty families rather than four hundred models, so it is
+  tractable; the sourcing is the work, and guessing it from memory would be worse than
+  silence. If it returns, it should come back inverted: three questions that derive the
+  layout from the camera in the photographer's hands, with a model list only pre-filling
+  the answers. Removed in one commit and restorable from it.
 - **Metering with the phone camera.** Auto-exposure normalises every frame, so pixels
   alone can never give absolute light; you need the exposure the camera *chose*.
   Chrome on Android exposes `exposureTime` and `iso`; iOS is listed as an unsupported

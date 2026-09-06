@@ -6,7 +6,6 @@ import { previewHtml, previewCaption } from './preview.js';
 import { icon } from './icons.js';
 import { snapShutter, snapAperture, snapIso, FULL_STOPS, ISO_CEILINGS } from './ladders.js';
 import { estimateLight, SKY } from './sun.js';
-import { BRANDS, brandById, HEDGE } from './cameras.js';
 import { motionThreshold } from './optics.js';
 
 const LAST_KEY = 'stops.last.v2';
@@ -330,29 +329,6 @@ function shutterLesson(r) {
 
 const APERTURE_LESSON = 'Each step to the right doubles how much stays sharp, and costs one stop of light.';
 
-/** The numbers are useless until you know which dial they go on. */
-function cameraCard() {
-  const g = state.gear;
-  if (g.showHowTo === false) return '';
-  const brand = brandById(g.brand);
-  if (!brand) {
-    return `<button class="card field mt-18" data-act="tab" data-id="gear">
-      <span style="color:var(--amber)">${icon('camera', 21)}</span>
-      <span class="field__body"><span class="field__value">Which camera do you shoot?</span>
-      <span class="field__hint">Tell me, and I will say which dial to turn rather than only what to set it to.</span></span>
-      <span style="color:var(--ink-4)">${icon('chevron', 16)}</span></button>`;
-  }
-  return `<div class="card mt-18" style="padding:14px 15px 15px">
-    <div style="display:flex;align-items:center;gap:10px">
-      <span style="color:var(--amber)">${icon('camera', 19)}</span><span class="lab">On your ${esc(brand.name)}</span>
-    </div>
-    <ol class="howto mt-10">
-      <li>${esc(brand.manual)}</li><li>${esc(brand.dials)}</li><li>${esc(brand.iso)}</li>
-    </ol>
-    <p class="muted mt-10">${esc(HEDGE)}</p>
-  </div>`;
-}
-
 function lensSection(r) {
   const lenses = state.gear.lenses;
   const wanted = state.focal ?? r.scene.focal;
@@ -485,7 +461,6 @@ function resultScreen() {
     </div>
 
     ${altCard}
-    ${cameraCard()}
 
     <span class="lab mt-22">Shutter</span>
     <div class="grid-4 mt-8">${chipRow('shutter', shutterChoices, r.shutter.s, r.widest)}</div>
@@ -673,16 +648,6 @@ function gearScreen() {
     <h1 class="h1">Your gear</h1>
     <p class="sub">Three numbers do most of the work, and they are the whole reason your answers differ from a printed chart.</p>
 
-    <span class="lab mt-18">Camera</span>
-    <div class="grid-auto mt-8">${BRANDS.map((brand) =>
-      `<button class="pick" data-act="brand" data-id="${brand.id}" aria-pressed="${g.brand === brand.id}">
-        <span class="pick__name">${esc(brand.name)}</span></button>`).join('')}</div>
-    <button class="card field mt-10" data-act="howto">
-      <span class="field__body"><span class="field__value">Which dial to turn</span>
-      <span class="field__hint">Show how to set these on your camera, alongside the numbers.</span></span>
-      <span class="chip" style="min-height:34px;padding:0 12px;${g.showHowTo === false ? '' : 'background:var(--amber);border-color:var(--amber);color:var(--amber-ink)'}">${g.showHowTo === false ? 'Off' : 'On'}</span>
-    </button>
-
     <button class="card field mt-18" data-act="crop">
       <span style="color:var(--ink-3)">${icon('camera', 21)}</span>
       <span class="field__body"><span class="lab">Sensor</span><span class="field__value">${esc(cropName)} · ${g.crop}× crop</span></span>
@@ -827,8 +792,6 @@ app.addEventListener('click', (event) => {
       keepScroll = true;
       break;
     }
-    case 'brand': g.brand = id; commitGear(); keepScroll = true; break;
-    case 'howto': g.showHowTo = !g.showHowTo; commitGear(); keepScroll = true; break;
     case 'focal': stepFocal(Number(v)); keepScroll = true; break;
     case 'lens-pick': {
       const lens = g.lenses.find((l) => l.id === id);
