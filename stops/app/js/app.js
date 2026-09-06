@@ -4,7 +4,7 @@ import { loadGear, saveGear, chooseLens, DEFAULT_GEAR } from './gear.js';
 import { widestAt, handheldFloor } from './optics.js';
 import { previewHtml, previewCaption } from './preview.js';
 import { icon } from './icons.js';
-import { snapShutter, snapAperture, snapIso, FULL_STOPS } from './ladders.js';
+import { snapShutter, snapAperture, snapIso, FULL_STOPS, ISO_CEILINGS } from './ladders.js';
 import { estimateLight, SKY } from './sun.js';
 
 const LAST_KEY = 'stops.last.v2';
@@ -466,8 +466,13 @@ function guideScreen() {
 
 /* ---------------------------------------------------------------------- gear */
 
-const ISO_CEILINGS = [1600, 3200, 6400, 12800, 25600];
 const SLOWEST = [1 / 125, 1 / 60, 1 / 30, 1 / 15];
+
+/** The standard ceilings, plus the current one if it is not among them. */
+function ceilingChoices(current) {
+  const all = ISO_CEILINGS.includes(current) ? [...ISO_CEILINGS] : [...ISO_CEILINGS, current];
+  return all.sort((a, b) => a - b);
+}
 const CROPS = [[1, 'Full frame'], [1.5, 'APS-C'], [1.6, 'APS-C (Canon)'], [2, 'Micro Four Thirds']];
 const WIDEST_CHOICES = [1.4, 1.8, 2, 2.8, 3.5, 4, 5.6];
 
@@ -530,9 +535,8 @@ function gearScreen() {
         <span class="lab">Highest ISO I will accept</span>
         <span class="mono" style="font-size:22px;font-weight:500;color:var(--amber)">${g.isoCeiling}</span>
       </div>
-      <div class="grid-5 mt-12">${ISO_CEILINGS.map((v) =>
-        `<button class="chip" data-act="iso-ceiling" data-v="${v}" aria-pressed="${g.isoCeiling === v}"
-          style="font-size:${v > 9999 ? '11.5' : '13'}px">${v}</button>`).join('')}</div>
+      <div class="grid-3 mt-12">${ceilingChoices(g.isoCeiling).map((v) =>
+        `<button class="chip" data-act="iso-ceiling" data-v="${v}" aria-pressed="${g.isoCeiling === v}">${v}</button>`).join('')}</div>
     </div>
 
     <div class="card mt-12" style="overflow:hidden">
@@ -664,7 +668,7 @@ app.addEventListener('click', (event) => {
       const way = r.ways.find((w) => w.id === id);
       if (!way) break;
       if (way.id === 'iso') {
-        g.isoCeiling = way.settings.iso.v;
+        g.isoCeiling = way.ceiling ?? way.settings.iso.v;
         saveGear(g);
       } else if (way.id === 'zoom') {
         state.focal = r.lens.min; state.lensId = r.lens.id;

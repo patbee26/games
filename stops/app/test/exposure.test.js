@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { settingEV, recommend, describeStops } from '../js/exposure.js';
-import { snapShutter, snapAperture, snapIso } from '../js/ladders.js';
+import { snapShutter, snapAperture, snapIso, ISO_CEILINGS, MAX_ISO } from '../js/ladders.js';
 import { DEFAULT_GEAR, chooseLens } from '../js/gear.js';
 import { sceneById, lightById } from '../js/data.js';
 
@@ -129,6 +129,50 @@ test('suggested values are all real dial positions', () => {
       assert.equal(snapIso(r.iso.v).label, r.iso.label);
     }
   }
+});
+
+test('a suggested ISO ceiling is always one the gear screen can offer', () => {
+  const scene = sceneById('sports');
+  const lens = gear.lenses.find((l) => l.id === 'tele');
+  for (const ev of [8, 7, 5, 3, 0, -4]) {
+    const r = recommend({ scene, ev, gear, lens, focal: 200 });
+    const way = r.ways.find((w) => w.id === 'iso');
+    if (!way) continue;
+    assert.ok(ISO_CEILINGS.includes(way.ceiling),
+      `EV ${ev} suggested a ceiling of ${way.ceiling}, which is not on the list the user picks from`);
+  }
+});
+
+test('the ISO offer never claims to buy more light than the dial has', () => {
+  const scene = sceneById('sports');
+  const lens = gear.lenses.find((l) => l.id === 'tele');
+  // Far too dark to fix: the offer has to admit it falls short.
+  const r = recommend({ scene, ev: 0, gear, lens, focal: 200 });
+  const way = r.ways.find((w) => w.id === 'iso');
+  assert.ok(way, 'there should still be an offer');
+  assert.ok(way.remaining > 0.05, 'this cannot possibly be closed, and the offer must say so');
+  assert.match(way.detail, /short/, 'the wording has to admit it: ' + way.detail);
+  assert.ok(way.settings.iso.v <= MAX_ISO);
+});
+
+test('the ISO offer keeps quiet once the ceiling is already at the top', () => {
+  const scene = sceneById('sports');
+  const lens = gear.lenses.find((l) => l.id === 'tele');
+  const maxed = { ...gear, isoCeiling: MAX_ISO };
+  const r = recommend({ scene, ev: 3, gear: maxed, lens, focal: 200 });
+  assert.equal(r.ways.find((w) => w.id === 'iso'), undefined,
+    'offering to raise a ceiling that cannot go higher is a lie');
+});
+
+test('taking the ISO offer really does reach the ISO it advertises', () => {
+  const scene = sceneById('sports');
+  const lens = gear.lenses.find((l) => l.id === 'tele');
+  const r = recommend({ scene, ev: 7, gear, lens, focal: 200 });
+  const way = r.ways.find((w) => w.id === 'iso');
+  const after = recommend({ scene, ev: 7, gear: { ...gear, isoCeiling: way.ceiling }, lens, focal: 200 });
+  assert.equal(after.iso.v, way.settings.iso.v, 'the offer and the result must agree');
+  assert.ok(Math.abs(after.shortfallStops - way.remaining) < 0.05,
+    `offer promised ${way.remaining.toFixed(2)} left, result had ${after.shortfallStops.toFixed(2)}`);
 });
 
 test('describeStops speaks like a photographer', () => {

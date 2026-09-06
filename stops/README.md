@@ -100,7 +100,7 @@ it the fonts.
 | [`app/js/sun.js`](app/js/sun.js) | Solar position (NOAA), and the altitude → EV model. |
 | [`app/js/preview.js`](app/js/preview.js) | The live preview, driven by the optics above. |
 | [`app/js/app.js`](app/js/app.js) | Screens, routing, the gear editor. |
-| [`app/test/`](app/test/) | 33 tests over the engine, optics and astronomy. `node --test`, no dependencies. |
+| [`app/test/`](app/test/) | 37 tests over the engine, optics and astronomy. `node --test`, no dependencies. |
 
 Nothing the app suggests is off the dial: every value is snapped to a real
 third-stop position, and the snapping happens *before* the final variable is

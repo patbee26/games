@@ -30,6 +30,17 @@ export const ISOS = [
   25600, 32000, 40000, 51200,
 ].map((v) => ({ v, label: String(v) }));
 
+/**
+ * Ceilings a photographer would actually cap themselves at, in whole stops.
+ * The engine suggests from this list and the gear screen offers it, so the two
+ * cannot drift apart — which is exactly how the app came to suggest a ceiling
+ * its own settings screen could not express.
+ */
+export const ISO_CEILINGS = [1600, 3200, 6400, 12800, 25600, 51200];
+
+/** The highest ISO on the dial at all. No ceiling above this means anything. */
+export const MAX_ISO = ISOS[ISOS.length - 1].v;
+
 // Whole stops, for the guide's ladder table.
 export const FULL_STOPS = {
   shutter: ['1/2000', '1/1000', '1/500', '1/250', '1/125', '1/60', '1/30', '1/15'],

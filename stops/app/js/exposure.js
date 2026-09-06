@@ -9,7 +9,7 @@
 // third. When the third lands outside the lens or the photographer's ISO
 // ceiling, it says so rather than rounding the problem away.
 
-import { snapShutter, snapAperture, snapIso } from './ladders.js';
+import { snapShutter, snapAperture, snapIso, ISO_CEILINGS } from './ladders.js';
 import { handheldFloor, starTrailLimit, widestAt } from './optics.js';
 
 const FASTEST_SHUTTER = 1 / 8000;
@@ -180,13 +180,26 @@ function waysOut({ scene, gear, lens, focal, snapped, shortfallStops, floor, tar
     });
   }
 
-  const lifted = snapIso(snapped.iso.v * Math.pow(2, missing));
-  ways.push({
-    id: 'iso',
-    title: 'Lift the ISO cap to ' + lifted.label,
-    detail: 'Grain is fixable. Blur is not. Raise your ceiling for the evening and shoot raw.',
-    settings: { shutter: snapped.t, aperture: snapped.N, iso: lifted },
-  });
+  // Suggest a ceiling the photographer could have chosen themselves, and never
+  // claim it closes the gap when the dial runs out first.
+  const wanted = snapped.iso.v * Math.pow(2, missing);
+  const ceiling = ISO_CEILINGS.find((c) => c >= wanted - 1e-9) ?? ISO_CEILINGS[ISO_CEILINGS.length - 1];
+  if (ceiling > snapped.iso.v + 1e-9) {
+    const reached = snapIso(Math.min(wanted, ceiling));
+    const bought = stopsBetween(snapped.iso.v, reached.v);
+    const left = Math.max(0, missing - bought);
+    ways.push({
+      id: 'iso',
+      title: 'Lift the ISO cap to ' + ceiling,
+      ceiling,
+      detail: left > 0.05
+        ? `Grain is fixable and blur is not — but the dial stops here, so this buys `
+          + `${describeStops(bought)} and leaves you ${describeStops(left)} short.`
+        : 'Grain is fixable. Blur is not. Raise your ceiling for the evening and shoot raw.',
+      settings: { shutter: snapped.t, aperture: snapped.N, iso: reached },
+      remaining: left,
+    });
+  }
 
   return ways;
 }
