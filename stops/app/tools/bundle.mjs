@@ -10,7 +10,7 @@ const read = (p) => readFileSync(new URL(p, root), 'utf8');
 
 // Dependency order: every module imports only from the ones above it.
 const MODULES = ['js/ladders.js', 'js/optics.js', 'js/exposure.js', 'js/data.js',
-  'js/gear.js', 'js/icons.js', 'js/preview.js', 'js/sun.js', 'js/app.js'];
+  'js/gear.js', 'js/icons.js', 'js/preview.js', 'js/sun.js', 'js/craft.js', 'js/app.js'];
 
 const script = MODULES.map((file) => read(file)
   .replace(/^import[\s\S]*?from '[^']+';$/gm, '')

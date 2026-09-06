@@ -7,6 +7,7 @@ import { icon } from './icons.js';
 import { snapShutter, snapAperture, snapIso, FULL_STOPS, ISO_CEILINGS } from './ladders.js';
 import { estimateLight, SKY } from './sun.js';
 import { motionThreshold } from './optics.js';
+import { craftFor } from './craft.js';
 
 const LAST_KEY = 'stops.last.v2';
 const THEME_KEY = 'stops.theme.v1';
@@ -20,7 +21,8 @@ const state = {
   lightId: null,
   focal: null,
   lock: {},
-  guideTab: 'stops',
+  guideTab: 'scenes',
+  guideScene: null,
   allLight: false,
   editingLens: null,
   customLight: null,
@@ -511,10 +513,11 @@ function resultScreen() {
       Back to the app's own answer</button></div>` : ''}
     ${ways}
 
-    <div class="note" style="padding-left:0;padding-right:0">
+    <button class="note" style="padding-left:0;padding-right:0;width:100%" data-act="scene-guide" data-id="${scene.id}">
       <span class="note__icon">${icon('info', 17)}</span>
-      <span class="note__text">${esc(scene.tip)}</span>
-    </div>
+      <span class="note__text">${esc(scene.tip)}
+        <span style="color:var(--amber);font-weight:600">&nbsp;More on shooting this &rarr;</span></span>
+    </button>
   </div>`;
 }
 
@@ -579,12 +582,79 @@ const GUIDE = {
   ],
 };
 
+/** The scene's own rules, read back out of the data that drives the solver. */
+function anchorRows(scene) {
+  const rows = [];
+  if (scene.shutterRule) rows.push(['Shutter', `${scene.shutterRule} ÷ (focal × crop)`]);
+  else if (scene.shutter != null) rows.push(['Shutter', `${snapShutter(scene.shutter).label} or faster`]);
+  else rows.push(['Shutter', 'Your hand-held floor']);
+  rows.push(['Aperture', scene.aperture === 'widest' ? 'As wide as the lens goes' : `f/${scene.aperture}`]);
+  const names = { aperture: 'aperture', iso: 'ISO', shutter: 'shutter' };
+  const gives = (scene.give ?? ['iso']).map((g) => names[g] ?? g).join(', then ');
+  rows.push(['Then gives way with', gives.charAt(0).toUpperCase() + gives.slice(1)]);
+  if (scene.tripod) rows.push(['Assumes', 'A tripod']);
+  return rows;
+}
+
+function sceneGuide(scene) {
+  const c = craftFor(scene.id);
+  if (!c) return guideList();
+  return `<div class="screen">
+    <div class="bar">
+      <button class="back" data-act="guide-back" aria-label="Back to the list">${icon('back', 20)}</button>
+      <span class="bar__title"><span class="bar__name">Field guide</span></span>
+      <button class="barbtn" data-act="home" aria-label="Back to the start">${icon('home', 19)}</button>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:11px;margin-top:18px;color:var(--amber)">${icon(scene.icon, 24)}</div>
+    <h1 class="h1 mt-12">${esc(scene.name)}</h1>
+    <p class="sub">${esc(c.intro)}</p>
+
+    <span class="lab mt-22">In the field</span>
+    <div class="steps mt-12">
+      ${c.craft.map(([title, detail]) => `<div class="step">
+        <span class="step__n" style="padding-top:2px">${icon('check', 15)}</span>
+        <span><span class="step__t">${esc(title)}</span><span class="step__d">${esc(detail)}</span></span>
+      </div>`).join('')}
+    </div>
+
+    <div class="card card--warn alert mt-22">
+      <span class="alert__icon">${icon('warning', 19)}</span>
+      <span><span class="alert__title" style="font-size:14px">What usually goes wrong</span>
+      <span class="alert__body">${esc(c.mistake)}</span></span>
+    </div>
+
+    <span class="lab mt-22">What the app holds fixed here</span>
+    <div class="card mt-10 deftable">
+      ${anchorRows(scene).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}
+    </div>
+
+    <button class="primary mt-22" data-act="shoot-scene" data-id="${scene.id}">Shoot this now</button>
+  </div>`;
+}
+
+function guideList() {
+  return SCENES.map((sc) => `<button class="row" data-act="guide-scene" data-id="${sc.id}">
+      <span style="color:var(--ink-3);display:flex">${icon(sc.icon, 20)}</span>
+      <span class="row__body"><span class="row__name">${esc(sc.name)}</span>
+      <span class="row__sub">${esc(craftFor(sc.id)?.intro.split(/[.,]/)[0] ?? sc.hint)}</span></span>
+      <span style="color:var(--ink-4);display:flex">${icon('chevron', 15)}</span>
+    </button>`).join('');
+}
+
 function guideScreen() {
-  const tabsHtml = ['stops', 'shutter', 'aperture', 'rules'].map((t) =>
+  if (state.guideScene) {
+    const scene = sceneById(state.guideScene);
+    if (scene) return sceneGuide(scene);
+  }
+  const tabsHtml = ['scenes', 'stops', 'shutter', 'aperture', 'rules'].map((t) =>
     `<button data-act="guide-tab" data-v="${t}" aria-pressed="${state.guideTab === t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('');
 
   let body = '';
-  if (state.guideTab === 'stops') {
+  if (state.guideTab === 'scenes') {
+    body = `<p class="sub mt-18">Eighteen scenes, and how to shoot each one — beyond what to set the dials to.</p>
+      <div class="card rows mt-12">${guideList()}</div>`;
+  } else if (state.guideTab === 'stops') {
     const cells = FULL_STOPS.shutter.map((_, i) =>
       `<span class="ladder__cell">${FULL_STOPS.shutter[i]}</span>
        <span class="ladder__cell">${FULL_STOPS.aperture[i]}</span>
@@ -937,7 +1007,15 @@ app.addEventListener('click', (event) => {
       keepScroll = true;
       break;
     }
-    case 'guide-tab': state.guideTab = v; break;
+    case 'guide-tab': state.guideTab = v; state.guideScene = null; break;
+    case 'guide-scene': state.guideScene = id; break;
+    case 'guide-back': state.guideScene = null; break;
+    case 'scene-guide': state.tab = 'guide'; state.guideTab = 'scenes'; state.guideScene = id; break;
+    case 'shoot-scene':
+      state.sceneId = id; state.lightId = null; state.customLight = null;
+      state.focal = null; state.lock = {}; state.allLight = false;
+      state.guideScene = null; state.tab = 'shoot'; state.step = 'light';
+      break;
     case 'iso-ceiling': g.isoCeiling = Number(v); commitGear(); keepScroll = true; break;
     case 'slowest': g.userSlowest = Number(v); commitGear(); keepScroll = true; break;
     case 'stab': g.stabiliserStops = Number(v); commitGear(); keepScroll = true; break;

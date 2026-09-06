@@ -98,6 +98,7 @@ it the fonts.
 | [`app/js/ladders.js`](app/js/ladders.js) | Third-stop shutter, aperture and ISO values, and snapping onto them. |
 | [`app/js/data.js`](app/js/data.js) | The content: 18 scenes with a second recipe each, 15 light conditions. |
 | [`app/js/sun.js`](app/js/sun.js) | Solar position (NOAA), and the altitude → EV model. |
+| [`app/js/craft.js`](app/js/craft.js) | How to shoot each scene, as opposed to what to set. |
 | [`app/js/preview.js`](app/js/preview.js) | The live preview, driven by the optics above. |
 | [`app/js/app.js`](app/js/app.js) | Screens, routing, the gear editor. |
 | [`app/test/`](app/test/) | 42 tests over the engine, optics and astronomy. `node --test`, no dependencies. |
@@ -129,6 +130,21 @@ Under the controls, **what a change would buy**, computed rather than written do
 the motion equation says where this subject's movement starts to show at this focal
 length and distance, so a sprint at 135 mm reads *"slower than about 1/640 and the
 movement starts to show"* while a group portrait reads 1/20.
+
+### The guide proper
+
+The field guide opens on the eighteen scenes, and each is a short tutorial rather
+than a row in a table: what makes the scene hard, three things to do before the
+shutter, and the mistake that spoils most attempts. *Kids and pets* begins "the
+problem is rarely the camera — it is that you are two feet too high and half a
+second too late", and ends on waiting for a smile when the second before and the
+second after are the better picture.
+
+Each entry also reads back, out of the same data that drives the solver, what the
+app holds fixed for that scene and what it lets go of first — so the advice and
+the arithmetic are visibly the same object. *Shoot this now* goes from the page
+straight to the light picker, and the tip on the settings screen opens the full
+entry for whatever is being shot.
 
 ## Working the light out from the sun
 
