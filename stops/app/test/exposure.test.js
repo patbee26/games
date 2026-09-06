@@ -131,6 +131,36 @@ test('suggested values are all real dial positions', () => {
   }
 });
 
+test('a tripod scene reaches for ISO once the shutter has run out', () => {
+  const scene = sceneById('landscape');
+  const { lens, focal } = chooseLens(gear, scene.focal);
+
+  // Plenty of shutter left: the tripod does the work and the file stays clean.
+  const dusk = recommend({ scene, ev: 5, gear, lens, focal });
+  assert.equal(dusk.iso.v, 100, 'no reason to raise ISO while the shutter can still open up');
+  assert.ok(dusk.shutter.s < 30);
+
+  // Past thirty seconds there is nothing left but ISO.
+  const moonlit = recommend({ scene, ev: -3, gear, lens, focal });
+  assert.ok(moonlit.shutter.s >= 30, 'the shutter should be wide open first');
+  assert.ok(moonlit.iso.v > 100, 'ISO has to take over, got ' + moonlit.iso.v);
+  assert.equal(moonlit.shortfallStops, 0, 'and it should close the gap');
+});
+
+test('the ISO ceiling reaches tripod scenes too', () => {
+  // Reported as "the cap does nothing, it is stuck at ISO 100": these scenes
+  // used to hand the shutter the whole job and never consult ISO at all.
+  for (const id of ['landscape', 'architecture', 'nightcity']) {
+    const scene = sceneById(id);
+    const { lens, focal } = chooseLens(gear, scene.focal);
+    const low = recommend({ scene, ev: -6, gear: { ...gear, isoCeiling: 6400 }, lens, focal });
+    const high = recommend({ scene, ev: -6, gear: { ...gear, isoCeiling: 25600 }, lens, focal });
+    assert.ok(low.iso.v > 100, id + ' left ISO at base in the dark');
+    assert.ok(high.iso.v > low.iso.v, id + ' ignored a raised ceiling');
+    assert.ok(high.shortfallStops < low.shortfallStops, id + ': a higher cap should close the gap');
+  }
+});
+
 test('a suggested ISO ceiling is always one the gear screen can offer', () => {
   const scene = sceneById('sports');
   const lens = gear.lenses.find((l) => l.id === 'tele');

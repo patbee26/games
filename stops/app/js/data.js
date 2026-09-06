@@ -61,14 +61,14 @@ export const SCENES = [
   },
   {
     id: 'landscape', name: 'Landscape', hint: 'aperture leads', icon: 'landscape',
-    aperture: 8, tripod: true, give: ['shutter'], giveBright: ['shutter'],
+    aperture: 8, tripod: true, give: ['shutter', 'iso'], giveBright: ['shutter'],
     focal: 24, subject: 8, background: Infinity, speed: 0,
     apertureWhy: 'Front to back, without diffraction',
     tip: 'Focus a third of the way into the scene, not on the horizon.',
   },
   {
     id: 'architecture', name: 'Architecture', hint: 'aperture leads', icon: 'architecture',
-    aperture: 8, tripod: true, give: ['shutter'], giveBright: ['shutter'],
+    aperture: 8, tripod: true, give: ['shutter', 'iso'], giveBright: ['shutter'],
     focal: 24, subject: 15, background: Infinity, speed: 0,
     apertureWhy: 'Sharp corner to corner',
     tip: 'Keep the sensor parallel to the facade or the verticals will lean.',
@@ -109,7 +109,7 @@ export const SCENES = [
   },
   {
     id: 'nightcity', name: 'Night & city', hint: 'tripod', icon: 'night',
-    aperture: 8, tripod: true, give: ['shutter'], giveBright: ['shutter'],
+    aperture: 8, tripod: true, give: ['shutter', 'iso'], giveBright: ['shutter'],
     focal: 24, subject: 20, background: Infinity, speed: 0,
     apertureWhy: 'Turns every streetlight into a star',
     tip: 'Use the self-timer. Pressing the shutter is enough to shake a tripod.',
