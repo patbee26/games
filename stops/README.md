@@ -210,9 +210,11 @@ settings screen displaces the EV tick scale, the maths ledger, and turns the
    dictates is memorable (1/1000, f/8); the number the app works out lands wherever the
    light puts it, which on a real camera is a third-stop position.
 3. **The lens is part of the answer.** It is picked automatically — the fastest one
-   that covers the focal length — and overridden from the settings screen, because
-   changing glass moves the aperture, the hand-held floor and the depth of field
-   all at once.
+   that covers the focal length — and overridden from either the settings screen or
+   the gear profile, because changing glass moves the aperture, the hand-held floor
+   and the depth of field all at once. A lens chosen in the gear profile is a fact
+   about the camera rather than a choice about one shot: it stays mounted across
+   scenes and across restarts until it is changed back to automatic.
 4. **Eighteen scenes.** Enough to cover a year without turning the first screen into a
    scrolling problem.
 

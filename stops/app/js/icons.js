@@ -31,6 +31,7 @@ const P = {
   moon: '<circle cx="12" cy="12" r="8.6"/><circle cx="9" cy="9.5" r="1.6"/><circle cx="14.5" cy="14" r="1.1"/><circle cx="15" cy="8.5" r="0.8"/>',
   wildlife: '<path d="M4.5 20c0-4.5 3.2-7.5 7.5-7.5s7.5 3 7.5 7.5"/><circle cx="12" cy="8" r="3.4"/><path d="M8.4 5.2L6.6 2.8M15.6 5.2l1.8-2.4"/>',
   sun: '<circle cx="12" cy="12" r="4.4"/><path d="M12 2.4v2.6M12 19v2.6M4.2 12H1.6M22.4 12h-2.6M6.3 6.3L4.5 4.5M19.5 19.5l-1.8-1.8M17.7 6.3l1.8-1.8M4.5 19.5l1.8-1.8"/>',
+  check: '<path d="M4.5 12.5l5 5 10-11"/>',
   camera: '<path d="M3 8.4h3.6L8.4 5.6h7.2l1.8 2.8H21v10.2H3z"/><circle cx="12" cy="13.2" r="3.3"/>',
   lens: '<circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="3.4"/>',
 };

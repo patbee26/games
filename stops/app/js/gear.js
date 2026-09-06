@@ -8,6 +8,9 @@ import { widestAt } from './optics.js';
 const KEY = 'stops.gear.v1';
 
 export const DEFAULT_GEAR = {
+  // null means "work it out per scene"; an id means that lens is on the camera
+  // and stays there until the photographer says otherwise.
+  activeLensId: null,
   crop: 1.5,
   isoMin: 100,
   isoCeiling: 6400,

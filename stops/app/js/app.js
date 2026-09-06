@@ -16,7 +16,6 @@ const state = {
   step: 'scenes',
   sceneId: null,
   lightId: null,
-  lensId: null,
   focal: null,
   lock: {},
   guideTab: 'stops',
@@ -35,8 +34,11 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 
 function lensFor(scene) {
   const auto = chooseLens(state.gear, scene.focal);
-  const lens = state.gear.lenses.find((l) => l.id === state.lensId) ?? auto.lens;
-  const wanted = state.focal ?? auto.focal;
+  const mounted = state.gear.activeLensId
+    ? state.gear.lenses.find((l) => l.id === state.gear.activeLensId)
+    : null;
+  const lens = mounted ?? auto.lens;
+  const wanted = state.focal ?? (mounted ? scene.focal : auto.focal);
   return { lens, focal: Math.min(Math.max(wanted, lens.min), lens.max) };
 }
 
@@ -333,14 +335,18 @@ function lensSection(r) {
   const lenses = state.gear.lenses;
   const wanted = state.focal ?? r.scene.focal;
 
-  const chips = lenses.map((l) => {
+  const chips = [`<button class="pick" data-act="lens-pick" data-id="auto"
+      aria-pressed="${!state.gear.activeLensId}">
+      <span class="pick__name">Automatic</span>
+      <span class="pick__wide">best for the scene</span>
+    </button>`].concat(lenses.map((l) => {
     const focal = Math.min(Math.max(wanted, l.min), l.max);
     const wide = snapAperture(widestAt(l, focal));
     return `<button class="pick" data-act="lens-pick" data-id="${l.id}" aria-pressed="${l.id === r.lens.id}">
       <span class="pick__name">${esc(l.name)}</span>
       <span class="pick__wide">f/${wide.N}${l.min === l.max ? '' : ' at ' + Math.round(focal)}</span>
     </button>`;
-  }).join('');
+  })).join('');
 
   // Picking a lens that cannot reach the scene's usual focal length is a real
   // choice, not a mistake — but the photographer should be told what it costs.
@@ -600,6 +606,20 @@ function ceilingChoices(current) {
 const CROPS = [[1, 'Full frame'], [1.5, 'APS-C'], [1.6, 'APS-C (Canon)'], [2, 'Micro Four Thirds']];
 const WIDEST_CHOICES = [1.4, 1.8, 2, 2.8, 3.5, 4, 5.6];
 
+/** What the lens choice does to the shot currently on screen, shown where the
+ *  choice is made — otherwise the effect is two taps away and invisible. */
+function mountedEffect() {
+  const r = currentSolve();
+  if (!r) return '';
+  return `<div class="card card--warm mt-12" style="padding:13px 15px 14px">
+    <span class="lab" style="color:var(--amber-dim)">With this lens, right now</span>
+    <div class="mono" style="font-size:19px;color:var(--amber-light);margin-top:8px;letter-spacing:-0.01em">
+      ${r.shutter.label} &middot; ${r.aperture.label} &middot; ${r.iso.label}</div>
+    <div style="font-size:12px;color:var(--amber-dim);margin-top:6px;line-height:1.4">
+      ${esc(r.scene.name)} &middot; ${esc(r.light.name)} &middot; ${Math.round(r.focal)} mm</div>
+  </div>`;
+}
+
 function gearScreen() {
   const g = state.gear;
   const cropName = (CROPS.find(([c]) => c === g.crop) ?? [g.crop, 'Custom'])[1];
@@ -636,12 +656,17 @@ function gearScreen() {
       </div>
     </div>`;
 
-    return `<div><button class="lens" data-act="lens-edit" data-id="${l.id}" aria-expanded="${open}">
-      <span style="color:var(--ink-3)">${icon('lens', 20)}</span>
-      <span class="lens__body"><span class="lens__name">${esc(l.name)}</span>
-      ${sub ? `<span class="lens__sub">${esc(sub)}</span>` : ''}</span>
-      <span class="lens__wide mono">${wide}</span>
-    </button>${editor}</div>`;
+    const mounted = g.activeLensId === l.id;
+    return `<div><div class="lensrow">
+      <button class="lens" data-act="lens-pick" data-id="${l.id}" aria-pressed="${mounted}">
+        <span class="lens__mark">${icon(mounted ? 'check' : 'lens', mounted ? 17 : 19)}</span>
+        <span class="lens__body"><span class="lens__name">${esc(l.name)}</span>
+        ${sub ? `<span class="lens__sub">${esc(sub)}</span>` : ''}</span>
+        <span class="lens__wide mono">${wide}</span>
+      </button>
+      <button class="lensedit" data-act="lens-edit" data-id="${l.id}" aria-expanded="${open}"
+        aria-label="Edit ${esc(l.name)}">${icon('sliders', 18)}</button>
+    </div>${editor}</div>`;
   }).join('');
 
   return `<div class="screen">
@@ -667,10 +692,21 @@ function gearScreen() {
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 15px 11px">
         <span class="lab">Lenses</span><span class="mono" style="font-size:10px;color:var(--ink-4);letter-spacing:.1em">WIDEST</span>
       </div>
+      <div class="lensrow">
+        <button class="lens" data-act="lens-pick" data-id="auto" aria-pressed="${!g.activeLensId}">
+          <span class="lens__mark">${icon(g.activeLensId ? 'lens' : 'check', g.activeLensId ? 19 : 17)}</span>
+          <span class="lens__body"><span class="lens__name">Whichever suits the scene</span>
+          <span class="lens__sub">The fastest lens that covers it</span></span>
+        </button>
+      </div>
       ${lenses}
-      <button class="lens" data-act="lens-add" style="justify-content:center;color:var(--amber)">
-        ${icon('plus', 15)}<span style="font-size:13.5px;font-weight:600">Add a lens</span></button>
+      <div class="lensrow">
+        <button class="lens" data-act="lens-add" style="justify-content:center;color:var(--amber)">
+          ${icon('plus', 15)}<span style="font-size:13.5px;font-weight:600">Add a lens</span></button>
+      </div>
     </div>
+
+    ${mountedEffect()}
 
     <div class="card mt-12" style="padding:14px 15px 15px">
       <div style="display:flex;align-items:baseline;justify-content:space-between">
@@ -729,7 +765,6 @@ function stepFocal(direction) {
   if (index < 0) index = usable.length - 1;
   const next = usable[Math.min(Math.max(index + direction, 0), usable.length - 1)];
   state.focal = next;
-  state.lensId = lens.id;
 }
 
 function commitGear() {
@@ -747,7 +782,7 @@ app.addEventListener('click', (event) => {
 
   switch (act) {
     case 'scene':
-      state.sceneId = id; state.lightId = null; state.lensId = null; state.focal = null;
+      state.sceneId = id; state.lightId = null; state.focal = null;
       state.lock = {}; state.allLight = false; state.customLight = null; state.step = 'light';
       break;
     case 'sun-locate':
@@ -763,7 +798,7 @@ app.addEventListener('click', (event) => {
     case 'all-light': state.allLight = true; keepScroll = true; break;
     case 'resume': {
       state.sceneId = el.dataset.scene;
-      state.lensId = null; state.focal = null; state.lock = {};
+      state.focal = null; state.lock = {};
       if (el.dataset.light === 'sun') {
         const place = readPlace();
         // Re-estimated for now, not replayed from earlier. Without a position
@@ -793,15 +828,14 @@ app.addEventListener('click', (event) => {
       break;
     }
     case 'focal': stepFocal(Number(v)); keepScroll = true; break;
-    case 'lens-pick': {
-      const lens = g.lenses.find((l) => l.id === id);
-      if (!lens) break;
-      const wanted = state.focal ?? sceneById(state.sceneId).focal;
-      state.lensId = lens.id;
-      state.focal = Math.min(Math.max(wanted, lens.min), lens.max);
+    case 'lens-pick':
+      // Mounting a lens is a fact about the camera, so it is stored with the
+      // gear and outlives the scene you happened to be looking at.
+      g.activeLensId = id === 'auto' ? null : id;
+      state.focal = null;
+      commitGear();
       keepScroll = true;
       break;
-    }
     case 'way': {
       const r = currentSolve();
       const way = r.ways.find((w) => w.id === id);
@@ -810,7 +844,7 @@ app.addEventListener('click', (event) => {
         g.isoCeiling = way.ceiling ?? way.settings.iso.v;
         saveGear(g);
       } else if (way.id === 'zoom') {
-        state.focal = r.lens.min; state.lensId = r.lens.id;
+        state.focal = r.lens.min; g.activeLensId = r.lens.id; saveGear(g);
       } else {
         state.lock = { ...state.lock, t: way.settings.shutter.s };
       }
@@ -836,7 +870,7 @@ app.addEventListener('click', (event) => {
     case 'lens-remove':
       if (g.lenses.length <= 1) break;
       g.lenses = g.lenses.filter((l) => l.id !== id);
-      if (state.lensId === id) { state.lensId = null; state.focal = null; }
+      if (g.activeLensId === id) { g.activeLensId = null; state.focal = null; }
       state.editingLens = null; commitGear(); keepScroll = true;
       break;
     case 'lens-is': {
@@ -855,7 +889,7 @@ app.addEventListener('click', (event) => {
     }
     case 'reset-gear':
       state.gear = structuredClone(DEFAULT_GEAR);
-      state.lensId = null; state.focal = null; state.editingLens = null; state.lock = {};
+      state.focal = null; state.editingLens = null; state.lock = {};
       commitGear();
       break;
     default: return;
@@ -872,7 +906,7 @@ app.addEventListener('change', (event) => {
   if (el.dataset.act === 'lens-min') lens.min = Math.min(Math.max(Number(el.value) || 1, 1), 2000);
   if (el.dataset.act === 'lens-max') lens.max = Math.min(Math.max(Number(el.value) || lens.min, lens.min), 2000);
   if (lens.min === lens.max) lens.wideMax = lens.wideMin;
-  state.lensId = null; state.focal = null;
+  state.focal = null;
   commitGear();
   render({ keepScroll: true });
 });
