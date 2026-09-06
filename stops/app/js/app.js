@@ -9,6 +9,8 @@ import { estimateLight, SKY } from './sun.js';
 import { motionThreshold } from './optics.js';
 
 const LAST_KEY = 'stops.last.v2';
+const THEME_KEY = 'stops.theme.v1';
+const SEEN_KEY = 'stops.seen.v1';
 const PLACE_KEY = 'stops.place.v1';
 
 const state = {
@@ -22,13 +24,40 @@ const state = {
   allLight: false,
   editingLens: null,
   customLight: null,
+  theme: 'system',
+  showIntro: false,
   sun: { status: 'idle' },
   gear: loadGear(),
 };
 
 const app = document.getElementById('app');
 const tabs = document.getElementById('tabs');
+const sheet = document.getElementById('sheet');
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ------------------------------------------------------------------- theme */
+
+const THEMES = [['system', 'System'], ['light', 'Light'], ['dark', 'Dark']];
+const prefersLight = () => window.matchMedia('(prefers-color-scheme: light)').matches;
+
+function resolvedTheme(choice) {
+  if (choice === 'light') return 'light';
+  if (choice === 'dark') return 'dark';
+  return prefersLight() ? 'light' : 'dark';
+}
+
+function applyTheme() {
+  const theme = resolvedTheme(state.theme);
+  document.documentElement.dataset.theme = theme;
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#0B0C0D' : '#F2F0EC');
+}
+
+function setTheme(choice) {
+  state.theme = choice;
+  try { localStorage.setItem(THEME_KEY, choice); } catch { /* it will just not be remembered */ }
+  applyTheme();
+}
 
 /* ------------------------------------------------------------------ solving */
 
@@ -157,7 +186,9 @@ function scenesScreen() {
     <div class="bar">
       <span class="wordmark">${icon('aperture', 17)}<span>STOPS</span></span>
       <span style="flex:1"></span>
-      <button data-act="tab" data-id="gear" style="color:var(--ink-3)" aria-label="Your gear">${icon('sliders', 20)}</button>
+      <button class="barbtn" data-act="theme-toggle" aria-label="Switch between light and dark">
+        ${icon(resolvedTheme(state.theme) === 'dark' ? 'sun' : 'moon', 19)}</button>
+      <button class="barbtn" data-act="help" aria-label="How this works">${icon('info', 19)}</button>
     </div>
     <h1 class="h1 mt-18">What are you shooting?</h1>
     ${resume}
@@ -248,7 +279,7 @@ function lightScreen() {
     <div class="bar">
       <button class="back" data-act="back" aria-label="Back">${icon('back', 20)}</button>
       <span class="bar__title"><span class="bar__name">${esc(scene.name)}</span></span>
-      <span class="mono" style="font-size:11px;color:var(--ink-4);letter-spacing:.08em">2 / 2</span>
+      <button class="barbtn" data-act="home" aria-label="Back to the start">${icon('home', 19)}</button>
     </div>
     <h1 class="h1 mt-18">How is the light?</h1>
     ${sunCard(scene)}
@@ -440,13 +471,14 @@ function resultScreen() {
         <span class="bar__name">${esc(scene.name)}</span>
         <span class="bar__meta">${esc(light.name)} · <span class="mono" style="color:var(--amber-dim)">EV ${light.ev}</span> · ${Math.round(r.focal)} mm</span>
       </span>
+      <button class="barbtn" data-act="home" aria-label="Back to the start">${icon('home', 19)}</button>
     </div>
 
     <div class="mt-18">${previewHtml({ result: r, scene, gear: state.gear })}</div>
     <div class="preview__caption"><span>${esc(caption.left)}</span><span class="mono">${esc(caption.right)}</span></div>
     ${alert}
 
-    <div class="mt-16" style="margin-left:calc(var(--pad) * -1); margin-right:calc(var(--pad) * -1); border-top:1px solid #1D2023">
+    <div class="mt-16" style="margin-left:calc(var(--pad) * -1); margin-right:calc(var(--pad) * -1); border-top:1px solid var(--line-soft)">
       <div class="vrow${r.solvedBy === 'shutter' ? ' vrow--solved' : ''}">
         <span class="vrow__body"><span class="lab">Shutter</span>
         <span class="vrow__why">${esc(shutterWhy(r))}</span></span>
@@ -589,6 +621,12 @@ function guideScreen() {
 
   return `<div class="screen">
     <h1 class="h1">Field guide</h1>
+    <button class="card field mt-16" data-act="help">
+      <span style="color:var(--amber)">${icon('info', 21)}</span>
+      <span class="field__body"><span class="field__value">How this works</span>
+      <span class="field__hint">The four steps, again.</span></span>
+      <span style="color:var(--ink-4)">${icon('chevron', 16)}</span>
+    </button>
     <div class="seg mt-16">${tabsHtml}</div>
     ${body}
   </div>`;
@@ -632,7 +670,7 @@ function gearScreen() {
     const range = zoom ? `${l.min}–${l.max} mm` : `${l.min} mm`;
     const sub = [l.name.includes(String(l.min)) ? null : range, l.stabilised ? 'stabilised' : null]
       .filter(Boolean).join(' · ');
-    const editor = !open ? '' : `<div style="padding:4px 15px 15px;border-top:1px solid #1D2023">
+    const editor = !open ? '' : `<div style="padding:4px 15px 15px;border-top:1px solid var(--line-soft)">
       <span class="lab">Name</span>
       <input data-act="lens-name" data-id="${l.id}" value="${esc(l.name)}" class="mt-8"
         style="width:100%;min-height:44px;padding:0 12px;background:var(--card-2);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:inherit">
@@ -727,8 +765,51 @@ function gearScreen() {
         `<button class="chip" data-act="stab" data-v="${v}" aria-pressed="${g.stabiliserStops === v}">${v}</button>`).join('')}</div>
     </div>
 
+    <div class="card mt-12" style="padding:14px 15px 15px">
+      <span class="lab">Appearance</span>
+      <p class="field__hint mt-8">Dark for dusk and indoors. Light for direct sun on the screen.</p>
+      <div class="grid-3 mt-12">${THEMES.map(([id, label]) =>
+        `<button class="chip" data-act="theme" data-v="${id}" aria-pressed="${state.theme === id}">${label}</button>`).join('')}</div>
+    </div>
+
     <div class="center mt-18"><button data-act="reset-gear" class="muted" style="text-decoration:underline">Reset to the example kit</button></div>
   </div>`;
+}
+
+/* ------------------------------------------------------------------- intro */
+
+const STEPS = [
+  ['Tell it what you own', 'Your lenses, and the highest ISO you are willing to accept. Once, and it remembers.'],
+  ['Say what you are shooting', 'Eighteen scenes, from a school sports day to the Milky Way. One tap.'],
+  ['Say what the light is doing', 'Pick it from a list, or let the app work it out from where and when you are.'],
+  ['Set the three numbers', 'And when the shot will not fit your gear, it says so, and prices the ways out.'],
+];
+
+function introSheet() {
+  if (!state.showIntro) return '';
+  return `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="intro-title">
+    <div class="sheet__inner">
+      <span class="wordmark">${icon('aperture', 17)}<span>STOPS</span></span>
+      <h1 class="h1 mt-18" id="intro-title">Four taps to three numbers.</h1>
+      <p class="sub">A field guide that solves the exposure triangle for your gear and your light — not for an average camera in an average field.</p>
+      <div class="steps">
+        ${STEPS.map(([title, detail], i) => `<div class="step">
+          <span class="step__n mono">${i + 1}</span>
+          <span><span class="step__t">${esc(title)}</span><span class="step__d">${esc(detail)}</span></span>
+        </div>`).join('')}
+      </div>
+      <p class="muted mt-22">It all works with no signal, and nothing you enter leaves your phone.</p>
+      <div class="sheet__actions">
+        <button class="primary" data-act="intro-done">Start</button>
+        <button class="ghost mt-10" data-act="intro-gear">Set up my gear first</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function dismissIntro() {
+  state.showIntro = false;
+  try { localStorage.setItem(SEEN_KEY, '1'); } catch { /* it will show once more */ }
 }
 
 /* -------------------------------------------------------------------- render */
@@ -745,6 +826,7 @@ const TABS = [['shoot', 'Shoot', 'aperture'], ['guide', 'Guide', 'book'], ['gear
 
 function render({ keepScroll = false } = {}) {
   const scroll = app.scrollTop;
+  sheet.innerHTML = introSheet();
   app.innerHTML = screenHtml();
   tabs.innerHTML = TABS.map(([id, label, ic]) =>
     `<button data-act="tab" data-id="${id}" ${state.tab === id ? 'aria-current="page"' : ''}>
@@ -820,6 +902,10 @@ app.addEventListener('click', (event) => {
     case 'lock-shutter': state.lock = { ...state.lock, t: Number(v) }; keepScroll = true; break;
     case 'lock-aperture': state.lock = { ...state.lock, N: Number(v) }; keepScroll = true; break;
     case 'unlock': state.lock = {}; keepScroll = true; break;
+    case 'home': state.tab = 'shoot'; state.step = 'scenes'; break;
+    case 'help': state.showIntro = true; break;
+    case 'theme': setTheme(v); keepScroll = true; break;
+    case 'theme-toggle': setTheme(resolvedTheme(state.theme) === 'dark' ? 'light' : 'dark'); keepScroll = true; break;
     case 'take-alt': {
       const alternative = alternativeFor(currentSolve());
       if (!alternative) break;
@@ -911,12 +997,34 @@ app.addEventListener('change', (event) => {
   render({ keepScroll: true });
 });
 
+sheet.addEventListener('click', (event) => {
+  const el = event.target.closest('[data-act]');
+  if (!el) return;
+  dismissIntro();
+  if (el.dataset.act === 'intro-gear') state.tab = 'gear';
+  render();
+});
+
 tabs.addEventListener('click', (event) => {
   const el = event.target.closest('[data-act="tab"]');
   if (!el) return;
+  // Tapping the tab you are already on takes you back to its start, which is
+  // the quickest way out of a shot you have finished with.
+  const alreadyHere = state.tab === el.dataset.id;
   state.tab = el.dataset.id;
-  if (state.tab === 'shoot' && !state.sceneId) state.step = 'scenes';
+  if (state.tab === 'shoot' && (alreadyHere || !state.sceneId)) state.step = 'scenes';
   render();
+});
+
+try {
+  state.theme = localStorage.getItem(THEME_KEY) ?? 'system';
+  state.showIntro = !localStorage.getItem(SEEN_KEY);
+} catch {
+  state.showIntro = true;
+}
+applyTheme();
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+  if (state.theme === 'system') { applyTheme(); render({ keepScroll: true }); }
 });
 
 render();

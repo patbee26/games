@@ -107,6 +107,15 @@ third-stop position, and the snapping happens *before* the final variable is
 re-solved so the three numbers always expose the scene they claim to. There is a
 test for exactly that.
 
+## Dark, and light
+
+Dark is the default because the app is used outdoors at dusk more than at a desk.
+Light exists for the other half of the problem: direct sun on the screen, where a
+dark interface becomes a mirror. It is not the dark palette inverted — the amber
+accent drops to a much darker tone so it still carries on a washed-out screen, and
+the preview stays exactly as it is in both, because it stands for a photograph
+rather than for the interface around it. System, Light and Dark, under Appearance.
+
 ## Teaching, not just answering
 
 The app is aimed at someone learning, so an answer on its own is not the deliverable.
