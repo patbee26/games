@@ -277,14 +277,23 @@ function resultScreen() {
   const shutterChoices = [r.shutter.s / 4, r.shutter.s / 2, r.shutter.s, r.shutter.s * 2].map(snapShutter);
   const apertureChoices = [r.aperture.N / 2, r.aperture.N / 1.414, r.aperture.N, r.aperture.N * 1.414].map(snapAperture);
 
-  const isoRowClass = r.shortfallStops > 0.05 ? 'vrow vrow--capped'
-    : r.solvedBy === 'iso' ? 'vrow vrow--solved' : 'vrow';
-  const isoBadge = r.shortfallStops > 0.05
+  // Never say "at your cap" unless ISO is genuinely at it: the badge used to
+  // fire on any shortfall, so a frame held back by a locked shutter blamed a
+  // ceiling the photographer was nowhere near.
+  const ceiling = state.gear.isoCeiling ?? 6400;
+  const atCap = r.iso.v >= ceiling - 1e-9;
+  const isShort = r.shortfallStops > 0.05;
+
+  const isoRowClass = isShort && atCap ? 'vrow vrow--capped'
+    : r.solvedBy === 'iso' || atCap ? 'vrow vrow--solved' : 'vrow';
+  const isoBadge = isShort && atCap
     ? '<span class="badge badge--warn">AT YOUR CAP</span>'
     : r.solvedBy === 'iso' ? '<span class="badge">SOLVES IT</span>' : '';
-  const isoWhy = r.shortfallStops > 0.05 ? 'You said you would go no higher'
+  const isoWhy = isShort && atCap ? 'Your ceiling, and still not enough'
+    : atCap ? 'Right at the ceiling you set'
     : r.solvedBy === 'iso' ? 'The app moves this one, never you'
-    : 'Base ISO — the cleanest file your camera makes';
+    : r.iso.v <= (state.gear.isoMin ?? 100) ? 'Base ISO — the cleanest file your camera makes'
+    : 'Settled by the other two';
 
   let alert = '';
   if (r.shortfallStops > 0.05) {
@@ -347,7 +356,7 @@ function resultScreen() {
       <div class="${isoRowClass}">
         <span class="vrow__body">
           <span style="display:flex;align-items:center;gap:8px">
-            <span class="lab" style="color:${r.shortfallStops > 0.05 ? 'var(--warn)' : r.solvedBy === 'iso' ? 'var(--amber)' : 'var(--ink-3)'}">ISO</span>${isoBadge}</span>
+            <span class="lab" style="color:${isShort && atCap ? 'var(--warn)' : r.solvedBy === 'iso' || atCap ? 'var(--amber)' : 'var(--ink-3)'}">ISO</span>${isoBadge}</span>
           <span class="vrow__why">${esc(isoWhy)}</span></span>
         <span class="vrow__num">${r.iso.label}</span>
       </div>
@@ -387,13 +396,26 @@ function apertureWhy(r) {
   return r.scene.apertureWhy ?? 'Deep enough for this subject';
 }
 
+/** Name what is actually holding the frame back, rather than assuming it is ISO. */
 function shortfallReason(r) {
+  const ceiling = state.gear.isoCeiling ?? 6400;
+  const reasons = [];
+
+  if (state.lock.t != null) reasons.push(`you are holding ${r.shutter.label}`);
+  if (state.lock.N != null) reasons.push(`you are holding ${r.aperture.label}`);
+  if (r.iso.v >= ceiling - 1e-9) reasons.push(`ISO ${r.iso.label} is your ceiling`);
+
   const wideOpen = Math.abs(Math.log2(r.aperture.N / r.widest)) < 0.04;
-  if (wideOpen && r.lens.min !== r.lens.max) {
-    return `Your ${r.lens.name} is only f/${snapAperture(r.widest).N} at ${Math.round(r.focal)} mm. That is the limit here, not the camera.`;
+  if (state.lock.N == null && wideOpen) {
+    reasons.push(r.lens.min !== r.lens.max
+      ? `your ${r.lens.name} is only f/${snapAperture(r.widest).N} at ${Math.round(r.focal)} mm`
+      : `f/${snapAperture(r.widest).N} is as wide as that lens goes`);
   }
-  if (wideOpen) return `Wide open at f/${snapAperture(r.widest).N} and still short. There is no more light to gather.`;
-  return 'Even at your ISO ceiling the frame comes up dark.';
+  if (r.scene.tripod && r.shutter.s >= 30) reasons.push('thirty seconds is as long as this goes');
+
+  if (!reasons.length) return 'There is simply not enough light here for this shot.';
+  const sentence = reasons.join(', and ');
+  return sentence.charAt(0).toUpperCase() + sentence.slice(1) + '.';
 }
 
 function overReason(r) {
@@ -748,6 +770,22 @@ tabs.addEventListener('click', (event) => {
 
 render();
 
+// An installed field app is opened and never thought about again, so a new
+// version has to announce itself rather than wait to be noticed.
+function announceUpdate() {
+  if (document.querySelector('.update')) return;
+  const bar = document.createElement('button');
+  bar.className = 'update';
+  bar.textContent = 'A newer version is ready — tap to load it';
+  bar.addEventListener('click', () => location.reload());
+  document.body.appendChild(bar);
+}
+
 if ('serviceWorker' in navigator) {
+  const wasControlled = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    // A first install is not an update, and there is nothing to reload for.
+    if (wasControlled) announceUpdate();
+  });
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }

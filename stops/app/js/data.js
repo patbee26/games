@@ -47,7 +47,7 @@ export const SCENES = [
   },
   {
     id: 'portrait', name: 'Portrait', hint: 'aperture leads', icon: 'portrait',
-    shutter: 1 / 160, aperture: 2, give: ['iso', 'shutter'], giveBright: ['shutter'],
+    shutter: 1 / 160, aperture: 2, give: ['iso', 'shutter'], giveBright: ['shutter', 'aperture'],
     focal: 85, subject: 2, background: 6, speed: 0.3,
     apertureWhy: 'One face sharp, the rest melts',
     tip: 'Focus on the near eye. At this aperture the far one may already be soft.',
@@ -61,14 +61,14 @@ export const SCENES = [
   },
   {
     id: 'landscape', name: 'Landscape', hint: 'aperture leads', icon: 'landscape',
-    aperture: 8, tripod: true, give: ['shutter', 'iso'], giveBright: ['shutter'],
+    aperture: 8, tripod: true, give: ['shutter', 'iso'], giveBright: ['shutter', 'aperture'],
     focal: 24, subject: 8, background: Infinity, speed: 0,
     apertureWhy: 'Front to back, without diffraction',
     tip: 'Focus a third of the way into the scene, not on the horizon.',
   },
   {
     id: 'architecture', name: 'Architecture', hint: 'aperture leads', icon: 'architecture',
-    aperture: 8, tripod: true, give: ['shutter', 'iso'], giveBright: ['shutter'],
+    aperture: 8, tripod: true, give: ['shutter', 'iso'], giveBright: ['shutter', 'aperture'],
     focal: 24, subject: 15, background: Infinity, speed: 0,
     apertureWhy: 'Sharp corner to corner',
     tip: 'Keep the sensor parallel to the facade or the verticals will lean.',
@@ -109,7 +109,7 @@ export const SCENES = [
   },
   {
     id: 'nightcity', name: 'Night & city', hint: 'tripod', icon: 'night',
-    aperture: 8, tripod: true, give: ['shutter', 'iso'], giveBright: ['shutter'],
+    aperture: 8, tripod: true, give: ['shutter', 'iso'], giveBright: ['shutter', 'aperture'],
     focal: 24, subject: 20, background: Infinity, speed: 0,
     apertureWhy: 'Turns every streetlight into a star',
     tip: 'Use the self-timer. Pressing the shutter is enough to shake a tripod.',
@@ -144,7 +144,7 @@ export const SCENES = [
   },
   {
     id: 'moon', name: 'The moon', hint: 'brighter than you think', icon: 'moon',
-    evOverride: 15, shutter: 1 / 250, aperture: 8, give: ['iso'], giveBright: ['shutter'],
+    evOverride: 15, shutter: 1 / 250, aperture: 8, give: ['iso'], giveBright: ['shutter', 'aperture'],
     focal: 300, subject: 384000000, background: Infinity, speed: 0,
     apertureWhy: 'The moon is a sunlit rock — treat it as daylight',
     tip: 'The night around it is irrelevant. Meter the moon itself or everything blows out.',
