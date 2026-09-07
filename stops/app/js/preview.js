@@ -6,16 +6,37 @@
 // would be teaching a lie. Grain is the one cosmetic mapping here, and it is
 // only ever illustrative.
 
-import { backgroundBlurMm, motionBlurMm, asFrameFraction } from './optics.js';
+import { backgroundBlurMm, motionBlurMm, asFrameFraction, backgroundMagnification } from './optics.js';
 
-// x%, y%, diameter, tone. The background needs texture or there is nothing for
-// the aperture to visibly blur; light specks read as highlights, dark ones as
-// foliage and crowd.
-const BOKEH = [
-  [7, 20, 26, 'light'], [20, 10, 17, 'dark'], [33, 27, 32, 'light'], [47, 12, 20, 'dark'],
-  [61, 24, 28, 'light'], [74, 9, 22, 'dark'], [88, 28, 30, 'light'], [15, 43, 15, 'dark'],
-  [40, 45, 13, 'light'], [56, 41, 18, 'dark'], [81, 46, 14, 'light'], [96, 15, 19, 'dark'],
-];
+/**
+ * The background is a field of features on a plane behind the subject, held in
+ * world units rather than screen ones, so focal length can project it properly.
+ *
+ * It spans well past the frame because a wide lens shows more of it: at the long
+ * end only the middle of this field is on screen, magnified, and at the wide end
+ * most of it is, small. That difference is the whole point — it is the one thing
+ * a longer lens really changes about a picture, and a fixed set of circles in
+ * screen percentages cannot show it.
+ *
+ * Positions are u,v in half-frame widths at magnification 1; size is a diameter
+ * in the same units. Generated deterministically so the field is stable between
+ * renders and does not shimmer as the settings change.
+ */
+const FIELD = (() => {
+  let seed = 0x2f6e2b1;
+  const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+  const out = [];
+  for (let i = 0; i < 90; i++) {
+    out.push({
+      u: (rnd() * 2 - 1) * 3.2,
+      v: (rnd() * 2 - 1) * 2.4,
+      size: 0.055 + rnd() * 0.12,
+      tone: rnd() > 0.5 ? 'light' : 'dark',
+      k: rnd(),
+    });
+  }
+  return out;
+})();
 
 const SUBJECTS = {
   figure: `<circle cx="82" cy="26" r="7"/><path d="M74 40L60 74"/><path d="M70 50L46 46L38 60"/>
@@ -94,23 +115,42 @@ export function previewHtml({ result, scene, gear, width = 340 }) {
     );
   }
 
+  // How much bigger the background renders than it does at the scene's own focal
+  // length, with the framing on the subject held. Clamped only so an extreme
+  // combination cannot empty the frame or turn one feature into a wall.
+  const mag = Math.min(3, Math.max(0.3, backgroundMagnification({
+    focal: result.focal,
+    baseFocal: scene.focal,
+    subject: scene.subject,
+    background: scene.background,
+  })));
+
   // Distant scenes have no near highlights to throw out of focus, so their
   // texture is faint — otherwise a landscape at f/11 sprouts bokeh balls.
   const texture = LAND_SCENES.has(scene.id) ? 0.34 : 1;
-  const bokeh = BOKEH.map(([x, y, size, tone]) => {
-    const fill = tone === 'light'
-      ? `rgba(255,244,222,${((0.30 + (size % 7) / 34) * texture).toFixed(2)})`
-      : `rgba(22,26,20,${((0.34 + (size % 5) / 22) * texture).toFixed(2)})`;
-    return `<div class="bokeh" style="left:${x}%; top:${y}%; width:${size}px; height:${size}px;
-      background:${fill}"></div>`;
+  const bokeh = FIELD.map((f) => {
+    // Project the plane: position and size both scale with magnification.
+    const x = 50 + f.u * mag * 50;
+    const y = 50 + f.v * mag * 50;
+    const size = f.size * mag * width;
+    if (x < -25 || x > 125 || y < -35 || y > 135 || size < 1.2) return '';
+    const fill = f.tone === 'light'
+      ? `rgba(255,244,222,${((0.30 + f.k * 0.2) * texture).toFixed(2)})`
+      : `rgba(22,26,20,${((0.34 + f.k * 0.18) * texture).toFixed(2)})`;
+    return `<div class="bokeh" style="left:${x.toFixed(1)}%; top:${y.toFixed(1)}%;
+      width:${size.toFixed(1)}px; height:${size.toFixed(1)}px; margin-left:${(-size / 2).toFixed(1)}px;
+      margin-top:${(-size / 2).toFixed(1)}px; background:${fill}"></div>`;
   }).join('');
 
+  // The horizon sits at a fixed angle from the axis, so a longer lens pushes it
+  // further from the centre of the frame for the same reason the features grow.
+  const horizon = Math.min(140, Math.max(-40, 50 + 24 * mag));
   const cool = LAND_SCENES.has(scene.id) ? ' preview__bg--cool' : '';
 
   return `<div class="preview" style="--bg-blur:${blurPx.toFixed(1)}px; --grain:${grainFor(result.iso.v).toFixed(3)}; --bright:${bright.toFixed(3)}">
       <div class="preview__scene">
         <div class="preview__bg${cool}">${bokeh}
-          <div style="position:absolute; left:0; right:0; top:74%; height:3px; background:rgba(150,170,130,.22)"></div>
+          <div style="position:absolute; left:0; right:0; top:${horizon.toFixed(1)}%; height:3px; background:rgba(150,170,130,.22)"></div>
         </div>
         ${ghosts.join('')}
         <div class="preview__subject">${silhouette(shape, '#14150F')}</div>

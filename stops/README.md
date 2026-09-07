@@ -267,6 +267,31 @@ composited, smooth on a phone if the canvas stays small. Two or three days, most
 art direction rather than engineering. This is what teaches the tradeoff, which no
 photograph can.
 
+The preview answers every setting on the screen. Aperture drives the background blur,
+shutter the ghosting, ISO the grain, exposure error the brightness — and focal length
+drives the background's magnification, which is the one thing a longer lens genuinely
+changes about a picture. The background is a field of features held in world units on a
+plane behind the subject rather than a fixed set of circles in screen percentages, so a
+wide lens shows ninety of them small and a 200 mm shows eleven of them large, with the
+subject the same size in both. That is compression, and it falls out of the projection
+rather than being drawn in.
+
+**Why the photographs cannot do this, though it was tried.** Making the *photographs*
+respond to the settings is the obvious wish, and three separate things rule it out.
+Aperture needs the subject separated from the background: a sharpness map is the
+principled way to infer it, and on these frames it fails exactly where it matters —
+a smooth in-focus cheek carries no high frequencies and reads as background, while a knit
+sweater reads as subject, so the mask blurs the face. A hand-placed subject ellipse was
+tried next and looks like a smudge rather than depth by six pixels of blur, because a
+person is not an ellipse. Even with a perfect mask, stopping *down* is impossible: you
+cannot recover detail a wide aperture never recorded. And focal length fares no better —
+cropping a photograph magnifies subject and background together, which is zooming without
+moving, the opposite case from the constant-framing one the Aperture tab teaches. A crop
+would contradict the guide.
+
+A layered scene does not have these problems, because its depth separation is real by
+construction rather than inferred. That is what the preview is, and it is why it is drawn.
+
 The trap: depth of field depends on focal length, subject distance and sensor size, not
 just f-number. Show lush bokeh at f/4 to someone holding an 18-55 at 24 mm and the app
 has taught them something false. So the blur must be driven from the real depth-of-field

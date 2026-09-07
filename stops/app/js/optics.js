@@ -117,3 +117,27 @@ export function hyperfocalAperture({ focal, crop = 1, from }) {
   if (!focal || !from) return null;
   return (focal * focal) / (2 * from * 1000 * circleOfConfusion(crop));
 }
+
+/**
+ * How much larger the background renders at `focal` than it did at the scene's
+ * own focal length, with the framing on the subject held constant.
+ *
+ * This is the effect people call compression, and it is the one thing a longer
+ * lens genuinely changes about a picture. Holding the framing means stepping
+ * back, so the subject distance scales with focal length while the physical gap
+ * behind it does not; the background's magnification, f / distance, then grows.
+ *
+ *   ratio = (f / bg) / (f0 / bg0),  and for a background at infinity, f / f0
+ *
+ * A crop of a photograph cannot show this. Cropping magnifies the subject and
+ * the background together, which is what happens when you zoom without moving —
+ * the other case, and the one that changes nothing about the relationship.
+ */
+export function backgroundMagnification({ focal, baseFocal, subject, background }) {
+  if (!focal || !baseFocal || !subject) return 1;
+  if (!isFinite(background)) return focal / baseFocal;
+  const gap = background - subject;
+  if (gap <= 0) return 1;
+  const subjectNow = subject * (focal / baseFocal);
+  return (focal / (subjectNow + gap)) / (baseFocal / background);
+}

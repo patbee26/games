@@ -3,9 +3,10 @@ import assert from 'node:assert/strict';
 
 import {
   backgroundBlurMm, motionBlurMm, handheldFloor, starTrailLimit, widestAt, sensorWidth,
-  circleOfConfusion, apertureForDepth, hyperfocalAperture,
+  circleOfConfusion, apertureForDepth, hyperfocalAperture, backgroundMagnification,
 } from '../js/optics.js';
 import { DEFAULT_GEAR } from '../js/gear.js';
+import { SCENES } from '../js/data.js';
 
 test('a portrait blurs its background far more than a distant sports shot', () => {
   const portrait = backgroundBlurMm({ focal: 85, aperture: 1.8, subject: 2, background: 6 });
@@ -122,4 +123,43 @@ test('the guide numbers agree with the solver about the hand-held floor', () => 
   }
   assert.ok(handheldFloor({ focal: 200, crop: 1.5 }) < 1 / 160, '200mm needs faster than the old flat number');
   assert.ok(handheldFloor({ focal: 24, crop: 1.5 }) > 1 / 160, '24mm needs slower than the old flat number');
+});
+
+/* ------------------------------------------- what a longer lens really changes */
+
+test('background magnification grows with focal length at constant framing', () => {
+  // Compression: step back with a longer lens and the subject is the same size
+  // while the background is not. This is the effect a crop of a photograph
+  // cannot reproduce, which is why the preview is drawn rather than cropped.
+  const scene = { baseFocal: 85, subject: 2, background: 6 };
+  const at = (focal) => backgroundMagnification({ focal, ...scene });
+  assert.equal(at(85), 1, 'the scene focal length is the reference');
+  assert.ok(at(24) < at(50) && at(50) < at(85) && at(85) < at(135) && at(135) < at(200),
+    'magnification must rise monotonically with focal length');
+  assert.ok(at(200) / at(24) > 3, `expected a big spread, got ${at(200) / at(24)}`);
+});
+
+test('a background at infinity magnifies in proportion to focal length', () => {
+  const at = (focal) => backgroundMagnification({ focal, baseFocal: 24, subject: 8, background: Infinity });
+  assert.ok(Math.abs(at(48) - 2) < 1e-9, 'doubling the focal length doubles a distant scene');
+  assert.ok(Math.abs(at(24) - 1) < 1e-9);
+});
+
+test('background magnification declines to 1 when there is no background to move', () => {
+  assert.equal(backgroundMagnification({ focal: 200, baseFocal: 50, subject: 3, background: 3 }), 1);
+  assert.equal(backgroundMagnification({ focal: 200, baseFocal: 50, subject: 3, background: 2 }), 1);
+  assert.equal(backgroundMagnification({ focal: 0, baseFocal: 50, subject: 3, background: 9 }), 1);
+});
+
+test('every scene stays inside a sane magnification range across a real kit', () => {
+  // The preview clamps, but a scene whose numbers need clamping at ordinary
+  // focal lengths is a scene with bad numbers.
+  for (const scene of SCENES) {
+    for (const focal of [24, 35, 50, 85, 135, 200, 300]) {
+      const m = backgroundMagnification({
+        focal, baseFocal: scene.focal, subject: scene.subject, background: scene.background,
+      });
+      assert.ok(Number.isFinite(m) && m > 0, `${scene.id} at ${focal}mm gave ${m}`);
+    }
+  }
 });
