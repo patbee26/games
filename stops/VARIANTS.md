@@ -2,132 +2,187 @@
 
 The app's preview is drawn rather than photographed because a flat JPEG cannot be
 made to answer the settings — see the README for the three reasons and the two
-experiments that failed. Real photographs *can* answer them, but only if each set
-is genuinely the same scene shot differently, which is the whole difficulty.
+experiments that failed. Real photographs *can* answer them, but only as sets
+that are genuinely the same scene shot differently.
 
-This is the spec for producing those sets in an image model, and the pipeline for
-getting them into the app.
+This is how to make those sets. Start with one scene, look at it, then decide
+whether to do the rest.
 
-## The trap, first
+---
 
-Ask a model for "portrait at f/1.8" and then "portrait at f/8" and you get **two
-different photographs**. Different face, different light, different background.
-Label them as an aperture pair and the learner attributes every one of those
-differences to aperture. That is worse than the drawing, because it looks
-authoritative while teaching something false.
+## Do this first — one scene, about fifteen minutes
 
-So the rule for every set:
+### 1. Get the base photograph
 
-> **One base image. Every variant is an edit of it. Exactly one thing changes.**
+Unzip the app. The photographs are in `stops/photos/`. Start with
+**`portrait.jpg`** — it is the clearest case.
 
-Generate the base, then use the model's image *editing* on that same image for
-each variant. Do not re-prompt from scratch.
+You do not generate a base. The photograph in the app *is* the base, and every
+variant is an edit of it. That is what keeps the set honest: if you generate each
+one from scratch you get five different photographs, and the app would be
+teaching every incidental difference — the face, the light, the background — as
+if it were aperture.
 
-## What to vary
+### 2. Upload it to ChatGPT and paste these five prompts
 
-Two axes, one at a time from the base. Six images per scene, not nine — the
-cross-product teaches nothing the two rows do not.
+Attach `portrait.jpg` to a new chat. Paste prompt 1. Save the result. Then, in
+the **same chat**, paste prompt 2, and so on — so each edit keeps working from
+the same picture.
 
-### Aperture — three images
+The prompts never describe the subject, because ChatGPT can see it. That means
+the same five work for every scene.
 
-Framing, subject, pose, light and time of day identical. Only the depth of field
-changes.
+---
 
-| Variant | Ask for |
-|---|---|
-| `wide` | the background dissolved into soft, unreadable blur; only the subject sharp |
-| `mid` | the background soft but its shapes still recognisable |
-| `deep` | the background sharply detailed, front to back |
+**Prompt 1** → save as `portrait__ap-wide.png`
 
-Do **not** name f-numbers in the prompt. Models treat "f/8" as a style token, not
-a measurement, and you will get an arbitrary amount of blur. Describe the visible
-consequence instead, and let the app supply the number.
+> Edit this photograph. Keep the subject, the pose, the expression, the clothing,
+> the light, the colours, the framing and the crop exactly as they are. Do not
+> move the camera and do not change the subject in any way.
+>
+> Change one thing only: the depth of field. Render everything behind the subject
+> completely dissolved into smooth, unreadable blur — no individual shape in the
+> background should be identifiable. The subject stays perfectly sharp. Keep the
+> same aspect ratio as the original.
 
-### Focal length — three images
+**Prompt 2** → save as `portrait__ap-mid.png`
 
-This is the one that goes wrong. A model asked for "the same scene at 200mm" will
-usually just crop in, which is *zooming without moving* — the fixed-standpoint
-case. The app's Aperture tab teaches the other one: you step back, so the subject
-stays the same size and the **background** changes scale.
+> Same photograph again, same subject, same pose, same light, same framing,
+> camera not moved.
+>
+> This time the background is clearly soft but its shapes are still
+> recognisable — you can tell what things are, they are simply not sharp. The
+> subject stays perfectly sharp. Same aspect ratio.
 
-State it explicitly, every time:
+**Prompt 3** → save as `portrait__ap-deep.png`
 
-> The subject must occupy exactly the same height in the frame in all three. The
-> photographer has moved, not zoomed. In the wide version the camera is close and
-> much more of the background is visible, small. In the long version the camera is
-> far back and the background is magnified, filling the frame behind the subject.
+> Same photograph again, same subject, same pose, same light, same framing,
+> camera not moved.
+>
+> This time everything is sharp front to back. The background is rendered in full
+> crisp detail, as sharp as the subject. Same aspect ratio.
 
-| Variant | Ask for |
-|---|---|
-| `wide` | camera close, wide field, background small and distant, some perspective stretch |
-| `norm` | the scene's own focal length — this is the base image |
-| `long` | camera far back, narrow field, background magnified and compressed behind the subject |
+**Prompt 4** → save as `portrait__fl-wide.png`
 
-**Check the result before accepting it.** The subject must be the same height in
-all three. If it grew, the model cropped and the set is wrong — regenerate.
+> Same photograph, same subject, same pose, same expression, same clothing, same
+> light, same time of day, same mood.
+>
+> The photographer has physically walked closer to the subject and put on a
+> wide-angle lens. They have MOVED. They have not zoomed out and this is not a
+> crop.
+>
+> The subject must occupy exactly the same height in the frame as in the
+> original — this is the most important part. Because the camera is now close and
+> the lens is wide, much more of the background is visible, everything in it looks
+> smaller and further away, and there is a slight wide-angle stretch to the
+> perspective. Same aspect ratio.
 
-## Which scenes are worth it
+**Prompt 5** → save as `portrait__fl-long.png`
 
-Six per scene across eighteen scenes is 108 images and roughly 6 MB, which is too
-much to generate by hand and too much to ship. Do these six scenes first — they
-have the widest subject-to-background separation, so the effect is strongest and
-most legible at phone size:
+> Same photograph, same subject, same pose, same expression, same clothing, same
+> light, same time of day, same mood.
+>
+> The photographer has physically walked a long way back and put on a long
+> telephoto lens. They have MOVED. They have not zoomed in and this is not a crop.
+>
+> The subject must occupy exactly the same height in the frame as in the
+> original — this is the most important part. Because the camera is now far away
+> and the lens is long, only a narrow slice of the background is visible, and it
+> appears magnified and compressed, looming larger behind the subject than it does
+> now. Same aspect ratio.
 
-| Scene | Separation | Why it shows well |
-|---|---|---|
-| `water` | 4.0 | the biggest separation in the set |
-| `street` | 3.0 | deep street, obvious background scale change |
-| `portrait` | 2.0 | the canonical aperture lesson |
-| `sports` | 2.3 | long lens, strong compression |
-| `macro` | 2.3 | depth of field measured in millimetres |
-| `food` | 1.5 | close subject, controllable background |
+### 3. The sixth file is free
 
-Skip the ones whose background is at infinity (`landscape`, `architecture`,
-`nightcity`, `stars`, `fireworks`, `moon`). Aperture does almost nothing visible
-there, and a variation set would imply a difference that is not real.
-
-## Naming
-
-The ingest script reads the filenames, so they have to be exact:
-
-```
-<scene>__ap-wide.png     <scene>__ap-mid.png     <scene>__ap-deep.png
-<scene>__fl-wide.png     <scene>__fl-norm.png    <scene>__fl-long.png
-```
-
-For example `portrait__ap-wide.png`, `water__fl-long.png`. PNG or JPEG both work.
-
-## Getting them in
-
-Put every generated file in one folder and run:
+`portrait__fl-norm.png` is the original photograph — the scene's own focal
+length. Just copy `photos/portrait.jpg` and rename it:
 
 ```
-node tools/ingest-variants.mjs ~/Downloads/stops-variants
+cp stops/photos/portrait.jpg ~/stops-variants/portrait__fl-norm.jpg
 ```
 
-It validates the scene ids and variant names against the app's own data, rejects
-anything it does not recognise, downscales each to 900 px on the long edge,
-writes them into `app/photos/variants/`, and regenerates `app/js/variants.js`
-with the manifest. It prints what it found, what is missing from each set, and
-what it ignored.
+### 4. Install them and look
 
-Then check them at the size they will actually be seen:
+Put all six in one folder, then from `stops/app/`:
 
 ```
+node tools/ingest-variants.mjs ~/stops-variants
 node tools/variant-sheet.mjs
 ```
 
-That writes a contact sheet putting each set side by side at the real banner
-width. This is where you catch a focal set the model cropped instead of
-re-shooting: look along the row and check the subject is the same height in all
-three.
+The first validates the names, rescales everything the same way, and writes the
+manifest. The second writes `variant-sheet.png` — each set laid out side by side
+at the width it will actually be seen at on a phone.
 
-## After that
+### 5. Judge it — this is the step that matters
 
-Nothing in the app reads `variants.js` yet — wiring it up is deliberately not
-built ahead of the pictures, because how the control should feel depends on what
-the sets actually look like. Once a couple of sets exist and survive the contact
-sheet, the shape is small: the settings screen's photograph picks the nearest
-variant to the current aperture and focal length instead of the single base
-image, and says it is an approximation, because the steps are three points on a
-continuous axis and the app will be interpolating between them by eye.
+Open `variant-sheet.png` and read along each row.
+
+**Aperture row:** the subject must be identical in all three. Only the background
+sharpness may differ. If the face changed, the model regenerated instead of
+editing — say "keep the subject pixel-identical, change only the background
+blur" and try again.
+
+**Focal length row:** the subject must be the **same height** in all three, and
+the background must get bigger from left to right. If the subject grows across
+the row, ChatGPT cropped instead of re-shooting, and the set teaches the wrong
+lesson. Say "the subject is too large in this one — it must be exactly the same
+size in the frame as the original; you have zoomed in, but the photographer
+walked backwards instead" and try again.
+
+Expect to re-roll a couple. The focal ones are the hard ones.
+
+**If the sheet looks right, tell me and I will wire it into the app.** If it
+looks wrong after a few tries, that is a real answer too — it means this is not
+worth doing, and the drawn preview stays.
+
+---
+
+## Then, only if the first one worked
+
+The same five prompts, with a different photograph attached each time. Do these
+five next — they have the widest subject-to-background separation, so the effect
+is strongest and most legible at phone size:
+
+| Photograph | Why it is worth doing |
+|---|---|
+| `water.jpg` | the biggest separation in the set |
+| `street.jpg` | deep street, obvious background scale change |
+| `sports.jpg` | long lens already, strong compression |
+| `macro.jpg` | depth of field measured in millimetres |
+| `food.jpg` | close subject, controllable background |
+
+Rename each file for its scene — `water__ap-wide.png`, `street__fl-long.png`,
+and so on. Then re-run the same two commands; ingest picks up everything in the
+folder at once.
+
+**Skip the rest.** `landscape`, `architecture`, `nightcity`, `stars`,
+`fireworks` and `moon` all have their background at infinity. Aperture does
+almost nothing visible there, and a variation set would imply a difference that
+is not real.
+
+Six scenes is 36 images and about 2 MB added to the app. All eighteen would be
+108 images and 6 MB, which is too much to make by hand and too much to ship.
+
+---
+
+## Naming, exactly
+
+The ingest script reads the filenames and rejects anything it does not
+recognise, so these have to be right:
+
+```
+<scene>__ap-wide     <scene>__ap-mid      <scene>__ap-deep
+<scene>__fl-wide     <scene>__fl-norm     <scene>__fl-long
+```
+
+`.png` or `.jpg` both work. The scene name must match the app's own id — the ids
+are the photograph filenames in `stops/photos/`.
+
+## Why the prompts avoid f-numbers
+
+Because models treat "f/1.8" as a style token rather than a measurement, and you
+get an arbitrary amount of blur that does not correspond to anything. The prompts
+describe the visible consequence instead, and the app supplies the number. Three
+steps is also all that is worth generating: they are three points on a continuous
+axis, and the app will be picking the nearest one rather than pretending to
+interpolate.
