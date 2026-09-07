@@ -26,9 +26,11 @@ if (!scenes.length) { console.error('The manifest is empty.'); process.exit(1); 
 const LABEL = {
   ap: { wide: 'wide open', mid: 'middle', deep: 'stopped down' },
   fl: { wide: 'wide lens', norm: 'normal', long: 'long lens' },
+  sh: { fast: 'fast — frozen', mid: 'moderate', slow: 'slow — smeared' },
 };
 const TITLE = { ap: 'Aperture — only the depth of field may differ',
-                fl: 'Focal length — the subject must be the SAME HEIGHT in all three' };
+                fl: 'Focal length — the subject must be the SAME HEIGHT in all three',
+                sh: 'Shutter — only the moving things may differ; everything still stays identical' };
 
 const types = { '.jpg': 'image/jpeg', '.png': 'image/png', '.css': 'text/css', '.html': 'text/html' };
 const server = createServer((req, res) => {

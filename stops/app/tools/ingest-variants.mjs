@@ -14,7 +14,7 @@ import { extname, join, resolve } from 'node:path';
 import { SCENES } from '../js/data.js';
 import { chromium } from './playwright.mjs';
 
-const AXES = { ap: ['wide', 'mid', 'deep'], fl: ['wide', 'norm', 'long'] };
+const AXES = { ap: ['wide', 'mid', 'deep'], fl: ['wide', 'norm', 'long'], sh: ['fast', 'mid', 'slow'] };
 const MAX_EDGE = 900;
 const QUALITY = 0.74;
 
@@ -54,8 +54,8 @@ const ignored = [];
 for (const file of readdirSync(dir).sort()) {
   const ext = extname(file).toLowerCase();
   if (!['.png', '.jpg', '.jpeg', '.webp'].includes(ext)) continue;
-  const m = file.replace(ext, '').match(/^([a-z]+)__(ap|fl)-([a-z]+)$/);
-  if (!m) { ignored.push([file, 'name does not match <scene>__<ap|fl>-<step>']); continue; }
+  const m = file.replace(ext, '').match(/^([a-z]+)__(ap|fl|sh)-([a-z]+)$/);
+  if (!m) { ignored.push([file, 'name does not match <scene>__<ap|fl|sh>-<step>']); continue; }
   const [, scene, axis, step] = m;
   if (!sceneIds.has(scene)) { ignored.push([file, `"${scene}" is not a scene in this app`]); continue; }
   if (!AXES[axis].includes(step)) {
