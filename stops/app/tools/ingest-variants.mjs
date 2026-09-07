@@ -18,6 +18,18 @@ const AXES = { ap: ['wide', 'mid', 'deep'], fl: ['wide', 'norm', 'long'] };
 const MAX_EDGE = 900;
 const QUALITY = 0.74;
 
+// An optional crops.json in the source folder normalises the framing:
+//
+//   { "portrait": { "fl-norm": { "scale": 1.28, "cy": 0.52 } } }
+//
+// `scale` crops in by that factor, `cy` is the vertical centre of the crop.
+// This exists because a model asked for three focal lengths will hold the
+// subject's size only roughly, and the set's whole claim is that the subject
+// does not change. Cropping in uniformly rescales subject and background
+// together, so it fixes the framing without touching the ratio between them —
+// which is the thing being demonstrated. It only ever crops in; nothing is
+// invented at the edges.
+
 const source = process.argv[2];
 if (!source) {
   console.error('usage: node tools/ingest-variants.mjs <folder of generated variants>');
@@ -28,6 +40,12 @@ if (!existsSync(dir)) {
   console.error(`no such folder: ${dir}`);
   process.exit(1);
 }
+
+let crops = {};
+try {
+  crops = JSON.parse(readFileSync(join(dir, 'crops.json'), 'utf8'));
+  console.log('using crops.json to normalise framing');
+} catch { /* optional */ }
 
 const sceneIds = new Set(SCENES.map((s) => s.id));
 const found = new Map(); // scene -> axis -> Set(step)
@@ -85,26 +103,33 @@ for (const [scene, axes] of [...found].sort()) {
     for (const step of AXES[axis]) {
       const file = steps.get(step);
       if (!file) continue;
-      const data = await page.evaluate(async ({ file, MAX_EDGE, QUALITY, port }) => {
+      const crop = crops[scene]?.[`${axis}-${step}`] ?? null;
+      const data = await page.evaluate(async ({ file, MAX_EDGE, QUALITY, port, crop }) => {
         const img = new Image();
         img.crossOrigin = 'anonymous';
         await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = `http://127.0.0.1:${port}/${encodeURIComponent(file)}`; });
-        const scale = Math.min(1, MAX_EDGE / Math.max(img.naturalWidth, img.naturalHeight));
+        const z = Math.max(1, crop?.scale ?? 1);
+        const cy = crop?.cy ?? 0.5;
+        const sw = img.naturalWidth / z, sh = img.naturalHeight / z;
+        const sx = (img.naturalWidth - sw) / 2;
+        const sy = Math.max(0, Math.min(img.naturalHeight - sh, img.naturalHeight * cy - sh / 2));
+        const scale = Math.min(1, MAX_EDGE / Math.max(sw, sh));
         const c = document.createElement('canvas');
-        c.width = Math.round(img.naturalWidth * scale);
-        c.height = Math.round(img.naturalHeight * scale);
+        c.width = Math.round(sw * scale);
+        c.height = Math.round(sh * scale);
         const x = c.getContext('2d');
         x.imageSmoothingQuality = 'high';
-        x.drawImage(img, 0, 0, c.width, c.height);
+        x.drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height);
         return { url: c.toDataURL('image/jpeg', QUALITY), w: c.width, h: c.height };
-      }, { file, MAX_EDGE, QUALITY, port });
+      }, { file, MAX_EDGE, QUALITY, port, crop });
 
       const name = `${scene}__${axis}-${step}.jpg`;
       const buf = Buffer.from(data.url.split(',')[1], 'base64');
       writeFileSync(new URL(name, outDir), buf);
       manifest[scene][axis].push(step);
       written++;
-      console.log(`  ${name.padEnd(28)} ${data.w}x${data.h}  ${(buf.length / 1024).toFixed(0)} KB`);
+      console.log(`  ${name.padEnd(28)} ${data.w}x${data.h}  ${(buf.length / 1024).toFixed(0)} KB`
+        + (crop ? `  cropped x${crop.scale}` : ''));
     }
   }
 }

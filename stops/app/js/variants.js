@@ -6,7 +6,8 @@ export const VARIANTS = {
   "portrait": {
     "ap": [
       "wide",
-      "mid"
+      "mid",
+      "deep"
     ],
     "fl": [
       "wide",

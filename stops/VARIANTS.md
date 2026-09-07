@@ -113,6 +113,26 @@ The first validates the names, rescales everything the same way, and writes the
 manifest. The second writes `variant-sheet.png` — each set laid out side by side
 at the width it will actually be seen at on a phone.
 
+### 4b. If the subject drifts in size, normalise it
+
+A model will hold the subject's size only roughly across the three focal
+lengths, and the set's whole claim is that the subject does not change. Put a
+`crops.json` next to the images to crop the framing back into line:
+
+```json
+{ "portrait": { "fl-wide": { "scale": 1.14, "cy": 0.52 },
+                "fl-norm": { "scale": 1.28, "cy": 0.52 } } }
+```
+
+`scale` crops in by that factor, `cy` is the vertical centre of the crop. The
+ingest applies it automatically and says so. This is legitimate rather than a
+fudge: cropping in rescales subject and background together, so it fixes the
+framing without touching the ratio between them — which is the thing being
+demonstrated. It only ever crops in, so nothing is invented at the edges.
+
+The committed `variants-crops.json` is the one used for portrait, kept so the
+set can be rebuilt from the originals. Copy it into your source folder.
+
 ### 5. Judge it — this is the step that matters
 
 Open `variant-sheet.png` and read along each row.
