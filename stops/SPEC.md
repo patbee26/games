@@ -224,7 +224,62 @@ writing, the theme system, the offline shell.
 Rewritten: the whole of the screen layer, the gear model, and the scene data
 (twelve scenes, each declaring its option and its assumed conditions).
 
-## 11. Still to decide
+## 11. Deferred to v2 — assess a photograph the user took
+
+Upload a picture, get told what happened. Investigated and deferred, with the
+findings recorded so the work does not get re-done.
+
+It is three features, and only the third needs anything this app does not have:
+
+| | Backend | Photo leaves the phone | Works offline |
+|---|---|---|---|
+| Read the EXIF, compare against what the app would have said | no | **no** | yes |
+| Measure the pixels — sharpness, blown highlights, blocked shadows | no | **no** | yes |
+| Judge it as a photograph — composition, expression, the moment | **yes** | **yes** | no |
+
+**The first two are the valuable ones, and they run entirely on the device.**
+Given a JPEG's EXIF and the scene the user names, the existing engine already
+produces a real diagnosis:
+
+```
+THEIR SHOT   1/60  f/4  ISO 3200  at 105mm   (kids, indoors by a window)
+THE APP SAYS 1/500 f/4  ISO 6400
+
+exposure       2 stops brighter than the meter would give
+camera shake   floor at 105mm is 1/105; they shot 1/60 = 2/3 stop too slow
+subject motion a child at 3m needs 1/486; they were 3 stops short
+headroom       ISO 3200 of a 6400 cap — a stop was left unspent
+```
+
+That is arithmetic, not a model, and it is only possible because the app already
+knows the right answer for that scene — which a general vision model does not.
+The pixel measurements were verified in the browser against the project's own
+photographs: a Laplacian-variance focus measure cleanly separates the
+sharp-background portrait (1504) from the two blurred ones (505, 588), and the
+histogram catches 9% blocked shadows in the stars frame. No key, no network.
+
+**The aesthetic layer waits for the native iOS app**, where an account and a
+backend will exist anyway. It needs a server to hold the API key (a static page
+cannot), rate limiting because there are no accounts, a per-call cost, and a
+privacy story for photographs of the user's children. It also carries the
+biggest risk to the app's character: a vision model will confidently produce
+generic advice — "consider the rule of thirds" — in exactly the register this
+app has been built to avoid, to a beginner who just photographed their kid.
+
+For someone moving off automatic, the technical answer is the one that teaches.
+"Your composition is pleasant" changes nothing; "it is blurry because your
+shutter was three stops too slow, and here is the number you needed" changes the
+next photograph.
+
+**Verify before committing:** EXIF has to survive the trip. It is stripped by
+messaging apps, absent from RAW, and iOS's photo picker needs checking on a real
+device. Without EXIF the first tier goes quiet and only the pixel measurements
+remain — still useful, but unable to say *why*.
+
+Effort: 1–2 days for the EXIF tier, 1–2 more for the pixel tier, no
+infrastructure for either.
+
+## 12. Still to decide
 
 1. **The shutter axis photographs.** Thirty new images is the bulk of the work
    and it is yours, in ChatGPT. Worth proving one shutter set first — `water` is
