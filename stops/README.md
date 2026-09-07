@@ -232,6 +232,15 @@ has taught them something false. So the blur must be driven from the real depth-
 maths using the focal length already in the gear profile, and the panel must be labelled
 a diagram rather than a photograph.
 
+The settings screen carries both, on a toggle in one frame: **Your settings** is the live
+diagram, **The shot** is the scene's photograph. The diagram leads because it is the one
+that answers "what will *these numbers* do"; the photograph answers "what am I aiming
+at", and the photographer's own picture displaces the supplied one here exactly as it
+does in the guide. The photograph is never blurred or smeared to match the settings — an
+aperture throws a *background* out of focus, and blurring a whole frame would teach the
+same lie the diagram exists to avoid. Both states are the same height, frame and caption
+alike, so glancing at the example does not shift the settings rows underneath.
+
 **Real photographs in the guide tab** — a reference gallery. Trivial code, and the
 sourcing is the entire job: the EXIF has to genuinely match the settings shown, which
 rules out Unsplash and Pexels (EXIF stripped, unsearchable by aperture) and leaves

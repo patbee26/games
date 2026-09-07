@@ -240,7 +240,15 @@ button {
 .preview__subject { position: absolute; left: 50%; top: 58%; transform: translate(-50%, -50%); }
 .preview__ghost { position: absolute; left: 50%; top: 58%; }
 .preview__grain { position: absolute; inset: 0; opacity: var(--grain, 0); mix-blend-mode: overlay; pointer-events: none; }
-.preview__caption { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 1px 0; }
+/* The photograph shares the diagram's frame so switching between them does not
+   move anything below it. */
+.preview--photo { background: var(--card-2); }
+.preview--photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.seg--preview button { min-height: 34px; font-size: 11.5px; }
+/* Two lines are reserved because the longest photograph caption takes two at
+   320px, so switching between the diagram and the photograph leaves the
+   settings rows exactly where they were. */
+.preview__caption { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 1px 0; min-height: 37px; }
 .preview__caption span { font-size: 10.5px; color: var(--ink-4); }
 
 /* ---------- controls ---------- */

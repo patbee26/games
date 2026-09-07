@@ -32,6 +32,7 @@ const state = {
   theme: 'system',
   shotError: null,
   showIntro: false,
+  previewMode: 'diagram',
   sun: { status: 'idle' },
   gear: loadGear(),
 };
@@ -419,6 +420,54 @@ function lensSection(r) {
   return picker + stepper;
 }
 
+/**
+ * The diagram and the photograph answer different questions, so the panel holds
+ * both rather than choosing. The diagram is the live one — its blur, smear and
+ * grain are driven by the numbers on this screen — so it leads, and the
+ * photograph is the target to compare it against.
+ *
+ * The photograph is never blurred or smeared to match the settings: an aperture
+ * throws a *background* out of focus, and blurring a whole frame would be
+ * teaching the same lie the diagram exists to avoid.
+ *
+ * Both states are the same height, frame and caption alike, so glancing at the
+ * example does not shift the settings rows underneath.
+ */
+function previewPanel(r, scene, caption) {
+  const own = readShot(scene.id);
+  const photo = own || photoFor(scene.id);
+
+  if (!photo) {
+    return `<div class="mt-18">${previewHtml({ result: r, scene, gear: state.gear })}</div>
+      <div class="preview__caption"><span>${esc(caption.left)}</span>
+      <span class="mono">${esc(caption.right)}</span></div>`;
+  }
+
+  const showing = state.previewMode === 'photo' ? 'photo' : 'diagram';
+  const toggle = `<div class="seg seg--preview mt-18">
+    <button data-act="preview-mode" data-v="diagram" aria-pressed="${showing === 'diagram'}">Your settings</button>
+    <button data-act="preview-mode" data-v="photo" aria-pressed="${showing === 'photo'}">The shot</button>
+  </div>`;
+
+  if (showing === 'photo') {
+    const note = own
+      ? 'Your own photograph'
+      : photoNote(scene.id) ?? 'An example of the shot.';
+    const alt = own
+      ? `Your own example for ${esc(scene.name)}`
+      : `An example of a ${esc(scene.name.toLowerCase())} photograph`;
+    return `${toggle}
+      <div class="preview preview--photo mt-10"><img src="${photo}" alt="${alt}"></div>
+      <div class="preview__caption"><span>${esc(note)}</span>
+      <span class="mono">${own ? 'Yours' : 'Example'}</span></div>`;
+  }
+
+  return `${toggle}
+    <div class="mt-10">${previewHtml({ result: r, scene, gear: state.gear })}</div>
+    <div class="preview__caption"><span>${esc(caption.left)}</span>
+    <span class="mono">${esc(caption.right)}</span></div>`;
+}
+
 function resultScreen() {
   const r = currentSolve();
   if (!r) return scenesScreen();
@@ -492,8 +541,7 @@ function resultScreen() {
       <button class="barbtn" data-act="home" aria-label="Back to the start">${icon('home', 19)}</button>
     </div>
 
-    <div class="mt-18">${previewHtml({ result: r, scene, gear: state.gear })}</div>
-    <div class="preview__caption"><span>${esc(caption.left)}</span><span class="mono">${esc(caption.right)}</span></div>
+    ${previewPanel(r, scene, caption)}
     ${alert}
 
     <div class="mt-16" style="margin-left:calc(var(--pad) * -1); margin-right:calc(var(--pad) * -1); border-top:1px solid var(--line-soft)">
@@ -1097,6 +1145,9 @@ app.addEventListener('click', (event) => {
       keepScroll = true;
       break;
     }
+    // Keeping the scroll position means the toggle does not throw the settings
+    // rows off screen just because the photographer glanced at the example.
+    case 'preview-mode': state.previewMode = v; keepScroll = true; break;
     case 'guide-tab': state.guideTab = v; state.guideScene = null; break;
     case 'guide-scene': state.guideScene = id; break;
     case 'guide-back': state.guideScene = null; break;
