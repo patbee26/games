@@ -8,10 +8,12 @@ import { snapShutter, snapAperture, snapIso, FULL_STOPS, ISO_CEILINGS } from './
 import { estimateLight, SKY } from './sun.js';
 import { motionThreshold } from './optics.js';
 import { craftFor } from './craft.js';
+import { scenery } from './scenery.js';
 
 const LAST_KEY = 'stops.last.v2';
 const THEME_KEY = 'stops.theme.v1';
 const SEEN_KEY = 'stops.seen.v1';
+const SHOT_KEY = 'stops.shot.v1.';
 const PLACE_KEY = 'stops.place.v1';
 
 const state = {
@@ -27,6 +29,7 @@ const state = {
   editingLens: null,
   customLight: null,
   theme: 'system',
+  shotError: null,
   showIntro: false,
   sun: { status: 'idle' },
   gear: loadGear(),
@@ -180,8 +183,10 @@ function scenesScreen() {
   }
 
   const tiles = SCENES.map((s) => `<button class="tile" data-act="scene" data-id="${s.id}">
-      <span class="tile__icon">${icon(s.icon, 22)}</span>
-      <span><span class="tile__name">${esc(s.name)}</span><span class="tile__hint">${esc(s.hint)}</span></span>
+      ${scenery(s.id)}
+      <span class="tile__label">
+        <span class="tile__name">${esc(s.name)}</span><span class="tile__hint">${esc(s.hint)}</span>
+      </span>
     </button>`).join('');
 
   return `<div class="screen">
@@ -596,6 +601,24 @@ function anchorRows(scene) {
   return rows;
 }
 
+/** Their photograph when they have set one, and an honest drawing when not. */
+function exampleBlock(scene) {
+  const shot = readShot(scene.id);
+  if (shot) {
+    return `<div class="banner mt-18"><img src="${shot}" alt="Your own example for ${esc(scene.name)}"></div>
+      <div class="shotbar">
+        <span class="lab">Your photograph</span><span style="flex:1"></span>
+        <button data-act="shot-pick" data-id="${scene.id}">Replace</button>
+        <button data-act="shot-clear" data-id="${scene.id}" style="color:var(--warn)">Remove</button>
+      </div>`;
+  }
+  return `<div class="banner mt-18">${scenery(scene.id, { rounded: 13 })}</div>
+    <p class="muted" style="margin-top:8px">Drawn, not photographed — it shows the shape of the shot, not the picture.</p>
+    <button class="ghost mt-10" data-act="shot-pick" data-id="${scene.id}">
+      ${icon('plus', 15)}<span>Use one of your own as the example</span></button>
+    ${state.shotError ? `<p class="muted" style="color:var(--warn);margin-top:8px">${esc(state.shotError)}</p>` : ''}`;
+}
+
 function sceneGuide(scene) {
   const c = craftFor(scene.id);
   if (!c) return guideList();
@@ -606,8 +629,8 @@ function sceneGuide(scene) {
       <button class="barbtn" data-act="home" aria-label="Back to the start">${icon('home', 19)}</button>
     </div>
 
-    <div style="display:flex;align-items:center;gap:11px;margin-top:18px;color:var(--amber)">${icon(scene.icon, 24)}</div>
-    <h1 class="h1 mt-12">${esc(scene.name)}</h1>
+    ${exampleBlock(scene)}
+    <h1 class="h1 mt-16">${esc(scene.name)}</h1>
     <p class="sub">${esc(c.intro)}</p>
 
     <span class="lab mt-22">In the field</span>
@@ -635,7 +658,7 @@ function sceneGuide(scene) {
 
 function guideList() {
   return SCENES.map((sc) => `<button class="row" data-act="guide-scene" data-id="${sc.id}">
-      <span style="color:var(--ink-3);display:flex">${icon(sc.icon, 20)}</span>
+      <span class="thumb">${scenery(sc.id, { rounded: 7 })}</span>
       <span class="row__body"><span class="row__name">${esc(sc.name)}</span>
       <span class="row__sub">${esc(craftFor(sc.id)?.intro.split(/[.,]/)[0] ?? sc.hint)}</span></span>
       <span style="color:var(--ink-4);display:flex">${icon('chevron', 15)}</span>
@@ -846,6 +869,51 @@ function gearScreen() {
   </div>`;
 }
 
+/* ------------------------------------------------- your own example photos */
+
+// There is no honest source for photographs of eighteen scenes that this app
+// could ship. The photographer, though, has a library full of the only examples
+// that really mean anything to them. Stored downscaled, locally, sent nowhere.
+
+const readShot = (id) => { try { return localStorage.getItem(SHOT_KEY + id); } catch { return null; } };
+
+function downscale(file, maxWidth) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxWidth / image.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(image.width * scale);
+      canvas.height = Math.round(image.height * scale);
+      canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', 0.72));
+    };
+    image.onerror = () => { URL.revokeObjectURL(url); reject(new Error('unreadable')); };
+    image.src = url;
+  });
+}
+
+function pickShot(sceneId) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.addEventListener('change', async () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    try {
+      localStorage.setItem(SHOT_KEY + sceneId, await downscale(file, 560));
+      state.shotError = null;
+    } catch {
+      // Nearly always the storage quota: a few dozen photographs will fill it.
+      state.shotError = 'That would not save. Remove an example from another scene and try again.';
+    }
+    render({ keepScroll: true });
+  });
+  input.click();
+}
+
 /* ------------------------------------------------------------------- intro */
 
 const STEPS = [
@@ -1010,6 +1078,11 @@ app.addEventListener('click', (event) => {
     case 'guide-tab': state.guideTab = v; state.guideScene = null; break;
     case 'guide-scene': state.guideScene = id; break;
     case 'guide-back': state.guideScene = null; break;
+    case 'shot-pick': pickShot(id); return;
+    case 'shot-clear':
+      try { localStorage.removeItem(SHOT_KEY + id); } catch { /* nothing to remove */ }
+      state.shotError = null; keepScroll = true;
+      break;
     case 'scene-guide': state.tab = 'guide'; state.guideTab = 'scenes'; state.guideScene = id; break;
     case 'shoot-scene':
       state.sceneId = id; state.lightId = null; state.customLight = null;

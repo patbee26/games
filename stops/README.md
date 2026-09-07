@@ -99,6 +99,7 @@ it the fonts.
 | [`app/js/data.js`](app/js/data.js) | The content: 18 scenes with a second recipe each, 15 light conditions. |
 | [`app/js/sun.js`](app/js/sun.js) | Solar position (NOAA), and the altitude → EV model. |
 | [`app/js/craft.js`](app/js/craft.js) | How to shoot each scene, as opposed to what to set. |
+| [`app/js/scenery.js`](app/js/scenery.js) | The eighteen drawn scenes, as inline SVG. |
 | [`app/js/preview.js`](app/js/preview.js) | The live preview, driven by the optics above. |
 | [`app/js/app.js`](app/js/app.js) | Screens, routing, the gear editor. |
 | [`app/test/`](app/test/) | 42 tests over the engine, optics and astronomy. `node --test`, no dependencies. |
@@ -130,6 +131,21 @@ Under the controls, **what a change would buy**, computed rather than written do
 the motion equation says where this subject's movement starts to show at this focal
 length and distance, so a sprint at 135 mm reads *"slower than about 1/640 and the
 movement starts to show"* while a group portrait reads 1/20.
+
+### Pictures, and what they honestly are
+
+Every scene is drawn rather than iconised: a sky, a ground, a horizon and a
+subject, about a kilobyte of inline SVG each, sharing the app's palette. They
+carry the home screen as tiles and the guide as thumbnails and banners, and they
+cost nothing, work offline and carry no licence.
+
+They are not photographs, and the app says so in the one place it matters — the
+banner in the guide is captioned "drawn, not photographed: it shows the shape of
+the shot, not the picture". There is no honest source for photographs of eighteen
+scenes that this project could ship. What it can do is take the photographer's
+own: each entry offers to use one of their pictures as its example, downscaled to
+560 px and kept in local storage, sent nowhere. Their own work is a better answer
+to "what does good look like here" than a stranger's would ever be.
 
 ### The guide proper
 
