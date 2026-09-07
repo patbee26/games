@@ -493,8 +493,12 @@ function compSection(r) {
  * throws a *background* out of focus, and blurring a whole frame would be
  * teaching the same lie the diagram exists to avoid.
  *
- * Both states are the same height, frame and caption alike, so glancing at the
- * example does not shift the settings rows underneath.
+ * Neither is cropped to a common height. The examples run from 3:2 landscape to
+ * 5:6 upright, and forcing an upright frame through a letterbox showed a band
+ * across the middle of it. The diagram is a 3:2 camera frame, which ten of the
+ * eighteen match exactly, so the toggle usually does not move anything; the
+ * rest change the panel's height rather than losing the top and bottom of the
+ * picture.
  */
 function previewPanel(r, scene, caption) {
   const own = readShot(scene.id);

@@ -279,8 +279,12 @@ that answers "what will *these numbers* do"; the photograph answers "what am I a
 at", and the photographer's own picture displaces the supplied one here exactly as it
 does in the guide. The photograph is never blurred or smeared to match the settings — an
 aperture throws a *background* out of focus, and blurring a whole frame would teach the
-same lie the diagram exists to avoid. Both states are the same height, frame and caption
-alike, so glancing at the example does not shift the settings rows underneath.
+same lie the diagram exists to avoid. Neither panel crops to a common height either:
+the examples run from 3:2 landscape to 5:6 upright, and forcing an upright frame through
+a fixed letterbox showed a band across the middle of it. The diagram is a 3:2 camera
+frame — the shape of the thing it stands for — which ten of the eighteen match to within
+a pixel, so the toggle usually moves nothing; the rest change the panel's height rather
+than lose the top and bottom of the picture.
 
 **The Shutter and Aperture tabs are computed, not written.** They used to be flat
 lists — "a still portrait, 1/160" — and a flat list in an app built to replace
