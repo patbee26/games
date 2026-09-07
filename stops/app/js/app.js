@@ -9,6 +9,7 @@ import { estimateLight, SKY } from './sun.js';
 import { motionThreshold } from './optics.js';
 import { craftFor } from './craft.js';
 import { scenery } from './scenery.js';
+import { photoFor, photoNote } from './photos.js';
 
 const LAST_KEY = 'stops.last.v2';
 const THEME_KEY = 'stops.theme.v1';
@@ -164,6 +165,16 @@ function readLast() {
 
 /* ------------------------------------------------------------------- screens */
 
+/** A photograph where one exists, the photographer's own first, else a drawing. */
+function tileArt(scene) {
+  const own = readShot(scene.id);
+  const stock = photoFor(scene.id);
+  const src = own || stock;
+  return src
+    ? `<img class="scenery" src="${src}" alt="" loading="lazy">`
+    : scenery(scene.id);
+}
+
 function scenesScreen() {
   const last = readLast();
   let resume = '';
@@ -183,7 +194,7 @@ function scenesScreen() {
   }
 
   const tiles = SCENES.map((s) => `<button class="tile" data-act="scene" data-id="${s.id}">
-      ${scenery(s.id)}
+      ${tileArt(s)}
       <span class="tile__label">
         <span class="tile__name">${esc(s.name)}</span><span class="tile__hint">${esc(s.hint)}</span>
       </span>
@@ -603,20 +614,31 @@ function anchorRows(scene) {
 
 /** Their photograph when they have set one, and an honest drawing when not. */
 function exampleBlock(scene) {
-  const shot = readShot(scene.id);
-  if (shot) {
-    return `<div class="banner mt-18"><img src="${shot}" alt="Your own example for ${esc(scene.name)}"></div>
+  const own = readShot(scene.id);
+  const stock = photoFor(scene.id);
+  const failed = state.shotError
+    ? `<p class="muted" style="color:var(--warn);margin-top:8px">${esc(state.shotError)}</p>` : '';
+
+  if (own) {
+    return `<div class="banner mt-18"><img src="${own}" alt="Your own example for ${esc(scene.name)}"></div>
       <div class="shotbar">
         <span class="lab">Your photograph</span><span style="flex:1"></span>
         <button data-act="shot-pick" data-id="${scene.id}">Replace</button>
         <button data-act="shot-clear" data-id="${scene.id}" style="color:var(--warn)">Remove</button>
-      </div>`;
+      </div>${failed}`;
   }
+
+  if (stock) {
+    return `<div class="banner mt-18"><img src="${stock}" alt="An example of a ${esc(scene.name.toLowerCase())} photograph"></div>
+      <p class="muted" style="margin-top:8px">${esc(photoNote(scene.id))}</p>
+      <button class="ghost mt-10" data-act="shot-pick" data-id="${scene.id}">
+        ${icon('plus', 15)}<span>Use one of your own instead</span></button>${failed}`;
+  }
+
   return `<div class="banner mt-18">${scenery(scene.id, { rounded: 13 })}</div>
     <p class="muted" style="margin-top:8px">Drawn, not photographed — it shows the shape of the shot, not the picture.</p>
     <button class="ghost mt-10" data-act="shot-pick" data-id="${scene.id}">
-      ${icon('plus', 15)}<span>Use one of your own as the example</span></button>
-    ${state.shotError ? `<p class="muted" style="color:var(--warn);margin-top:8px">${esc(state.shotError)}</p>` : ''}`;
+      ${icon('plus', 15)}<span>Use one of your own as the example</span></button>${failed}`;
 }
 
 function sceneGuide(scene) {
@@ -658,7 +680,7 @@ function sceneGuide(scene) {
 
 function guideList() {
   return SCENES.map((sc) => `<button class="row" data-act="guide-scene" data-id="${sc.id}">
-      <span class="thumb">${scenery(sc.id, { rounded: 7 })}</span>
+      <span class="thumb">${tileArt(sc)}</span>
       <span class="row__body"><span class="row__name">${esc(sc.name)}</span>
       <span class="row__sub">${esc(craftFor(sc.id)?.intro.split(/[.,]/)[0] ?? sc.hint)}</span></span>
       <span style="color:var(--ink-4);display:flex">${icon('chevron', 15)}</span>

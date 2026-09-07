@@ -100,6 +100,7 @@ it the fonts.
 | [`app/js/sun.js`](app/js/sun.js) | Solar position (NOAA), and the altitude → EV model. |
 | [`app/js/craft.js`](app/js/craft.js) | How to shoot each scene, as opposed to what to set. |
 | [`app/js/scenery.js`](app/js/scenery.js) | The eighteen drawn scenes, as inline SVG. |
+| [`app/js/photos.js`](app/js/photos.js) | Which scenes have a photograph, and what to notice in it. |
 | [`app/js/preview.js`](app/js/preview.js) | The live preview, driven by the optics above. |
 | [`app/js/app.js`](app/js/app.js) | Screens, routing, the gear editor. |
 | [`app/test/`](app/test/) | 42 tests over the engine, optics and astronomy. `node --test`, no dependencies. |
@@ -139,13 +140,21 @@ subject, about a kilobyte of inline SVG each, sharing the app's palette. They
 carry the home screen as tiles and the guide as thumbnails and banners, and they
 cost nothing, work offline and carry no licence.
 
-They are not photographs, and the app says so in the one place it matters — the
-banner in the guide is captioned "drawn, not photographed: it shows the shape of
-the shot, not the picture". There is no honest source for photographs of eighteen
-scenes that this project could ship. What it can do is take the photographer's
-own: each entry offers to use one of their pictures as its example, downscaled to
-560 px and kept in local storage, sent nowhere. Their own work is a better answer
-to "what does good look like here" than a stranger's would ever be.
+Where a photograph exists it wins, and five scenes have one — stars, night and
+city, macro, kids and pets, food. Each is captioned with what is worth noticing
+in the frame rather than with an exposure the project cannot vouch for: the macro
+example reads "one plane sharp — the near wing and the flower head — and
+everything behind it gone."
+
+A drawing is used wherever there is no photograph, and says what it is: "drawn,
+not photographed — it shows the shape of the shot, not the picture." Adding a
+photograph for another scene is a file in `app/photos/` named after the scene and
+one line in `photos.js`.
+
+Above both sits the photographer's own. Every entry offers to use one of their
+pictures instead, downscaled to 560 px and kept in local storage, sent nowhere —
+because their own work answers "what does good look like here" better than
+anyone else's could, and it was taken on their gear.
 
 ### The guide proper
 
