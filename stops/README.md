@@ -293,7 +293,16 @@ A layered scene does not have these problems, because its depth separation is re
 construction rather than inferred. That is what the preview is, and it is why it is drawn.
 
 Photographs *can* answer the settings, but only as sets that are genuinely the same scene
-shot differently — which is a generation problem, not a processing one.
+shot differently — which is a generation problem, not a processing one. Portrait now has
+one: three apertures and three focal lengths, generated as edits of the app's own
+photograph. On the settings screen "The shot" picks the nearest of the three on whichever
+axis the photographer selects, and says it is doing that, because three photographs on a
+continuous axis is an approximation however carefully they are made.
+
+Neither axis is picked on the raw setting. Aperture goes by how far the lens is stopped
+down from its own widest, because f/5.6 is wide open on one lens and well stopped down on
+another; focal length goes by background magnification against the scene's own focal
+length, because 50 mm is a wide lens for a portrait and a long one for a landscape.
 [`VARIANTS.md`](VARIANTS.md) is the spec for producing those sets, and
 `app/tools/ingest-variants.mjs` installs them. The trap it exists to avoid is that a model
 asked for the same scene at two apertures returns two different photographs, and a set

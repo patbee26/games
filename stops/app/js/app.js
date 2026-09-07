@@ -11,6 +11,8 @@ import { estimateLight, SKY } from './sun.js';
 import { craftFor } from './craft.js';
 import { scenery } from './scenery.js';
 import { photoFor, photoNote, thumbFor } from './photos.js';
+import { VARIANTS, variantFor } from './variants.js';
+import { apertureStep, focalStep, STEP_NOTE, AXIS_NAME } from './variantpick.js';
 
 const LAST_KEY = 'stops.last.v2';
 const THEME_KEY = 'stops.theme.v1';
@@ -34,6 +36,7 @@ const state = {
   shotError: null,
   showIntro: false,
   previewMode: 'diagram',
+  variantAxis: 'ap',
   comp: null,
   guideFocal: null,
   sun: { status: 'idle' },
@@ -484,6 +487,39 @@ function compSection(r) {
 }
 
 /**
+ * The variation photograph for the current settings, when the scene has a set.
+ *
+ * Only one axis can be shown at a time — the photographs vary aperture at a
+ * fixed focal length or the reverse, never both — so the photographer chooses
+ * which question the picture is answering, and the app picks the nearest of the
+ * three on that axis.
+ */
+function variantSet(scene, r) {
+  const axes = VARIANTS[scene.id];
+  if (!axes) return null;
+  const available = Object.keys(axes).filter((a) => (axes[a] ?? []).length);
+  if (!available.length) return null;
+
+  const axis = available.includes(state.variantAxis) ? state.variantAxis : available[0];
+  const step = axis === 'ap'
+    ? apertureStep({ aperture: r.aperture.N, widest: r.widest })
+    : focalStep({ focal: r.focal, baseFocal: scene.focal, subject: scene.subject, background: scene.background });
+  const src = variantFor(scene.id, axis, step);
+  if (!src) return null;
+
+  const axisPicker = available.length > 1
+    ? `<div class="seg seg--axis mt-10">${available.map((a) => `
+        <button data-act="variant-axis" data-v="${a}" aria-pressed="${a === axis}">${AXIS_NAME[a]}</button>`).join('')}</div>`
+    : '';
+
+  return {
+    src, axis, axisPicker,
+    note: STEP_NOTE[axis]?.[step] ?? '',
+    stepLabel: axis === 'ap' ? r.aperture.label : `${Math.round(r.focal)} mm`,
+  };
+}
+
+/**
  * The diagram and the photograph answer different questions, so the panel holds
  * both rather than choosing. The diagram is the live one — its blur, smear and
  * grain are driven by the numbers on this screen — so it leads, and the
@@ -517,16 +553,22 @@ function previewPanel(r, scene, caption) {
   </div>`;
 
   if (showing === 'photo') {
+    // A photographer's own picture is theirs and is never swapped for a variant.
+    const set = own ? null : variantSet(scene, r);
+    const src = set?.src ?? photo;
     const note = own
       ? 'Your own photograph'
-      : photoNote(scene.id) ?? 'An example of the shot.';
+      : set?.note ?? photoNote(scene.id) ?? 'An example of the shot.';
     const alt = own
       ? `Your own example for ${esc(scene.name)}`
       : `An example of a ${esc(scene.name.toLowerCase())} photograph`;
     return `${toggle}
-      <div class="preview preview--photo mt-10"><img src="${photo}" alt="${alt}"></div>
+      ${set ? set.axisPicker : ''}
+      <div class="preview preview--photo mt-10"><img src="${src}" alt="${alt}"></div>
       <div class="preview__caption"><span>${esc(note)}</span>
-      <span class="mono">${own ? 'Yours' : 'Example'}</span></div>`;
+      <span class="mono">${own ? 'Yours' : set ? set.stepLabel : 'Example'}</span></div>
+      ${set ? `<p class="muted mt-8">Three photographs on an axis with no steps in it, so this is the
+        nearest one rather than your exact ${set.axis === 'ap' ? 'aperture' : 'focal length'}.</p>` : ''}`;
   }
 
   return `${toggle}
@@ -1349,6 +1391,7 @@ app.addEventListener('click', (event) => {
     // Keeping the scroll position means the toggle does not throw the settings
     // rows off screen just because the photographer glanced at the example.
     case 'preview-mode': state.previewMode = v; keepScroll = true; break;
+    case 'variant-axis': state.variantAxis = v; keepScroll = true; break;
     // Stored even when it matches the suggestion, so a deliberate agreement is
     // not silently re-derived if the suggestion later changes.
     case 'comp': state.comp = v; keepScroll = true; break;

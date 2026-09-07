@@ -10,7 +10,7 @@ const read = (p) => readFileSync(new URL(p, root), 'utf8');
 
 // Dependency order: every module imports only from the ones above it.
 const MODULES = ['js/ladders.js', 'js/optics.js', 'js/exposure.js', 'js/data.js',
-  'js/gear.js', 'js/icons.js', 'js/preview.js', 'js/sun.js', 'js/craft.js', 'js/scenery.js', 'js/photos.js', 'js/app.js'];
+  'js/gear.js', 'js/icons.js', 'js/preview.js', 'js/sun.js', 'js/craft.js', 'js/scenery.js', 'js/photos.js', 'js/variants.js', 'js/variantpick.js', 'js/app.js'];
 
 let script = MODULES.map((file) => read(file)
   .replace(/^import[\s\S]*?from '[^']+';$/gm, '')
@@ -41,6 +41,30 @@ inline('photos', 'const photoFor = (sceneId) => (PHOTOS[sceneId] ? `photos/${sce
   '__PHOTOS', 'photoFor');
 inline('thumbs', 'const thumbFor = (sceneId) => (THUMBS.has(sceneId) ? `thumbs/${sceneId}.jpg` : null);',
   '__THUMBS', 'thumbFor');
+
+// The variants are keyed scene__axis-step, which is exactly their filename, so
+// the same helper covers them with a different lookup shape.
+inlineVariants();
+function inlineVariants() {
+  const files = {};
+  let dir;
+  try { dir = readdirSync(new URL('photos/variants/', root)); } catch { return; }
+  for (const file of dir) {
+    if (!file.endsWith('.jpg')) continue;
+    files[file.replace('.jpg', '')] =
+      'data:image/jpeg;base64,' + readFileSync(new URL('photos/variants/' + file, root)).toString('base64');
+  }
+  if (!Object.keys(files).length) return; // no variants installed, nothing to do
+  const before = script;
+  script = script.replace(
+    /const variantFor = \(sceneId, axis, step\) =>[\s\S]*?: null;/,
+    `const __VARIANTS = ${JSON.stringify(files)};\n`
+    + 'const variantFor = (sceneId, axis, step) =>\n'
+    + '  (VARIANTS[sceneId]?.[axis] ?? []).includes(step)\n'
+    + '    ? __VARIANTS[`${sceneId}__${axis}-${step}`] ?? null\n'
+    + '    : null;');
+  if (script === before) console.warn('WARNING: variant lookup not rewritten, variants will not load');
+}
 
 // The fonts have to travel with the page: nothing external loads here.
 const fonts = read('fonts.css').replace(/url\(fonts\/([^)]+)\)/g, (_, name) =>
