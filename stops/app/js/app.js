@@ -9,7 +9,7 @@ import { estimateLight, SKY } from './sun.js';
 import { motionThreshold } from './optics.js';
 import { craftFor } from './craft.js';
 import { scenery } from './scenery.js';
-import { photoFor, photoNote } from './photos.js';
+import { photoFor, photoNote, thumbFor } from './photos.js';
 
 const LAST_KEY = 'stops.last.v2';
 const THEME_KEY = 'stops.theme.v1';
@@ -166,11 +166,16 @@ function readLast() {
 
 /* ------------------------------------------------------------------- screens */
 
-/** A photograph where one exists, the photographer's own first, else a drawing. */
+/**
+ * Tile art for the scene list and the guide's rows: the photographer's own
+ * picture first, then the tile crop, then the full example, then a drawing.
+ *
+ * The crop is preferred over the example because it is framed for this size —
+ * the subject sits clear of the bottom third, where the label goes — where the
+ * example is composed to be looked at whole.
+ */
 function tileArt(scene) {
-  const own = readShot(scene.id);
-  const stock = photoFor(scene.id);
-  const src = own || stock;
+  const src = readShot(scene.id) || thumbFor(scene.id) || photoFor(scene.id);
   return src
     ? `<img class="scenery" src="${src}" alt="" loading="lazy">`
     : scenery(scene.id);

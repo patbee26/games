@@ -100,7 +100,7 @@ it the fonts.
 | [`app/js/sun.js`](app/js/sun.js) | Solar position (NOAA), and the altitude → EV model. |
 | [`app/js/craft.js`](app/js/craft.js) | How to shoot each scene, as opposed to what to set. |
 | [`app/js/scenery.js`](app/js/scenery.js) | The eighteen drawn scenes, as inline SVG. |
-| [`app/js/photos.js`](app/js/photos.js) | Which scenes have a photograph, and what to notice in it. |
+| [`app/js/photos.js`](app/js/photos.js) | Which scenes have a photograph and a tile crop, and what to notice in the photograph. |
 | [`app/js/preview.js`](app/js/preview.js) | The live preview, driven by the optics above. |
 | [`app/js/app.js`](app/js/app.js) | Screens, routing, the gear editor. |
 | [`app/test/`](app/test/) | 42 tests over the engine, optics and astronomy. `node --test`, no dependencies. |
@@ -135,10 +135,10 @@ movement starts to show"* while a group portrait reads 1/20.
 
 ### Pictures, and what they honestly are
 
-Every scene is drawn rather than iconised: a sky, a ground, a horizon and a
-subject, about a kilobyte of inline SVG each, sharing the app's palette. They
-carry the home screen as tiles and the guide as thumbnails and banners, and they
-cost nothing, work offline and carry no licence.
+Every scene has a drawing as its floor: a sky, a ground, a horizon and a subject,
+about a kilobyte of inline SVG each, sharing the app's palette. Nothing ships
+using them today, but they cost nothing, work offline, carry no licence, and are
+what a nineteenth scene would get before anyone photographed it.
 
 Where a photograph exists it wins, and all eighteen scenes now have one. Each
 photograph is captioned with what is worth noticing
@@ -146,11 +146,20 @@ in the frame rather than with an exposure the project cannot vouch for: the macr
 example reads "one plane sharp — the near wing and the flower head — and
 everything behind it gone."
 
-The drawings stay as the fallback: any scene added without a photograph gets one
+Pictures come in two sizes doing two jobs. `app/photos/` holds the full examples,
+shown whole in the guide and behind "The shot" on the settings screen.
+`app/thumbs/` holds the tile crops for the scene list and the guide's rows, and
+they are framed for the tile rather than scaled down from the example: 448×320,
+subject kept clear of the bottom third where the app draws its own label. A crop
+carries no burnt-in text — where a source sheet had a caption band, it was
+measured off the tile before cropping — because the label belongs to the app,
+which themes it, and not to the JPEG.
+
+The drawings stay as the fallback: any scene added without either gets one
 automatically, and it says what it is — "drawn, not photographed — it shows the
-shape of the shot, not the picture." Adding a photograph for a new scene is a
-file in `app/photos/` named after the scene, one line in `photos.js`, and the
-same filename in the `sw.js` precache list.
+shape of the shot, not the picture." Adding pictures for a new scene is a file in
+`app/photos/` and one in `app/thumbs/` named after the scene, a line and a set
+entry in `photos.js`, and the same two filenames in the `sw.js` precache list.
 
 Above both sits the photographer's own. Every entry offers to use one of their
 pictures instead, downscaled to 560 px and kept in local storage, sent nowhere —

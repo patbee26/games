@@ -1,9 +1,18 @@
-// Photographs supplied for the guide, one per scene, as examples of the shot
-// each entry is describing. Only some scenes have one; the rest fall back to
-// the drawing, and a photographer's own picture beats both.
+// Scene imagery, in two sizes that do two different jobs.
 //
-// Each caption names what is worth noticing in the frame — the composition
-// choice, not the exposure, because the exposure is not ours to claim.
+// PHOTOS are the full examples: one per scene, shown in the guide and behind
+// "The shot" on the settings screen. Each caption names what is worth noticing
+// in the frame — the composition choice, not the exposure, because the exposure
+// is not ours to claim.
+//
+// THUMBS are the tile crops for the scene list and the guide's rows. They are
+// framed for the tile rather than scaled down from the example: the subject is
+// kept clear of the bottom third, where the app draws its own label, and the
+// caption band that came with the source sheet is cropped away so the tile
+// carries no burnt-in text.
+//
+// Where a scene has neither, the drawing is the fallback, and a photographer's
+// own picture beats all three.
 
 export const PHOTOS = {
   sports: 'Caught at the moment of contact, the face still in it, the crowd behind reduced to colour.',
@@ -26,5 +35,14 @@ export const PHOTOS = {
   landscape: 'A foreground to walk the eye in, rather than scenery starting at the horizon.',
 };
 
+// Scenes with a tile crop. Kept as a set rather than folded into PHOTOS so a
+// scene can have one without the other in either direction.
+export const THUMBS = new Set([
+  'sports', 'kids', 'wildlife', 'portrait', 'group', 'landscape', 'architecture',
+  'street', 'indoor', 'concert', 'food', 'macro', 'nightcity', 'stars', 'water',
+  'panning', 'fireworks', 'moon',
+]);
+
 export const photoFor = (sceneId) => (PHOTOS[sceneId] ? `photos/${sceneId}.jpg` : null);
 export const photoNote = (sceneId) => PHOTOS[sceneId] ?? null;
+export const thumbFor = (sceneId) => (THUMBS.has(sceneId) ? `thumbs/${sceneId}.jpg` : null);
