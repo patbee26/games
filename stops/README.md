@@ -140,9 +140,9 @@ subject, about a kilobyte of inline SVG each, sharing the app's palette. They
 carry the home screen as tiles and the guide as thumbnails and banners, and they
 cost nothing, work offline and carry no licence.
 
-Where a photograph exists it wins, and ten scenes have one — kids and pets,
-group, architecture, street, indoors, concert, food, macro, night and city, and
-stars. Each is captioned with what is worth noticing
+Where a photograph exists it wins, and thirteen of the eighteen scenes have one.
+Landscape, silky water, panning, fireworks and the moon are still drawn. Each
+photograph is captioned with what is worth noticing
 in the frame rather than with an exposure the project cannot vouch for: the macro
 example reads "one plane sharp — the near wing and the flower head — and
 everything behind it gone."

@@ -6,7 +6,10 @@
 // choice, not the exposure, because the exposure is not ours to claim.
 
 export const PHOTOS = {
-  kids: 'Taken at his height rather than from above, mid-moment rather than posed.',
+  sports: 'Caught at the moment of contact, the face still in it, the crowd behind reduced to colour.',
+  kids: 'Down at the dog\'s own eye level, and fast enough to stop it mid-stride.',
+  wildlife: 'Room left in front of the bird, in the direction it is flying.',
+  portrait: 'Low sun behind her, rimming the hair, with the near eye sharp and the face left soft.',
   group: 'Two staggered rows, everyone about the same distance from the camera, all of it sharp.',
   architecture: 'The camera kept parallel to the building, so the verticals stay vertical.',
   street: 'A background found first — wet road, good light — and then waited at until someone walked into it.',
