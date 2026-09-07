@@ -41,6 +41,7 @@ if (!existsSync(dir)) {
   process.exit(1);
 }
 
+const bases = []; // [scene, relative path] — the scene's own photograph
 let crops = {};
 try {
   crops = JSON.parse(readFileSync(join(dir, 'crops.json'), 'utf8'));
@@ -50,6 +51,69 @@ try {
 const sceneIds = new Set(SCENES.map((s) => s.id));
 const found = new Map(); // scene -> axis -> Set(step)
 const ignored = [];
+
+/**
+ * What a numbered folder means, per scene: the order the images arrive in when
+ * a whole set is generated in one conversation. Typing `1`, `2`, `3` into a
+ * folder named after the scene is a great deal less error-prone than typing
+ * `panning__sh-slow`, and the order is fixed by the prompt that produced them.
+ *
+ * The first entry is the base photograph, which becomes the scene's own picture
+ * as well as the middle step of a focal set.
+ */
+const ORDER = {
+  water: ['base', 'sh-fast', 'sh-mid', 'sh-slow'],
+  kids: ['base', 'sh-fast', 'sh-mid', 'sh-slow'],
+  sports: ['base', 'sh-fast', 'sh-mid', 'sh-slow'],
+  nightcity: ['base', 'sh-fast', 'sh-mid', 'sh-slow'],
+  panning: ['base', 'sh-fast', 'sh-mid', 'sh-slow'],
+  group: ['base', 'ap-wide', 'ap-mid', 'ap-deep'],
+  food: ['base', 'ap-wide', 'ap-mid', 'ap-deep'],
+  indoor: ['base', 'ap-wide', 'ap-mid', 'ap-deep'],
+  street: ['base', 'ap-wide', 'ap-mid', 'ap-deep'],
+  'street-fl': ['fl-wide', 'fl-long'],
+  landscape: ['base', 'fl-wide', 'fl-long'],
+  architecture: ['base', 'fl-wide', 'fl-long'],
+};
+
+/**
+ * A folder per scene holding numbered files is expanded into the long names
+ * before anything else looks at the directory. Sorted numerically, not
+ * alphabetically, or 10 would land between 1 and 2.
+ */
+function expandOrderedFolders() {
+  const out = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const key = entry.name;
+    const order = ORDER[key];
+    if (!order) { ignored.push([key + '/', 'no known image order for this folder']); continue; }
+    const scene = key.replace(/-fl$/, '');
+    const files = readdirSync(join(dir, key))
+      .filter((f) => ['.png', '.jpg', '.jpeg', '.webp'].includes(extname(f).toLowerCase()))
+      .sort((a, b) => (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0));
+    if (files.length !== order.length) {
+      ignored.push([key + '/', `expected ${order.length} images, found ${files.length}`]);
+      continue;
+    }
+    files.forEach((f, i) => out.push({ path: join(key, f), scene, step: order[i] }));
+  }
+  return out;
+}
+
+const ordered = expandOrderedFolders();
+for (const { path, scene, step } of ordered) {
+  if (step === 'base') { bases.push([scene, path]); continue; }
+  const [axis, name] = step.split('-');
+  if (!found.has(scene)) found.set(scene, { ap: new Map(), fl: new Map(), sh: new Map() });
+  found.get(scene)[axis].set(name, path);
+}
+// A focal set's middle step is the scene photographed at its own focal length,
+// which is exactly the base picture. Nobody should have to supply it twice.
+for (const [scene, path] of bases) {
+  const axes = found.get(scene);
+  if (axes?.fl.size && !axes.fl.has('norm')) axes.fl.set('norm', path);
+}
 
 for (const file of readdirSync(dir).sort()) {
   const ext = extname(file).toLowerCase();
@@ -62,7 +126,7 @@ for (const file of readdirSync(dir).sort()) {
     ignored.push([file, `"${step}" is not a step on the ${axis} axis (${AXES[axis].join(', ')})`]);
     continue;
   }
-  if (!found.has(scene)) found.set(scene, { ap: new Map(), fl: new Map() });
+  if (!found.has(scene)) found.set(scene, { ap: new Map(), fl: new Map(), sh: new Map() });
   found.get(scene)[axis].set(step, file);
 }
 
@@ -78,7 +142,7 @@ if (!found.size) {
 const server = createServer((req, res) => {
   const name = decodeURIComponent(req.url.slice(1));
   try {
-    const body = readFileSync(join(dir, name));
+    const body = readFileSync(join(dir, name)); // name may include a subfolder
     res.writeHead(200, { 'content-type': 'image/*' });
     res.end(body);
   } catch { res.writeHead(404); res.end(); }
@@ -137,6 +201,25 @@ for (const [scene, axes] of [...found].sort()) {
 await browser.close();
 server.close();
 
+// Ingesting one folder must not delete the variants of scenes that are not in
+// it. The manifest is the state of the directory, so read the directory.
+let readded = 0;
+for (const file of readdirSync(outDir)) {
+  const m = file.match(/^([a-z]+)__(ap|fl|sh)-([a-z]+)\.jpg$/);
+  if (!m) continue;
+  const [, scene, axis, step] = m;
+  manifest[scene] ??= {};
+  manifest[scene][axis] ??= [];
+  if (!manifest[scene][axis].includes(step)) { manifest[scene][axis].push(step); readded++; }
+}
+for (const axes of Object.values(manifest)) {
+  for (const [axis, steps] of Object.entries(axes)) {
+    steps.sort((a, b) => AXES[axis].indexOf(a) - AXES[axis].indexOf(b));
+    if (!steps.length) delete axes[axis];
+  }
+}
+if (readded) console.log(`  kept ${readded} variant(s) already on disk from earlier runs`);
+
 writeFileSync(new URL('../js/variants.js', import.meta.url),
   `// Generated by tools/ingest-variants.mjs — do not edit by hand.\n`
   + `// Which scenes have variation photographs, and on which axes.\n`
@@ -148,6 +231,11 @@ writeFileSync(new URL('../js/variants.js', import.meta.url),
   + `    : null;\n`);
 
 console.log(`\n${written} variant${written === 1 ? '' : 's'} installed, ${Object.keys(manifest).length} scene(s).`);
+if (bases.length) {
+  console.log(`\n${bases.length} base photograph(s) found. These replace the scene's own picture:`);
+  for (const [scene] of bases) console.log(`  ${scene}`);
+  console.log('  (not installed automatically — say the word and I will swap them in)');
+}
 
 // An incomplete set is worse than none: two of three steps invites the app to
 // interpolate across a gap it cannot see.
