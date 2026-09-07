@@ -1,6 +1,13 @@
 {
+  "street": {
+    "order": ["base", "ap-wide", "ap-mid", "ap-deep", "fl-long", "fl-wide"]
+  },
   "portrait": {
-    "fl-wide": { "scale": 1.14, "cy": 0.52 },
-    "fl-norm": { "scale": 1.28, "cy": 0.52 }
+    "fl-wide": { "scale": 1.37, "cy": 0.45 },
+    "fl-norm": { "scale": 1.17, "cy": 0.45 }
+  },
+  "architecture": {
+    "fl-wide": { "scale": 1.91, "cy": 0.45 },
+    "fl-long": { "scale": 1.20, "cy": 0.52 }
   }
 }

@@ -1,5 +1,11 @@
 # The picture list for v2
 
+> **Done.** All twelve scenes were generated and ingested on 7 September: 50
+> images in, 42 variants and 12 base photographs out. What follows is the recipe
+> that produced them, kept for the next scene rather than as a list of work
+> outstanding. Read [`VARIANTS.md`](VARIANTS.md) for what judging the full batch
+> taught — in particular that a focal-length pair can come back swapped.
+
 **33 images to generate, 3 free copies, 6 you already made.** Everything the
 twelve scenes need in order to have their one option each.
 

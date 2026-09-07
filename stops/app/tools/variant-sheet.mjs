@@ -20,7 +20,17 @@ if (!existsSync(new URL('js/variants.js', root))) {
   process.exit(1);
 }
 const { VARIANTS } = await import('../js/variants.js');
-const scenes = Object.keys(VARIANTS);
+
+// Arguments: an optional output path (anything ending .png) and any number of
+// scene names. With fifteen sets installed a single sheet is 8000px tall and
+// has to be downscaled to be looked at, which defeats the point of rendering at
+// the real banner width — so name the scenes you want to judge.
+const args = process.argv.slice(2);
+const out = args.find((a) => a.endsWith('.png')) ?? 'variant-sheet.png';
+const wanted = args.filter((a) => !a.endsWith('.png'));
+const unknown = wanted.filter((s) => !VARIANTS[s]);
+if (unknown.length) { console.error(`No such scene: ${unknown.join(', ')}`); process.exit(1); }
+const scenes = wanted.length ? wanted : Object.keys(VARIANTS);
 if (!scenes.length) { console.error('The manifest is empty.'); process.exit(1); }
 
 const LABEL = {
@@ -69,7 +79,6 @@ const browser = await (await chromium()).launch();
 const page = await browser.newPage({ viewport: { width: W * 3 + 60, height: 900 }, deviceScaleFactor: 2 });
 await page.setContent(`<body style="margin:0;padding:16px;background:#f2f0ec">${rows.join('')}</body>`);
 await page.waitForTimeout(700);
-const out = process.argv[3] ?? process.argv[2] ?? 'variant-sheet.png';
 await page.screenshot({ path: out, fullPage: true });
 await browser.close();
 server.close();

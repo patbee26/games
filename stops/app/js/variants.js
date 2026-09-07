@@ -3,7 +3,56 @@
 // See ../../VARIANTS.md.
 
 export const VARIANTS = {
-  "water": {
+  "architecture": {
+    "fl": [
+      "wide",
+      "norm",
+      "long"
+    ]
+  },
+  "food": {
+    "ap": [
+      "wide",
+      "mid",
+      "deep"
+    ]
+  },
+  "group": {
+    "ap": [
+      "wide",
+      "mid",
+      "deep"
+    ]
+  },
+  "indoor": {
+    "ap": [
+      "wide",
+      "mid",
+      "deep"
+    ]
+  },
+  "kids": {
+    "sh": [
+      "fast",
+      "mid",
+      "slow"
+    ]
+  },
+  "landscape": {
+    "fl": [
+      "wide",
+      "norm",
+      "long"
+    ]
+  },
+  "nightcity": {
+    "sh": [
+      "fast",
+      "mid",
+      "slow"
+    ]
+  },
+  "panning": {
     "sh": [
       "fast",
       "mid",
@@ -20,6 +69,32 @@ export const VARIANTS = {
       "wide",
       "norm",
       "long"
+    ]
+  },
+  "sports": {
+    "sh": [
+      "fast",
+      "mid",
+      "slow"
+    ]
+  },
+  "street": {
+    "ap": [
+      "wide",
+      "mid",
+      "deep"
+    ],
+    "fl": [
+      "wide",
+      "norm",
+      "long"
+    ]
+  },
+  "water": {
+    "sh": [
+      "fast",
+      "mid",
+      "slow"
     ]
   }
 };

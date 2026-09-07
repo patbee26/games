@@ -18,9 +18,18 @@ const AXES = { ap: ['wide', 'mid', 'deep'], fl: ['wide', 'norm', 'long'], sh: ['
 const MAX_EDGE = 900;
 const QUALITY = 0.74;
 
-// An optional crops.json in the source folder normalises the framing:
+// An optional crops.json in the source folder carries the two per-scene
+// corrections a generated set may need:
 //
-//   { "portrait": { "fl-norm": { "scale": 1.28, "cy": 0.52 } } }
+//   { "street": { "order": ["base", "ap-wide", "ap-mid", "ap-deep",
+//                           "fl-long", "fl-wide"],
+//                 "fl-long": { "scale": 1.53, "cy": 0.55 } } }
+//
+// `order` overrides the expected image order for that folder. It is here
+// because the model sometimes answers the two focal-length prompts the wrong
+// way round — handing back the telephoto frame for the wide prompt — and a set
+// labelled backwards teaches the reverse of the lesson. Naming the real order
+// keeps the fix with the pictures instead of in a rename nobody can see.
 //
 // `scale` crops in by that factor, `cy` is the vertical centre of the crop.
 // This exists because a model asked for three focal lengths will hold the
@@ -86,9 +95,16 @@ function expandOrderedFolders() {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
     const key = entry.name;
-    const order = ORDER[key];
-    if (!order) { ignored.push([key + '/', 'no known image order for this folder']); continue; }
     const scene = key.replace(/-fl$/, '');
+    const order = crops[scene]?.order ?? ORDER[key];
+    if (!order) { ignored.push([key + '/', 'no known image order for this folder']); continue; }
+    if (crops[scene]?.order) {
+      const known = new Set(['base', ...Object.entries(AXES)
+        .flatMap(([axis, steps]) => steps.map((step) => `${axis}-${step}`))]);
+      const bad = order.filter((step) => !known.has(step));
+      if (bad.length) { ignored.push([key + '/', `crops.json order has unknown step(s): ${bad.join(', ')}`]); continue; }
+      console.log(`  ${key}/: using the order from crops.json: ${order.join(', ')}`);
+    }
     // Order matters and the filenames may not carry it: a browser saves what the
     // image generator hands it, which is a UUID. So use the numbers when the
     // files are actually numbered, and fall back to when they were written,
@@ -261,6 +277,34 @@ writeFileSync(new URL('../js/variants.js', import.meta.url),
   + `  (VARIANTS[sceneId]?.[axis] ?? []).includes(step)\n`
   + `    ? \`photos/variants/\${sceneId}__\${axis}-\${step}.jpg\`\n`
   + `    : null;\n`);
+
+// The service worker precaches by an explicit list, and this app's whole claim
+// is that it works in a canyon. A variant missing from that list is a blank
+// panel offline and nothing at all online, so the list is written from the
+// manifest rather than kept in step by hand — which it was not.
+{
+  const swPath = new URL('../sw.js', import.meta.url);
+  const sw = readFileSync(swPath, 'utf8');
+  const start = /^[ \t]*\/\/ variants:start.*$/m;
+  const end = /^[ \t]*\/\/ variants:end.*$/m;
+  const a = sw.match(start);
+  const b = sw.match(end);
+  if (!a || !b) {
+    console.log('\n  sw.js has no variants:start/variants:end markers — its precache list was NOT updated.');
+  } else {
+    const lines = Object.entries(manifest).flatMap(([scene, axes]) =>
+      Object.entries(axes).flatMap(([axis, steps]) =>
+        steps.map((step) => `  'photos/variants/${scene}__${axis}-${step}.jpg',`))).sort();
+    const head = sw.slice(0, a.index + a[0].length);
+    const tail = sw.slice(b.index);
+    const next = `${head}\n${lines.join('\n')}\n${tail}`;
+    if (next === sw) console.log(`\nsw.js already precaches all ${lines.length} variant(s).`);
+    else {
+      writeFileSync(swPath, next);
+      console.log(`\nsw.js now precaches ${lines.length} variant(s). Bump CACHE before you ship.`);
+    }
+  }
+}
 
 console.log(`\n${written} variant${written === 1 ? '' : 's'} installed, ${Object.keys(manifest).length} scene(s).`);
 if (bases.length) {

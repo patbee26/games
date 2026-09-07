@@ -124,6 +124,9 @@ export const SCENES = [
     id: 'nightcity', name: 'Night & city', hint: 'tripod', icon: 'night',
     aperture: 8, tripod: true, give: ['shutter', 'iso'], giveBright: ['shutter', 'aperture'],
     focal: 24, subject: 20, background: Infinity, speed: 0,
+    // The skyline is still; the traffic is not. Headlights are separate cars by
+    // 1/30 and a continuous ribbon by a second.
+    shutterSteps: [1 / 30, 1],
     apertureWhy: 'Turns every streetlight into a star',
     alt: { name: 'Hand-held', why: 'No tripod, so the shutter is capped and ISO carries it.', tripod: false },
     tip: 'Use the self-timer. Pressing the shutter is enough to shake a tripod.',
@@ -140,6 +143,10 @@ export const SCENES = [
     id: 'water', name: 'Silky water', hint: 'long exposure', icon: 'water',
     shutter: 1, aperture: 11, tripod: true, lockShutter: true, give: ['iso'], giveBright: [], nd: true,
     focal: 24, subject: 6, background: 30, speed: 0,
+    // The rock the shutter is measured against is not moving; the water is. So
+    // the boundaries between the three shutter photographs are given directly:
+    // droplets are frozen by 1/60, and the fall is fully silk by 1/4.
+    shutterSteps: [1 / 60, 1 / 4],
     shutterWhy: 'Long enough to smooth the surface',
     alt: { name: 'Keep some texture', why: 'Movement in the water rather than silk, and far less ND needed.', shutter: 1 / 4 },
     tip: 'A polariser doubles as a two-stop ND and kills the glare at the same time.',

@@ -12,7 +12,8 @@ import { craftFor } from './craft.js';
 import { scenery } from './scenery.js';
 import { photoFor, photoNote, thumbFor } from './photos.js';
 import { VARIANTS, variantFor } from './variants.js';
-import { apertureStep, focalStep, STEP_NOTE, AXIS_NAME } from './variantpick.js';
+import { apertureStep, focalStep, shutterStep,
+         STEP_NOTE, AXIS_NAME, AXIS_QUANTITY } from './variantpick.js';
 
 const LAST_KEY = 'stops.last.v2';
 const THEME_KEY = 'stops.theme.v1';
@@ -487,6 +488,31 @@ function compSection(r) {
 }
 
 /**
+ * Which of an axis's three photographs the current settings land on, and what
+ * to print above it. One entry per axis, so a scene carrying an axis nothing
+ * here knows about shows no photograph rather than the wrong one.
+ */
+const PICK_STEP = {
+  ap: (scene, r) => apertureStep({ aperture: r.aperture.N, widest: r.widest }),
+  fl: (scene, r) => focalStep({
+    focal: r.focal, baseFocal: scene.focal, subject: scene.subject, background: scene.background,
+  }),
+  sh: (scene, r) => shutterStep({
+    shutter: r.shutter.s,
+    bounds: scene.shutterSteps,
+    threshold: motionThreshold({
+      focal: r.focal, crop: state.gear.crop ?? 1, speed: scene.speed, subject: scene.subject,
+    }),
+  }),
+};
+
+const STEP_LABEL = {
+  ap: (r) => r.aperture.label,
+  fl: (r) => `${Math.round(r.focal)} mm`,
+  sh: (r) => r.shutter.label,
+};
+
+/**
  * The variation photograph for the current settings, when the scene has a set.
  *
  * Only one axis can be shown at a time — the photographs vary aperture at a
@@ -501,10 +527,8 @@ function variantSet(scene, r) {
   if (!available.length) return null;
 
   const axis = available.includes(state.variantAxis) ? state.variantAxis : available[0];
-  const step = axis === 'ap'
-    ? apertureStep({ aperture: r.aperture.N, widest: r.widest })
-    : focalStep({ focal: r.focal, baseFocal: scene.focal, subject: scene.subject, background: scene.background });
-  const src = variantFor(scene.id, axis, step);
+  const step = PICK_STEP[axis]?.(scene, r);
+  const src = step && variantFor(scene.id, axis, step);
   if (!src) return null;
 
   const axisPicker = available.length > 1
@@ -515,7 +539,7 @@ function variantSet(scene, r) {
   return {
     src, axis, axisPicker,
     note: STEP_NOTE[axis]?.[step] ?? '',
-    stepLabel: axis === 'ap' ? r.aperture.label : `${Math.round(r.focal)} mm`,
+    stepLabel: STEP_LABEL[axis](r),
   };
 }
 
@@ -568,7 +592,7 @@ function previewPanel(r, scene, caption) {
       <div class="preview__caption"><span>${esc(note)}</span>
       <span class="mono">${own ? 'Yours' : set ? set.stepLabel : 'Example'}</span></div>
       ${set ? `<p class="muted mt-8">Three photographs on an axis with no steps in it, so this is the
-        nearest one rather than your exact ${set.axis === 'ap' ? 'aperture' : 'focal length'}.</p>` : ''}`;
+        nearest one rather than your exact ${AXIS_QUANTITY[set.axis]}.</p>` : ''}`;
   }
 
   return `${toggle}

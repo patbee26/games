@@ -206,3 +206,38 @@ describe the visible consequence instead, and the app supplies the number. Three
 steps is also all that is worth generating: they are three points on a continuous
 axis, and the app will be picking the nearest one rather than pretending to
 interpolate.
+
+---
+
+## What the twelve-scene batch taught
+
+All twelve scenes are in as of the batch of 7 September: fourteen sets, forty-two
+photographs. Three things came out of judging them that were not obvious from
+doing one scene.
+
+**The model can answer the two focal-length prompts the wrong way round.** The
+`street` set came back with the telephoto frame — dome looming, street narrowed —
+saved as `fl-wide`, and the wide-angle frame as `fl-long`. Nothing about either
+picture is wrong; they are simply swapped, and swapped they teach the reverse of
+the lesson. This is invisible in a folder of thumbnails and obvious on the
+contact sheet, which is what the contact sheet is for. The fix is not a rename:
+put the real order in `variants-crops.json` so it survives a re-ingest.
+
+```json
+{ "street": { "order": ["base", "ap-wide", "ap-mid", "ap-deep", "fl-long", "fl-wide"] } }
+```
+
+**Normalise the subject only when the drift is in one direction.** `architecture`
+came back with the building at 35%, 67% and 56% of the frame height — a real
+drift, fixed with crops of x1.91 and x1.20. `landscape` came back at 32%, 41% and
+34%: not monotonic, therefore noise rather than a crop artefact, and cropping it
+would have cost the mountains for nothing. Leave it.
+
+**Changing the light never moves you across a set.** This is worth knowing before
+you judge whether a set is earning its place. Light is absorbed by ISO and the
+scene pins the creative setting, so `water` is 1s in a blizzard and 1s at
+midnight — one photograph, always. The other two are reached only when the
+photographer changes aperture, shutter or focal length themselves. That every
+step is reachable *somehow*, on the lenses actually in the bag, is asserted in
+`test/variantpick.test.js`; that it is reachable by changing the light is not
+true and was never the point.
