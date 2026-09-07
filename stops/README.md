@@ -292,6 +292,13 @@ would contradict the guide.
 A layered scene does not have these problems, because its depth separation is real by
 construction rather than inferred. That is what the preview is, and it is why it is drawn.
 
+Photographs *can* answer the settings, but only as sets that are genuinely the same scene
+shot differently — which is a generation problem, not a processing one.
+[`VARIANTS.md`](VARIANTS.md) is the spec for producing those sets, and
+`app/tools/ingest-variants.mjs` installs them. The trap it exists to avoid is that a model
+asked for the same scene at two apertures returns two different photographs, and a set
+like that teaches every incidental difference as if it were aperture.
+
 The trap: depth of field depends on focal length, subject distance and sensor size, not
 just f-number. Show lush bokeh at f/4 to someone holding an 18-55 at 24 mm and the app
 has taught them something false. So the blur must be driven from the real depth-of-field
