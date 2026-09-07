@@ -3,6 +3,13 @@
 // See ../../VARIANTS.md.
 
 export const VARIANTS = {
+  "water": {
+    "sh": [
+      "fast",
+      "mid",
+      "slow"
+    ]
+  },
   "portrait": {
     "ap": [
       "wide",

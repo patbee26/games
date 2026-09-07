@@ -8,7 +8,7 @@
 //   node tools/ingest-variants.mjs <folder>
 //
 // See ../VARIANTS.md for the naming and for how to generate the sets.
-import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { extname, join, resolve } from 'node:path';
 import { SCENES } from '../js/data.js';
@@ -89,9 +89,17 @@ function expandOrderedFolders() {
     const order = ORDER[key];
     if (!order) { ignored.push([key + '/', 'no known image order for this folder']); continue; }
     const scene = key.replace(/-fl$/, '');
-    const files = readdirSync(join(dir, key))
-      .filter((f) => ['.png', '.jpg', '.jpeg', '.webp'].includes(extname(f).toLowerCase()))
-      .sort((a, b) => (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0));
+    // Order matters and the filenames may not carry it: a browser saves what the
+    // image generator hands it, which is a UUID. So use the numbers when the
+    // files are actually numbered, and fall back to when they were written,
+    // which is the order they were downloaded in and therefore generated in.
+    const names = readdirSync(join(dir, key))
+      .filter((f) => ['.png', '.jpg', '.jpeg', '.webp'].includes(extname(f).toLowerCase()));
+    const numbered = names.every((f) => /^\d+\./.test(f));
+    const files = numbered
+      ? names.sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+      : names.sort((a, b) => statSync(join(dir, key, a)).mtimeMs - statSync(join(dir, key, b)).mtimeMs);
+    if (!numbered) console.log(`  ${key}/: filenames are not numbered, using file times: ${files.join(', ')}`);
     if (files.length !== order.length) {
       ignored.push([key + '/', `expected ${order.length} images, found ${files.length}`]);
       continue;
@@ -156,6 +164,11 @@ await page.goto(`http://127.0.0.1:${port}/`).catch(() => {});
 
 const outDir = new URL('../photos/variants/', import.meta.url);
 mkdirSync(outDir, { recursive: true });
+// Base photographs are staged, not installed. They belong to a scene whose
+// variants may not all have arrived yet, and overwriting a live scene picture
+// on the strength of one folder is not a decision this script should take.
+const baseDir = new URL('../photos/bases/', import.meta.url);
+if (bases.length) mkdirSync(baseDir, { recursive: true });
 
 const manifest = {};
 let written = 0;
@@ -198,6 +211,25 @@ for (const [scene, axes] of [...found].sort()) {
   }
 }
 
+for (const [scene, path] of bases) {
+  const data = await page.evaluate(async ({ file, MAX_EDGE, QUALITY, port }) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = `http://127.0.0.1:${port}/${file.split('/').map(encodeURIComponent).join('/')}`; });
+    const scale = Math.min(1, MAX_EDGE / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth * scale);
+    c.height = Math.round(img.naturalHeight * scale);
+    const x = c.getContext('2d');
+    x.imageSmoothingQuality = 'high';
+    x.drawImage(img, 0, 0, c.width, c.height);
+    return { url: c.toDataURL('image/jpeg', QUALITY), w: c.width, h: c.height };
+  }, { file: path, MAX_EDGE, QUALITY, port });
+  const buf = Buffer.from(data.url.split(',')[1], 'base64');
+  writeFileSync(new URL(`${scene}.jpg`, baseDir), buf);
+  console.log(`  bases/${scene}.jpg`.padEnd(30) + ` ${data.w}x${data.h}  ${(buf.length / 1024).toFixed(0)} KB`);
+}
+
 await browser.close();
 server.close();
 
@@ -232,9 +264,9 @@ writeFileSync(new URL('../js/variants.js', import.meta.url),
 
 console.log(`\n${written} variant${written === 1 ? '' : 's'} installed, ${Object.keys(manifest).length} scene(s).`);
 if (bases.length) {
-  console.log(`\n${bases.length} base photograph(s) found. These replace the scene's own picture:`);
-  for (const [scene] of bases) console.log(`  ${scene}`);
-  console.log('  (not installed automatically — say the word and I will swap them in)');
+  console.log(`\n${bases.length} base photograph(s) staged in photos/bases/ :`);
+  for (const [scene] of bases) console.log(`  ${scene}.jpg`);
+  console.log('  These are the scene pictures for the new app. Nothing live was overwritten.');
 }
 
 // An incomplete set is worse than none: two of three steps invites the app to
