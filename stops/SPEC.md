@@ -168,12 +168,46 @@ against 108 and 6 MB for the naive version. The cuts paid for themselves.
 
 ## 8. The screens
 
-### 8.1 Start
-First run, and reachable afterwards. About fifteen seconds:
-1. What this is.
-2. **Set your camera up:** mode dial to **M**, ISO to **Auto**, max 6400. With a
-   photograph of a mode dial, because they may not know where it is.
-3. How to use it: pick what you are shooting, set two numbers, go.
+### 8.1 First launch — four cards, about forty seconds
+
+This is where the app either earns its keep or gets deleted, so it is specified
+properly rather than as a bullet. Four full-screen cards, swipe or tap through,
+a photograph on each, skippable at any point and reachable forever afterwards
+from the header.
+
+**Card 1 — why manual is worth it.** Two photographs of the same scene side by
+side: the one the camera chose on automatic, and the one you get when you choose.
+No text about f-numbers. Just: *your camera made a safe guess. You can make a
+better one, and it takes about a minute to learn how.*
+
+**Card 2 — the three things, and why you only touch two.** The triangle, told as
+jobs rather than as a diagram:
+
+> **Shutter** decides whether movement is frozen or smeared.
+> **Aperture** decides how much of the picture is sharp.
+> **ISO** only decides how noisy the file is. It is the bill, not a choice — so
+> let the camera pay it.
+
+**Card 3 — set your camera up, once.** The only thing the app cannot do for
+them, so it gets its own card and is made unmissable:
+
+> Mode dial to **M**.
+> ISO to **Auto**, maximum **6400**.
+> That is it. You will never change ISO again.
+
+With a photograph of a mode dial with M marked, because a beginner may genuinely
+not know which dial it is. Permanently reachable from the Guide afterwards — it
+is the thing people forget between sessions.
+
+**Card 4 — how to use it.** *Pick what you are shooting. Set the two numbers.
+Go.* Ends on one button into the scene list.
+
+**On later launches none of this appears.** The app opens on the scene list. A
+returning user has had the lesson, and the point is to get them out quickly.
+
+**Tone.** No jargon before it is earned, no exclamation marks, and a photograph
+on every card — this is an app about pictures and the first thing anyone sees
+should be one.
 
 ### 8.2 Scene list
 Twelve tiles, two columns, photographs. Unchanged from what works now.
@@ -189,15 +223,35 @@ Twelve tiles, two columns, photographs. Unchanged from what works now.
 8. A note about your lens, only when yours cannot do it.
 9. Exposure compensation instruction, only on the scenes that need it.
 
-### 8.4 Guide — kept
-**You want this and you are right.** The scene page teaches by example; the Guide
-is where someone goes when they want to understand *why*. It is the difference
-between a recipe and learning to cook.
+### 8.4 Guide — the 101, kept as a reference
 
-Contents: the exposure triangle explained properly — what each of the three
-does, why they trade against each other, what a stop is. Then shutter, aperture,
-and why ISO is on Auto. The computed tables we built stay, now derived from the
-default lens.
+The scene page teaches by example; the Guide is where someone goes to understand
+*why*. It is the difference between a recipe and learning to cook, and it is what
+makes this a tutorial rather than a lookup table.
+
+A reference, not a course — reachable any time, read in any order, nothing to
+complete. Six short pages:
+
+1. **What a stop is.** The one idea everything else rests on: twice the light, or
+   half. Once you have it, the rest of the app is arithmetic you can follow.
+2. **The triangle.** How the three trade against each other, with the ladder
+   table we already built — give a stop in one column, take it back in another,
+   and the exposure holds.
+3. **Shutter.** The two different blurs, and why beginners fix the wrong one:
+   camera shake smears the whole frame and comes from your hands, subject
+   movement smears only the thing that moved. With the hand-held floor for the
+   default lens at each focal length, computed rather than tabulated.
+4. **Aperture.** What f/ actually is, and the surprising result we proved: at the
+   same framing, depth of field barely depends on focal length. What a long lens
+   really changes is the background, not the depth on the face.
+5. **Why ISO is on Auto**, and the one time you overrule the camera — exposure
+   compensation, for snow and for backlit faces.
+6. **Your camera setup**, repeated from the first launch, because this is what
+   people forget between sessions.
+
+Every number is computed from the default lens by the same optics that drive the
+scene pages, so the Guide cannot contradict the app — a defect the current
+version had, and one we fixed.
 
 ## 9. What comes out
 
@@ -211,7 +265,28 @@ default lens.
 | ISO ceiling, stabilisation, slowest-shutter settings | Auto ISO makes them unnecessary |
 | The drawn diagram preview | Scenes without variant photographs simply get no option |
 
-## 10. How it gets built
+## 10. Look and feel
+
+The current app's design carries over wholesale — it is the part that already
+works:
+
+- The type, the amber accent, the card and chip shapes, the segmented controls
+- **Both themes**, following the phone, with a manual override
+- Photographic scene tiles, two columns, the label scrim over the picture
+- Large mono numerals for the settings — they are the hero of the page
+- Photographs shown whole, never cropped to a strip
+- Installable, offline, full-screen from the home screen, no browser chrome
+
+What changes is density, not style: fewer controls, more space, bigger type on
+the two numbers, and a photograph in more places — including the first-launch
+cards, which currently have none.
+
+One addition. **The scene page should feel like a page from a good printed guide
+rather than a settings screen** — generous margins, one idea at a time, and the
+photograph large enough to read at arm's length outdoors, in sunlight, with cold
+hands.
+
+## 11. How it gets built
 
 **A second app alongside the existing one**, so the two can be held side by side.
 The current app keeps working and nothing is thrown away until you have compared
@@ -224,7 +299,7 @@ writing, the theme system, the offline shell.
 Rewritten: the whole of the screen layer, the gear model, and the scene data
 (twelve scenes, each declaring its option and its assumed conditions).
 
-## 11. Deferred to v2 — assess a photograph the user took
+## 12. Deferred to v2 — assess a photograph the user took
 
 Upload a picture, get told what happened. Investigated and deferred, with the
 findings recorded so the work does not get re-done.
@@ -279,7 +354,7 @@ remain — still useful, but unable to say *why*.
 Effort: 1–2 days for the EXIF tier, 1–2 more for the pixel tier, no
 infrastructure for either.
 
-## 12. Still to decide
+## 13. Still to decide
 
 1. **The shutter axis photographs.** Thirty new images is the bulk of the work
    and it is yours, in ChatGPT. Worth proving one shutter set first — `water` is
