@@ -16,6 +16,9 @@ const FASTEST_SHUTTER = 1 / 8000;
 const LONGEST_SHUTTER = 30;
 const NARROWEST = 22;
 
+/** Past three stops either way the meter is not the thing that is wrong. */
+export const MAX_COMP = 3;
+
 /** The scene EV that these settings expose correctly. */
 export function settingEV({ N, t, iso = 100 }) {
   return Math.log2((N * N) / t) - Math.log2(iso / 100);
@@ -37,10 +40,24 @@ function startingShutter(scene, focal, crop, floor) {
  *
  * `lock` pins variables the photographer has chosen by hand; a pinned variable
  * is never moved to find the exposure.
+ *
+ * `comp` is exposure compensation in stops, positive for a brighter picture.
+ * It exists because an EV is a scene luminance, and exposing to a scene
+ * luminance renders that scene's average middle grey — which is wrong whenever
+ * the frame is not average. Snow exposed to its own brightness comes out grey.
+ *
+ * It is subtracted rather than added: a higher target is less exposure.
+ *
+ * Note there is no camera setting that corresponds to this. In manual with a
+ * fixed ISO the compensation dial does nothing, so the correction has to land
+ * in the three numbers themselves, which is what happens here.
  */
-export function recommend({ scene, ev, gear, lens, focal, lock = {} }) {
+export function recommend({ scene, ev, gear, lens, focal, lock = {}, comp = 0 }) {
   const crop = gear.crop ?? 1;
-  const target = scene.evOverride ?? ev;
+  const baseEv = scene.evOverride ?? ev;
+  // Bounded so a stuck control cannot ask for an exposure off the ladders.
+  const compensation = clamp(Number(comp) || 0, -MAX_COMP, MAX_COMP);
+  const target = baseEv - compensation;
   const widest = widestAt(lens, focal);
   const stabiliserStops = lens?.stabilised ? (gear.stabiliserStops ?? 0) : 0;
   const floor = scene.tripod
@@ -124,6 +141,8 @@ export function recommend({ scene, ev, gear, lens, focal, lock = {} }) {
     shortfallStops,
     overStops,
     ev: target,
+    baseEv,
+    comp: compensation,
     focal,
     lens,
     widest,

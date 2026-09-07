@@ -4,7 +4,7 @@
 // Light conditions, as EV at ISO 100. These are the standard exposure values —
 // the same table that has been on the back of film boxes for seventy years.
 export const LIGHT = [
-  { id: 'snow',        name: 'Snow or sand in sun',  sub: 'Painfully bright, you are squinting', ev: 16, common: false },
+  { id: 'snow',        name: 'Snow or sand in sun',  sub: 'Painfully bright, you are squinting', ev: 16, common: false, suggestComp: 'white' },
   { id: 'harsh-sun',   name: 'Harsh sun',            sub: 'Hard-edged shadows',                  ev: 15, common: true },
   { id: 'hazy-sun',    name: 'Hazy sun',             sub: 'Shadows with soft edges',             ev: 14, common: true },
   { id: 'overcast',    name: 'Bright overcast',      sub: 'Bright white sky, no shadows',        ev: 13, common: true },
@@ -97,6 +97,7 @@ export const SCENES = [
   },
   {
     id: 'concert', indoors: true, name: 'Concert & stage', hint: 'ISO leads', icon: 'concert',
+    suggestComp: 'spotlit',
     shutter: 1 / 250, aperture: 'widest', give: ['aperture', 'iso'],
     focal: 85, subject: 10, background: 20, speed: 1.5,
     shutterWhy: 'A singer moves more than you expect',
@@ -171,3 +172,60 @@ export const SCENES = [
 
 export const sceneById = (id) => SCENES.find((s) => s.id === id);
 export const lightById = (id) => LIGHT.find((l) => l.id === id);
+
+/**
+ * Exposure compensation, offered as what is in the frame rather than as a
+ * number, because "+1⅔" is the answer and "the snow is the whole picture" is
+ * the question a photographer can actually answer while standing in it.
+ *
+ * Stops are positive for a brighter picture. The values are the conventional
+ * ones; they are starting points, and the histogram outranks them.
+ */
+export const COMPENSATIONS = [
+  { id: 'none', name: 'Nothing unusual', stops: 0,
+    why: 'The frame averages out to about middle grey, which is what the meter assumes.' },
+  { id: 'white', name: 'Mostly white', stops: 5 / 3,
+    sub: 'Snow, sand, a white wall',
+    why: 'Expose to the average and the white renders grey. This puts it back to white with texture in it.' },
+  { id: 'backlit', name: 'Backlit subject', stops: 4 / 3,
+    sub: 'The light is behind them',
+    why: 'The bright background pulls the average up and leaves the face under. This exposes for the face and lets the background go.' },
+  { id: 'dark', name: 'Mostly dark', stops: -4 / 3,
+    sub: 'A black dog, a dark room',
+    why: 'Expose to the average and the blacks come out grey and noisy. This keeps them black.' },
+  { id: 'spotlit', name: 'Spotlit in the dark', stops: -4 / 3,
+    sub: 'A stage, a single lamp',
+    why: 'The dark around them drags the average down and blows the lit face. This exposes for the light that is actually on them.' },
+  { id: 'silhouette', name: 'Silhouette, on purpose', stops: -2,
+    sub: 'Shape against a bright sky',
+    why: 'The one case where losing the subject is the point: expose for the sky and let them go black.' },
+];
+
+export const compById = (id) => COMPENSATIONS.find((c) => c.id === id) ?? COMPENSATIONS[0];
+
+/**
+ * Content for the guide's Shutter tab. Speeds are metres per second and
+ * distances are metres at a 50 mm framing; the guide scales the distance with
+ * focal length so the comparison holds the framing rather than the standpoint.
+ */
+export const MOVERS = [
+  { name: 'Someone posing', speed: 0.3, at50: 2 },
+  { name: 'Someone walking', speed: 1.4, at50: 5 },
+  { name: 'A child or a dog', speed: 3, at50: 3 },
+  { name: 'A runner', speed: 6, at50: 8 },
+  { name: 'A cyclist going past', speed: 8, at50: 10 },
+  { name: 'A bird in flight', speed: 12, at50: 20 },
+];
+
+/**
+ * Content for the guide's Aperture tab. `gap` is the physical distance between
+ * the near and far thing that both have to be sharp — it does not scale with
+ * the lens, because two people standing side by side are the same distance
+ * apart whatever you photograph them with.
+ */
+export const DEPTHS = [
+  { name: 'Both eyes on one face', at50: 1.5, gap: 0.08 },
+  { name: 'Two people side by side', at50: 2.5, gap: 0.4 },
+  { name: 'Two rows of people', at50: 4, gap: 1 },
+  { name: 'A table of six', at50: 2.5, gap: 1.6 },
+];

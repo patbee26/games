@@ -204,6 +204,38 @@ Geolocation needs a secure origin and the user's permission. Denied or unavailab
 it says so and the descriptive list is still there; a previously allowed position is
 reused rather than wasted. GPS itself needs no signal, so the estimate works offline.
 
+### What is in the frame
+
+An EV is a scene luminance, and exposing to a scene luminance renders that
+scene's average middle grey. That is wrong the moment the frame is not average,
+and the table this app ships makes it visible: snow in sun is listed at EV 16,
+a stop *brighter* than harsh sun, because snow reflects more — so exposing to it
+renders the snow grey. Worse, a face in that snow is lit by the same sun as
+EV 15, so the same exposure puts the face a stop under. "Make the snow white"
+and "make the face right" are different corrections, 14⅓ against 15, which is
+why this cannot be a constant folded into the table. It has to be a choice.
+
+So `recommend()` takes a compensation in stops and subtracts it from the target
+— subtracts, because a higher target is *less* exposure. It is offered as what
+is in the frame rather than as a number, since "the snow is the whole picture"
+is a question a photographer can answer while standing in it and "+1⅔" is only
+the answer. Scenes and light levels may suggest one — a concert suggests
+spotlit, snow suggests mostly white — and the suggestion is pre-selected,
+labelled as a suggestion, and overridable. A scene's suggestion and a
+photographer's choice never sum: they are disagreeing, not stacking, and the
+chip on screen is always the one the numbers were solved with.
+
+The corrected target is what everything downstream reads, so a `+1⅔` in dim
+light makes the shortfall deeper rather than quietly absorbing it, and the ways
+out are priced against the corrected number. Both are tested, because that is
+where this kind of change goes wrong.
+
+There is no camera control that corresponds to any of this. In manual with a
+fixed ISO the compensation dial does nothing — it is a semi-auto feature — so
+the correction has to land in the three numbers themselves. The app says so on
+screen, because a beginner who goes looking for the dial will otherwise apply
+the correction twice.
+
 ### Not built, deliberately
 
 - **Naming the dials on your camera.** Built brand-level, then cut from v1. Telling a
@@ -249,6 +281,25 @@ does in the guide. The photograph is never blurred or smeared to match the setti
 aperture throws a *background* out of focus, and blurring a whole frame would teach the
 same lie the diagram exists to avoid. Both states are the same height, frame and caption
 alike, so glancing at the example does not shift the settings rows underneath.
+
+**The Shutter and Aperture tabs are computed, not written.** They used to be flat
+lists — "a still portrait, 1/160" — and a flat list in an app built to replace
+flat lists is a second source of truth that can contradict the first. It did:
+1/160 is a stop too slow to hold a 200 mm steady and more than a stop faster
+than a 24 mm needs, and "two people side by side, f/4" is right at 35 mm and
+badly wrong at 135. Both tabs now derive every row from the same optics the
+solver uses, against the photographer's own crop, stabilisation and floor, with
+a focal-length selector built from the lenses they actually own.
+
+Deriving them turned up a better lesson than the tables had. Holding the framing
+constant — standing further back with a longer lens, which is what anyone
+actually does — depth of field barely moves: f/5.0 at 24 mm against f/5.5 at
+200 mm for the same pair of eyes. Subject-motion blur does not move at all; the
+focal length cancels out of the equation exactly. What does move is background
+blur, more than tripling from 24 mm to 135 mm at the same framing and aperture.
+So a long lens does not thin the depth on the face, it magnifies what is behind
+it — which is the opposite of what the old flat table implied, and both halves
+are now asserted in tests.
 
 **Real photographs in the guide tab** — a reference gallery. Trivial code, and the
 sourcing is the entire job: the EXIF has to genuinely match the settings shown, which

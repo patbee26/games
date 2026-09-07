@@ -223,6 +223,22 @@ button {
 }
 .badge--warn { background: var(--warn); }
 
+/* ---------- exposure compensation ---------- */
+
+.comp {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: 11px 13px; border: 1px solid var(--line); border-radius: 11px;
+  background: var(--card); min-height: 46px;
+}
+.comp__body { flex: 1; min-width: 0; }
+.comp__name { display: block; font-size: 13.5px; font-weight: 500; color: var(--ink); }
+.comp__sub { display: block; font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+.comp__stops { font-size: 14px; color: var(--ink-3); flex-shrink: 0; }
+.comp[aria-pressed="true"] { background: var(--amber-bg); border-color: var(--amber-line); }
+.comp[aria-pressed="true"] .comp__name { color: var(--amber-light); font-weight: 600; }
+.comp[aria-pressed="true"] .comp__sub { color: var(--amber-dim); }
+.comp[aria-pressed="true"] .comp__stops { color: var(--amber); font-weight: 600; }
+
 /* ---------- preview ---------- */
 
 .preview {
@@ -302,6 +318,9 @@ button {
 .deftable > div:first-child { border-top: none; }
 .deftable dt { flex: 1 1 auto; font-size: 14px; color: var(--ink-1); margin: 0; }
 .deftable dd { margin: 0; font-family: var(--data); font-size: 14px; color: var(--amber); white-space: nowrap; }
+/* The second line says what the row assumed, so a derived number is never a
+   bare assertion. */
+.dt__note { display: block; font-size: 11px; color: var(--ink-4); margin-top: 2px; }
 
 /* ---------- gear ---------- */
 

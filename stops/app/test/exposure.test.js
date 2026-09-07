@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { settingEV, recommend, describeStops } from '../js/exposure.js';
+import { settingEV, recommend, describeStops, MAX_COMP } from '../js/exposure.js';
 import { snapShutter, snapAperture, snapIso, ISO_CEILINGS, MAX_ISO } from '../js/ladders.js';
 import { DEFAULT_GEAR, chooseLens } from '../js/gear.js';
 import { widestAt } from '../js/optics.js';
@@ -243,4 +243,83 @@ test('describeStops speaks like a photographer', () => {
   assert.equal(describeStops(2), '2 stops');
   assert.equal(describeStops(0.667), '⅔ stop');
   assert.equal(describeStops(1.667), '1 ⅔ stops');
+});
+
+/* ---------------------------------------------------- exposure compensation */
+
+test('compensation moves the exposure by exactly the stops asked for', () => {
+  // The whole point: +1 stop must be one stop more light, not "about one".
+  const none = forScene('portrait', 'overcast');
+  const plus = forScene('portrait', 'overcast', { comp: 1 });
+  const evNone = settingEV({ N: none.aperture.N, t: none.shutter.s, iso: none.iso.v });
+  const evPlus = settingEV({ N: plus.aperture.N, t: plus.shutter.s, iso: plus.iso.v });
+  assert.ok(Math.abs((evNone - evPlus) - 1) < 0.06, `expected 1 stop, got ${evNone - evPlus}`);
+});
+
+test('compensation is subtracted, so positive means a brighter picture', () => {
+  const brighter = forScene('portrait', 'overcast', { comp: 1 });
+  const darker = forScene('portrait', 'overcast', { comp: -1 });
+  assert.ok(brighter.ev < darker.ev, 'a positive compensation must lower the target EV');
+  const b = settingEV({ N: brighter.aperture.N, t: brighter.shutter.s, iso: brighter.iso.v });
+  const d = settingEV({ N: darker.aperture.N, t: darker.shutter.s, iso: darker.iso.v });
+  assert.ok(b < d, 'and must actually gather more light');
+});
+
+test('compensation is bounded rather than trusted', () => {
+  const wild = forScene('portrait', 'overcast', { comp: 99 });
+  assert.equal(wild.comp, MAX_COMP);
+  assert.equal(wild.baseEv - wild.ev, MAX_COMP);
+});
+
+test('a correction absorbed by ISO shows up in the ISO, not in a shortfall', () => {
+  // Two stops of correction is four times the ISO, exactly, while there is
+  // ceiling left to pay with.
+  const plain = forScene('indoor', 'candle');
+  const lifted = forScene('indoor', 'candle', { comp: 2 });
+  assert.equal(plain.shortfallStops, 0);
+  assert.equal(lifted.shortfallStops, 0);
+  assert.ok(Math.abs(lifted.iso.v / plain.iso.v - 4) < 0.15,
+    `expected four times the ISO, got ${plain.iso.v} -> ${lifted.iso.v}`);
+});
+
+test('a brightening compensation deepens the shortfall rather than hiding it', () => {
+  // The failure this guards: reporting the shortfall against the raw EV while
+  // solving against the corrected one, so the number on screen understates it.
+  const plain = forScene('sports', 'dim-in');
+  const lifted = forScene('sports', 'dim-in', { comp: 2 });
+  assert.ok(plain.shortfallStops > 0.5, 'the plain case has to be short for this to mean anything');
+  assert.ok(Math.abs((lifted.shortfallStops - plain.shortfallStops) - 2) < 0.06,
+    `a +2 correction should cost exactly two more stops, went from ${plain.shortfallStops} to ${lifted.shortfallStops}`);
+});
+
+test('the ways out are priced against the corrected target, not the raw one', () => {
+  // A way out buys back some of the missing light, not necessarily all of it,
+  // so the test is not that each one arrives. It is that they are all aimed at
+  // the corrected target: shift the correction and every way must shift with
+  // it, or the price list is quoting the wrong exposure.
+  const plain = forScene('sports', 'dim-in');
+  const lifted = forScene('sports', 'dim-in', { comp: 2 });
+  const evOf = (way) => settingEV({
+    N: way.settings.aperture.N, t: way.settings.shutter.s, iso: way.settings.iso.v,
+  });
+  assert.ok(plain.ways.length > 0 && lifted.ways.length === plain.ways.length);
+
+  const best = (r) => Math.min(...r.ways.map(evOf));
+  assert.ok(Math.abs((best(plain) - best(lifted)) - 2) < 0.06,
+    `the best way should move by the full correction, moved ${best(plain) - best(lifted)}`);
+
+  for (const way of lifted.ways) {
+    assert.ok(evOf(way) >= lifted.ev - 0.06,
+      `${way.id} claims to expose past the target, which would be free light`);
+  }
+});
+
+test('an absolute EV override and a compensation compose once, not twice', () => {
+  // The moon ignores the light picker entirely; a correction still has to apply
+  // to it, and only once.
+  const moon = forScene('moon', 'dark-sky');
+  const corrected = forScene('moon', 'dark-sky', { comp: 1 });
+  assert.equal(moon.ev, moon.baseEv, 'with no correction the target is the override');
+  assert.equal(corrected.baseEv, moon.baseEv, 'the override is unchanged by a correction');
+  assert.ok(Math.abs((moon.ev - corrected.ev) - 1) < 1e-9, 'and the correction lands exactly once');
 });

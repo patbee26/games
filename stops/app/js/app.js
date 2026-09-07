@@ -1,12 +1,13 @@
-import { SCENES, LIGHT, sceneById, lightById } from './data.js';
+import { SCENES, LIGHT, sceneById, lightById, COMPENSATIONS, compById, MOVERS, DEPTHS } from './data.js';
 import { recommend, describeStops } from './exposure.js';
 import { loadGear, saveGear, chooseLens, DEFAULT_GEAR } from './gear.js';
-import { widestAt } from './optics.js';
+import { widestAt, handheldFloor, motionThreshold, apertureForDepth,
+  hyperfocalAperture, backgroundBlurMm, asFrameFraction } from './optics.js';
 import { previewHtml, previewCaption } from './preview.js';
 import { icon } from './icons.js';
 import { snapShutter, snapAperture, snapIso, FULL_STOPS, ISO_CEILINGS } from './ladders.js';
 import { estimateLight, SKY } from './sun.js';
-import { motionThreshold } from './optics.js';
+
 import { craftFor } from './craft.js';
 import { scenery } from './scenery.js';
 import { photoFor, photoNote, thumbFor } from './photos.js';
@@ -33,6 +34,8 @@ const state = {
   shotError: null,
   showIntro: false,
   previewMode: 'diagram',
+  comp: null,
+  guideFocal: null,
   sun: { status: 'idle' },
   gear: loadGear(),
 };
@@ -127,12 +130,29 @@ function locate() {
   );
 }
 
+/**
+ * Which compensation applies: the photographer's own choice when they have made
+ * one, otherwise the scene's or the light's suggestion, otherwise none.
+ *
+ * The two are never summed. A scene that suggests one and a photographer who
+ * picks another are disagreeing, not stacking, and the visible chip is always
+ * the one the numbers were solved with.
+ */
+function compFor(scene, light) {
+  if (state.comp) return compById(state.comp);
+  return compById(scene?.suggestComp ?? light?.suggestComp ?? 'none');
+}
+
 function currentSolve() {
   const scene = sceneById(state.sceneId);
   const light = currentLight();
   if (!scene || !light) return null;
   const { lens, focal } = lensFor(scene);
-  return { scene, light, ...recommend({ scene, ev: light.ev, gear: state.gear, lens, focal, lock: state.lock }) };
+  const compensation = compFor(scene, light);
+  return {
+    scene, light, compensation,
+    ...recommend({ scene, ev: light.ev, gear: state.gear, lens, focal, lock: state.lock, comp: compensation.stops }),
+  };
 }
 
 function rememberLast() {
@@ -425,6 +445,44 @@ function lensSection(r) {
   return picker + stepper;
 }
 
+/** "+1 2/3", the way a photographer would say it. */
+function signedStops(stops) {
+  if (Math.abs(stops) < 0.05) return '0';
+  return (stops > 0 ? '+' : '\u2212')
+    + describeStops(Math.abs(stops)).replace(/ stops?$/, '').replace(' ', '');
+}
+
+/**
+ * Exposure compensation, asked as what is in the frame.
+ *
+ * There is no camera control this corresponds to: in manual with a fixed ISO
+ * the compensation dial does nothing, so the correction is already inside the
+ * three numbers above. The panel says so, because a beginner who goes looking
+ * for the dial will otherwise apply it twice.
+ */
+function compSection(r) {
+  const chosen = r.compensation;
+  const chips = COMPENSATIONS.map((c) => `
+    <button class="comp" data-act="comp" data-v="${c.id}" aria-pressed="${c.id === chosen.id}">
+      <span class="comp__body"><span class="comp__name">${esc(c.name)}</span>
+      ${c.sub ? `<span class="comp__sub">${esc(c.sub)}</span>` : ''}</span>
+      <span class="comp__stops mono">${signedStops(c.stops)}</span>
+    </button>`).join('');
+
+  const suggested = !state.comp && chosen.id !== 'none';
+  const note = suggested
+    ? `<p class="muted mt-10">Suggested for this ${r.scene.suggestComp ? 'scene' : 'light'}. Change it if the frame says otherwise.</p>`
+    : '';
+
+  return `<span class="lab mt-22">What is in the frame</span>
+    <p class="sub" style="margin-top:6px">An EV is what the light measures. It cannot know the frame is mostly snow.</p>
+    <div class="stack mt-10" style="gap:6px">${chips}</div>
+    <p class="muted mt-10">${esc(chosen.why)}</p>
+    ${note}
+    ${Math.abs(chosen.stops) > 0.05 ? `<p class="muted mt-10">Nothing to set on the camera for this: in manual the
+      compensation dial does nothing, so the ${signedStops(chosen.stops)} is already in the three numbers above.</p>` : ''}`;
+}
+
 /**
  * The diagram and the photograph answer different questions, so the panel holds
  * both rather than choosing. The diagram is the live one — its blur, smear and
@@ -541,7 +599,8 @@ function resultScreen() {
       <button class="back" data-act="back" aria-label="Back">${icon('back', 20)}</button>
       <span class="bar__title">
         <span class="bar__name">${esc(scene.name)}</span>
-        <span class="bar__meta">${esc(light.name)} · <span class="mono" style="color:var(--amber-dim)">EV ${light.ev}</span> · ${Math.round(r.focal)} mm</span>
+        <span class="bar__meta">${esc(light.name)} · <span class="mono" style="color:var(--amber-dim)">EV ${light.ev}${
+          Math.abs(r.comp) > 0.05 ? ` &rarr; ${Math.round(r.ev * 10) / 10}` : ''}</span> · ${Math.round(r.focal)} mm</span>
       </span>
       <button class="barbtn" data-act="home" aria-label="Back to the start">${icon('home', 19)}</button>
     </div>
@@ -578,6 +637,7 @@ function resultScreen() {
     <div class="grid-4 mt-8">${chipRow('aperture', apertureChoices, r.aperture.N, r.widest)}</div>
     <p class="lesson">${esc(APERTURE_LESSON)}</p>
     ${zoom}
+    ${compSection(r)}
     ${locked ? `<div class="center mt-16"><button data-act="unlock" style="color:var(--amber);font-size:12.5px;font-weight:500">
       Back to the app's own answer</button></div>` : ''}
     ${ways}
@@ -639,17 +699,148 @@ function overReason(r) {
 
 /* --------------------------------------------------------------------- guide */
 
-const GUIDE = {
-  shutter: [
-    ['A still portrait', '1/160'], ['Someone walking', '1/250'], ['Children, dogs', '1/500'],
-    ['A running player', '1/1000'], ['Birds in flight', '1/2000'], ['Panning a cyclist', '1/60'],
-    ['Silky water', '1s or longer'],
-  ],
-  aperture: [
-    ['One eye sharp', 'f/1.8'], ['One whole face', 'f/2.8'], ['Two people side by side', 'f/4'],
-    ['A small group', 'f/5.6'], ['Two rows of people', 'f/8'], ['Front to back landscape', 'f/11'],
-  ],
-};
+const NARROWEST_F = 22;
+
+/**
+ * The Shutter and Aperture tabs are computed from the same optics the solver
+ * uses, against the photographer's own gear, rather than being a table of
+ * numbers kept alongside it.
+ *
+ * They used to be flat lists — "a still portrait, 1/160" — which was wrong in
+ * both directions at once: 1/160 is a stop too slow to hold a 200 mm steady and
+ * more than a stop faster than a 24 mm needs. A guide that can contradict the
+ * engine is a second source of truth, and the engine is the one that knows the
+ * lens.
+ */
+
+/** Focal lengths the photographer's kit actually covers. */
+function guideFocals() {
+  const lenses = state.gear.lenses ?? [];
+  const covered = (f) => lenses.some((l) => f >= l.min && f <= l.max);
+  const options = [24, 35, 50, 85, 135, 200, 300].filter(covered);
+  return options.length ? options : [50];
+}
+
+function guideFocal() {
+  const options = guideFocals();
+  return options.includes(state.guideFocal) ? state.guideFocal : (options.includes(50) ? 50 : options[0]);
+}
+
+function focalChips() {
+  const focal = guideFocal();
+  return `<span class="lab mt-18">At which focal length</span>
+    <div class="grid-auto mt-8">${guideFocals().map((f) => `
+      <button class="chip" data-act="guide-focal" data-v="${f}" aria-pressed="${f === focal}">${f} mm</button>`).join('')}</div>`;
+}
+
+function shutterTab() {
+  const focal = guideFocal();
+  const crop = state.gear.crop ?? 1;
+  const lens = state.gear.lenses?.find((l) => focal >= l.min && focal <= l.max);
+  const stabiliserStops = lens?.stabilised ? (state.gear.stabiliserStops ?? 0) : 0;
+
+  const bare = handheldFloor({ focal, crop, stabiliserStops: 0, userSlowest: null });
+  const withStab = handheldFloor({ focal, crop, stabiliserStops, userSlowest: null });
+  const actual = handheldFloor({ focal, crop, stabiliserStops, userSlowest: state.gear.userSlowest });
+
+  const shakeRows = [['The reciprocal rule', `${snapShutter(bare).label}`, `1 ÷ (${focal} × ${crop} crop)`]];
+  if (stabiliserStops > 0) {
+    shakeRows.push(['Your stabilised lens', snapShutter(withStab).label,
+      `${stabiliserStops} stop${stabiliserStops === 1 ? '' : 's'} of help`]);
+  }
+  const ownLimitBinds = actual !== withStab;
+  if (ownLimitBinds) {
+    shakeRows.push(['Your own limit', snapShutter(actual).label, 'You said you would go no slower']);
+  }
+  // Which of the two is actually binding changes what the floor means, and
+  // saying "your hands show" when it is really the photographer's own cap would
+  // be blaming the wrong thing.
+  shakeRows.push(['So your floor is', snapShutter(actual).label,
+    ownLimitBinds ? 'Your own cap, not your hands' : 'Below this, your hands show']);
+
+  // Distance scales with focal length to hold the framing, and the focal length
+  // then cancels out of the equation exactly. That is not a bug to hide: framed
+  // the same way, a moving subject needs the same shutter on any lens.
+  const moveRows = MOVERS.map((m) => {
+    const subject = m.at50 * (focal / 50);
+    const t = motionThreshold({ focal, crop, speed: m.speed, subject });
+    return [m.name, t ? snapShutter(t).label : '—',
+      `${m.speed} m/s, ${subject.toFixed(subject < 10 ? 1 : 0)} m away at ${focal} mm`];
+  });
+
+  return `<p class="sub mt-18" style="font-size:14.5px">Two different blurs, and beginners fix the wrong one.
+    <strong style="color:var(--ink)">Camera shake</strong> smears the whole frame and comes from your hands.
+    <strong style="color:var(--ink)">Subject movement</strong> smears only the thing that moved.
+    The shutter has to beat whichever is worse.</p>
+    ${focalChips()}
+    <span class="lab mt-22">Camera shake — your floor at ${focal} mm</span>
+    <div class="card mt-8 deftable">${shakeRows.map(([k, v, note]) =>
+      `<div><dt>${esc(k)}<span class="dt__note">${esc(note)}</span></dt><dd>${esc(v)}</dd></div>`).join('')}</div>
+    <p class="muted mt-10">This is the number that moves when you zoom, which is why one shutter speed cannot
+      be right for a whole lens.</p>
+    <span class="lab mt-22">Subject movement, framed the same way</span>
+    <div class="card mt-8 deftable">${moveRows.map(([k, v, note]) =>
+      `<div><dt>${esc(k)}<span class="dt__note">${esc(note)}</span></dt><dd>${esc(v)}</dd></div>`).join('')}</div>
+    <p class="muted mt-10">A close dog needs a faster shutter than a distant bird: what matters is how fast the
+      subject crosses the <em>frame</em>, not how fast it is travelling.</p>
+    <p class="muted mt-10">Change the focal chips and this table does not move, while the one above it does. Framed
+      the same way, a moving subject needs the same shutter on any lens — zooming in asks more of your hands, not
+      of the subject. Stand still and zoom without stepping back, though, and these numbers rise with the
+      magnification.</p>
+    <p class="muted mt-10">Faster is not better. Every stop of shutter is a stop taken from aperture or ISO, and
+      1/60 while panning says "fast" in a way 1/1000 never does.</p>`;
+}
+
+function apertureTab() {
+  const focal = guideFocal();
+  const crop = state.gear.crop ?? 1;
+
+  const depthRows = DEPTHS.map((d) => {
+    const subject = d.at50 * (focal / 50);
+    const n = apertureForDepth({ focal, crop, subject, far: subject + d.gap });
+    return [d.name, n == null ? '—' : n > NARROWEST_F ? `past f/22` : snapAperture(n).label,
+      `${subject.toFixed(subject < 10 ? 1 : 0)} m away`];
+  });
+
+  const hyperRows = [2.5, 5].map((from) => {
+    const n = hyperfocalAperture({ focal, crop, from });
+    return [`Sharp from ${from} m to infinity`, n > NARROWEST_F ? 'past f/22' : snapAperture(n).label,
+      `focus at ${(from * 2).toFixed(0)} m`];
+  });
+
+  // A fixed comparison rather than a table of the chosen focal length: the whole
+  // point is what changes between three lenses, so all three always show.
+  const blurRows = [24, 50, 135].map((f) => {
+    const subject = 2 * (f / 50);
+    const b = backgroundBlurMm({ focal: f, aperture: 2.8, subject, background: subject + 4 });
+    return [`${f} mm, from ${subject.toFixed(1)} m`, `${(asFrameFraction(b, crop) * 100).toFixed(1)}%`,
+      'of the frame width'];
+  });
+
+  return `<p class="sub mt-18" style="font-size:14.5px">f/4 is not a size, it is a ratio: the focal length divided
+    by the opening. That is why f/2.8 is a physically much bigger hole on an 85 than on a 24, and yet lets in
+    exactly the same amount of light.</p>
+    ${focalChips()}
+    <span class="lab mt-22">Depth at ${focal} mm</span>
+    <div class="card mt-8 deftable">${depthRows.map(([k, v, note]) =>
+      `<div><dt>${esc(k)}<span class="dt__note">${esc(note)}</span></dt><dd>${esc(v)}</dd></div>`).join('')}</div>
+    <div class="card mt-8 deftable">${hyperRows.map(([k, v, note]) =>
+      `<div><dt>${esc(k)}<span class="dt__note">${esc(note)}</span></dt><dd>${esc(v)}</dd></div>`).join('')}</div>
+    <p class="muted mt-10">Change the focal chips above and watch how little the first table moves. At the same
+      framing, depth of field barely depends on focal length — a long lens makes you stand further back, and the
+      two effects very nearly cancel.</p>
+    <p class="muted mt-10">"Past f/22" is a real answer, not a missing one: that shot does not fit at this focal
+      length, and no aperture on the dial will make it. Step back and use a wider lens, or accept that the far
+      end goes soft.</p>
+    <span class="lab mt-22">What the long lens actually buys, at f/2.8</span>
+    <div class="card mt-8 deftable">${blurRows.map(([k, v, note]) =>
+      `<div><dt>${esc(k)}<span class="dt__note">${esc(note)}</span></dt><dd>${esc(v)}</dd></div>`).join('')}</div>
+    <p class="muted mt-10">This is the one that moves. The subject is framed identically in all three and a
+      background four metres behind it blurs three times as much at 135 mm. Long lenses do not thin the depth on
+      the face; they magnify what is behind it.</p>
+    <p class="muted mt-10">Neither end is free. Wide open is where lenses are softest and where a focus miss of a
+      centimetre shows; past about f/16 diffraction takes back the sharpness stopping down was meant to buy.</p>`;
+}
 
 /** The scene's own rules, read back out of the data that drives the solver. */
 function anchorRows(scene) {
@@ -781,10 +972,10 @@ function guideScreen() {
       ].map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}
     </div>
     <p class="muted mt-16">Every rule here is a starting point. The camera's meter and your own eyes outrank all of them.</p>`;
+  } else if (state.guideTab === 'shutter') {
+    body = shutterTab();
   } else {
-    const rows = GUIDE[state.guideTab];
-    body = `<div class="card mt-18 deftable">
-      ${rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</div>`;
+    body = apertureTab();
   }
 
   return `<div class="screen">
@@ -1079,21 +1270,22 @@ app.addEventListener('click', (event) => {
     case 'scene':
       state.sceneId = id; state.lightId = null; state.focal = null;
       state.lock = {}; state.allLight = false; state.customLight = null; state.step = 'light';
+      state.comp = null;
       break;
     case 'sun-locate':
       locate();
       return;
     case 'sun-sky':
       state.customLight = estimateLight({ date: new Date(), ...state.sun.place, sky: v });
-      state.lightId = 'sun'; state.step = 'result'; rememberLast();
+      state.lightId = 'sun'; state.step = 'result'; state.comp = null; rememberLast();
       break;
     case 'light':
-      state.lightId = id; state.customLight = null; state.step = 'result'; rememberLast();
+      state.lightId = id; state.customLight = null; state.step = 'result'; state.comp = null; rememberLast();
       break;
     case 'all-light': state.allLight = true; keepScroll = true; break;
     case 'resume': {
       state.sceneId = el.dataset.scene;
-      state.focal = null; state.lock = {};
+      state.focal = null; state.lock = {}; state.comp = null;
       if (el.dataset.light === 'sun') {
         const place = readPlace();
         // Re-estimated for now, not replayed from earlier. Without a position
@@ -1153,6 +1345,10 @@ app.addEventListener('click', (event) => {
     // Keeping the scroll position means the toggle does not throw the settings
     // rows off screen just because the photographer glanced at the example.
     case 'preview-mode': state.previewMode = v; keepScroll = true; break;
+    // Stored even when it matches the suggestion, so a deliberate agreement is
+    // not silently re-derived if the suggestion later changes.
+    case 'comp': state.comp = v; keepScroll = true; break;
+    case 'guide-focal': state.guideFocal = Number(v); keepScroll = true; break;
     case 'guide-tab': state.guideTab = v; state.guideScene = null; break;
     case 'guide-scene': state.guideScene = id; break;
     case 'guide-back': state.guideScene = null; break;
@@ -1164,7 +1360,7 @@ app.addEventListener('click', (event) => {
     case 'scene-guide': state.tab = 'guide'; state.guideTab = 'scenes'; state.guideScene = id; break;
     case 'shoot-scene':
       state.sceneId = id; state.lightId = null; state.customLight = null;
-      state.focal = null; state.lock = {}; state.allLight = false;
+      state.focal = null; state.lock = {}; state.allLight = false; state.comp = null;
       state.guideScene = null; state.tab = 'shoot'; state.step = 'light';
       break;
     case 'iso-ceiling': g.isoCeiling = Number(v); commitGear(); keepScroll = true; break;

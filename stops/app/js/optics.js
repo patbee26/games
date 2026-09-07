@@ -86,3 +86,34 @@ export function widestAt(lens, focal) {
   const stops = Math.log2(wideMax / wideMin) * position;
   return wideMin * Math.pow(2, stops);
 }
+
+/**
+ * Circle of confusion: the largest blur disc that still reads as a point in a
+ * normal-sized print. The usual sensor-diagonal/1500 convention, taken off the
+ * width because that is what the rest of this file works in.
+ */
+export function circleOfConfusion(crop = 1) {
+  return sensorWidth(crop) / 1500;
+}
+
+/**
+ * The f-number needed to hold something at `far` inside the circle of confusion
+ * while focused at `subject`. Inverts the background-blur equation.
+ *
+ * Returns null when the two distances are the same, which needs no aperture.
+ */
+export function apertureForDepth({ focal, crop = 1, subject, far }) {
+  if (!focal || !subject || !far || far <= subject) return null;
+  const f = focal / 1000;
+  const ratio = isFinite(far) ? (far - subject) / (subject * far) : 1 / subject;
+  return ((f * f) * ratio * 1000) / circleOfConfusion(crop);
+}
+
+/**
+ * The f-number whose hyperfocal distance is 2 x `from`, which is the aperture
+ * that puts everything from `from` to infinity inside the circle of confusion.
+ */
+export function hyperfocalAperture({ focal, crop = 1, from }) {
+  if (!focal || !from) return null;
+  return (focal * focal) / (2 * from * 1000 * circleOfConfusion(crop));
+}

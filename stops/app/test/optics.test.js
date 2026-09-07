@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import {
   backgroundBlurMm, motionBlurMm, handheldFloor, starTrailLimit, widestAt, sensorWidth,
+  circleOfConfusion, apertureForDepth, hyperfocalAperture,
 } from '../js/optics.js';
 import { DEFAULT_GEAR } from '../js/gear.js';
 
@@ -58,4 +59,67 @@ test('a zoom is slower at the long end, and a prime never varies', () => {
   assert.ok(Math.abs(widestAt(zoom, 200) - 5.6) < 1e-9);
   assert.ok(widestAt(zoom, 135) > 4 && widestAt(zoom, 135) < 5.6);
   assert.equal(widestAt(prime, 35), 1.8);
+});
+
+/* ------------------------------------------- what the guide tabs are built on */
+
+test('apertureForDepth inverts the blur equation it is derived from', () => {
+  // Round trip: the f-number it returns must put the far thing exactly on the
+  // circle of confusion, or the guide is quoting a number the preview disagrees
+  // with.
+  const crop = 1.5;
+  for (const focal of [24, 50, 135]) {
+    const n = apertureForDepth({ focal, crop, subject: 3, far: 3.5 });
+    const blur = backgroundBlurMm({ focal, aperture: n, subject: 3, background: 3.5 });
+    assert.ok(Math.abs(blur - circleOfConfusion(crop)) < 1e-9,
+      `at ${focal}mm the round trip missed: ${blur} vs ${circleOfConfusion(crop)}`);
+  }
+});
+
+test('apertureForDepth declines rather than dividing by zero', () => {
+  assert.equal(apertureForDepth({ focal: 50, crop: 1.5, subject: 3, far: 3 }), null);
+  assert.equal(apertureForDepth({ focal: 50, crop: 1.5, subject: 3, far: 2 }), null);
+});
+
+test('at the same framing, depth of field barely depends on focal length', () => {
+  // The claim the Aperture tab makes in words, asserted in numbers. The old flat
+  // table implied the opposite, which is why it had to go.
+  const crop = 1.5;
+  const gap = 0.4;
+  const needed = [24, 35, 50, 85, 135, 200].map((focal) => {
+    const subject = 2.5 * (focal / 50); // stand back to hold the framing
+    return apertureForDepth({ focal, crop, subject, far: subject + gap });
+  });
+  const spread = Math.max(...needed) / Math.min(...needed);
+  assert.ok(spread < 1.5, `expected the f-numbers to stay close, spread was ${spread}`);
+});
+
+test('but background blur at the same framing grows with focal length', () => {
+  // The other half of the same lesson: the long lens does not thin the depth on
+  // the face, it magnifies what is behind it.
+  const blurs = [24, 50, 135].map((focal) => {
+    const subject = 2 * (focal / 50);
+    return backgroundBlurMm({ focal, aperture: 2.8, subject, background: subject + 4 });
+  });
+  assert.ok(blurs[0] < blurs[1] && blurs[1] < blurs[2], 'blur must grow with focal length');
+  assert.ok(blurs[2] / blurs[0] > 2, `expected a big difference, got ${blurs[2] / blurs[0]}`);
+});
+
+test('hyperfocalAperture puts infinity exactly on the circle of confusion', () => {
+  const crop = 1.5;
+  const n = hyperfocalAperture({ focal: 24, crop, from: 2.5 });
+  const blur = backgroundBlurMm({ focal: 24, aperture: n, subject: 5, background: Infinity });
+  assert.ok(Math.abs(blur - circleOfConfusion(crop)) < 1e-9,
+    `focused at the hyperfocal distance, infinity should sit on the CoC: ${blur}`);
+});
+
+test('the guide numbers agree with the solver about the hand-held floor', () => {
+  // The defect this replaced: a flat "1/160 for a portrait" that was a stop too
+  // slow at 200mm and more than a stop too fast at 24mm.
+  for (const focal of [24, 50, 200]) {
+    const floor = handheldFloor({ focal, crop: 1.5, stabiliserStops: 0, userSlowest: null });
+    assert.ok(Math.abs(floor - 1 / (focal * 1.5)) < 1e-12, 'the guide must use the solver\'s own rule');
+  }
+  assert.ok(handheldFloor({ focal: 200, crop: 1.5 }) < 1 / 160, '200mm needs faster than the old flat number');
+  assert.ok(handheldFloor({ focal: 24, crop: 1.5 }) > 1 / 160, '24mm needs slower than the old flat number');
 });
