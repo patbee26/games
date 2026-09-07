@@ -76,14 +76,50 @@ we already have, now saying something a beginner can act on:
 ## 4. The core loop
 
 ```
-Start  →  Pick a scene  →  Read two numbers, see the shot  →  Go shoot
-                                    ↕
-                        tap one option, see the picture change
+Start  →  Pick a scene  →  Pick the light  →  One card: the shot  →  Go shoot
+                                                       ↕
+                                    tap a chip, see the picture change
 ```
 
-**The light step is gone.** Each scene states the conditions it assumes as a
-fact on the page. Asking a beginner to classify light is asking them to do the
-hard part before being taught it.
+**Three taps to a card, and the card has no controls on it.** It states the
+shot: this focal length, this aperture, this shutter, because that is how this
+photograph is taken. Nothing on it can be set or tuned.
+
+**The light step stays**, against an earlier draft of this spec that cut it. The
+argument for cutting it was that classifying light is the hard part; the
+argument for keeping it is stronger. In M with Auto ISO the light does not
+change what you set — it changes what the camera has to do about it, and the
+ISO on the card is where the beginner watches that happen. It is also what makes
+the honest refusals possible: a full second of daylight needs a filter, and the
+app can only say so once it knows what the light is.
+
+### 4.1 The chips — "what happens if I change something?"
+
+Under the card, and the only interactive thing in the app. A chip is a
+**question, not a control**: plain English, the setting it would mean, and a tap
+that swaps the photograph for the same scene taken that way.
+
+```
+What if I change the aperture?
+  [ Close the aperture   f/8 ]   [ Close it right down   f/16 ]
+```
+
+Tapping one:
+
+- swaps the photograph for that variation,
+- moves exactly one number and marks it changed,
+- rewrites that leg's line of reasoning to say what changed and from what,
+- states the cost in stops, and shows the ISO absorbing it,
+- offers "Back to the shot".
+
+Tapping it again puts the card back. Only one chip is ever on. The chips for an
+axis are the two steps that are **not** the shot — a chip showing the picture
+already on screen would look broken and teach nothing.
+
+This is the whole interaction model. There is no aperture ladder to walk, no
+lock, no exposure compensation dial, no alternative solve. A beginner does not
+need a calculator; they need to be told what to set, shown what it looks like,
+and sent outside.
 
 ## 5. Gear
 
@@ -212,16 +248,22 @@ should be one.
 ### 8.2 Scene list
 Twelve tiles, two columns, photographs. Unchanged from what works now.
 
-### 8.3 Scene page
+### 8.2b Light
+Three to five options, each one this scene is actually shot in — a swatch, a
+name and the thing you would notice ("shadows with soft edges"). Not fifteen,
+and never an indoor light on a landscape.
+
+### 8.3 The card
 1. The photograph.
-2. **Two numbers**, large, with one line each saying why.
-3. ISO prediction, small.
-4. The conditions this assumes, stated.
-5. **One option** (two on portrait and street).
-6. Three lines of craft — the non-exposure half.
-7. What usually goes wrong.
-8. A note about your lens, only when yours cannot do it.
-9. Exposure compensation instruction, only on the scenes that need it.
+2. One line saying what it is.
+3. **Three dials in a row**: aperture, shutter, and ISO reading `Auto` with the
+   value the camera will land on. Only the first two are yours.
+4. Three lines of reasoning, one per leg.
+5. A notice, only when there is one: too much light, too little, or the filter
+   this photograph needs.
+6. **The chips** (§4.1).
+
+Nothing else, and nothing that can be set.
 
 ### 8.4 Guide — the 101, kept as a reference
 

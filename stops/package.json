@@ -4,7 +4,7 @@
   "type": "module",
   "description": "A photography field guide that solves the exposure triangle for your gear",
   "scripts": {
-    "test": "node --test app/test/*.test.js",
+    "test": "node --test app/test/*.test.js next/test/*.test.js",
     "serve": "node app/serve.js"
   }
 }
