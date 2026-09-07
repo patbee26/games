@@ -2,7 +2,7 @@
 // aeroplanes. Everything is cached on install and served cache-first, so a
 // launch with no signal is indistinguishable from a launch with one.
 
-const CACHE = 'stops-v15';
+const CACHE = 'stops-v16';
 
 const ASSETS = [
   './',
@@ -24,16 +24,21 @@ const ASSETS = [
   'js/photos.js',
   'photos/architecture.jpg',
   'photos/concert.jpg',
+  'photos/fireworks.jpg',
   'photos/food.jpg',
   'photos/group.jpg',
   'photos/indoor.jpg',
   'photos/kids.jpg',
+  'photos/landscape.jpg',
   'photos/macro.jpg',
+  'photos/moon.jpg',
   'photos/nightcity.jpg',
+  'photos/panning.jpg',
   'photos/portrait.jpg',
   'photos/sports.jpg',
   'photos/stars.jpg',
   'photos/street.jpg',
+  'photos/water.jpg',
   'photos/wildlife.jpg',
   'icons/icon.svg',
   'icons/icon-192.png',

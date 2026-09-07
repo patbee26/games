@@ -19,6 +19,11 @@ export const PHOTOS = {
   macro: 'One plane sharp — the near wing and the flower head — and everything behind it gone.',
   nightcity: 'The blue hour, with the lights already on and the wet road doing half the work.',
   stars: 'A foreground to give the sky some scale, and the horizon kept in the frame.',
+  moon: 'Low, with the treeline in the frame, so the moon has something to be big against.',
+  fireworks: 'Framed wide enough to hold several bursts and the skyline they sit above.',
+  panning: 'The rider held sharp while the background pulls into streaks \u2014 the follow-through is what does it.',
+  water: 'Smoothed but not fogged: the water still has a shape, which a longer exposure would have lost.',
+  landscape: 'A foreground to walk the eye in, rather than scenery starting at the horizon.',
 };
 
 export const photoFor = (sceneId) => (PHOTOS[sceneId] ? `photos/${sceneId}.jpg` : null);

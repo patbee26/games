@@ -36,6 +36,16 @@ script = script.replace(photoLine,
 const fonts = read('fonts.css').replace(/url\(fonts\/([^)]+)\)/g, (_, name) =>
   `url(data:font/woff2;base64,${readFileSync(new URL('fonts/' + name, root)).toString('base64')})`);
 
+// The body is taken from index.html rather than written out again here, so an
+// element added to the app can never go missing from the single-page copy.
+const body = read('index.html')
+  .match(/<body>([\s\S]*?)<\/body>/)[1]
+  .replace(/<script[\s\S]*?<\/script>/g, '')
+  .trim();
+for (const id of ['app', 'tabs', 'sheet']) {
+  if (!body.includes(`id="${id}"`)) console.warn(`WARNING: #${id} missing from the bundled body`);
+}
+
 const page = `<title>Stops</title>
 <style>
 ${fonts}
@@ -44,8 +54,7 @@ ${read('styles.css')}
 html, body { height: 100dvh; }
 </style>
 
-<main id="app" aria-live="polite"></main>
-<nav id="tabs" aria-label="Sections"></nav>
+${body}
 
 <script type="module">
 ${script}

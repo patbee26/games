@@ -140,17 +140,17 @@ subject, about a kilobyte of inline SVG each, sharing the app's palette. They
 carry the home screen as tiles and the guide as thumbnails and banners, and they
 cost nothing, work offline and carry no licence.
 
-Where a photograph exists it wins, and thirteen of the eighteen scenes have one.
-Landscape, silky water, panning, fireworks and the moon are still drawn. Each
+Where a photograph exists it wins, and all eighteen scenes now have one. Each
 photograph is captioned with what is worth noticing
 in the frame rather than with an exposure the project cannot vouch for: the macro
 example reads "one plane sharp — the near wing and the flower head — and
 everything behind it gone."
 
-A drawing is used wherever there is no photograph, and says what it is: "drawn,
-not photographed — it shows the shape of the shot, not the picture." Adding a
-photograph for another scene is a file in `app/photos/` named after the scene and
-one line in `photos.js`.
+The drawings stay as the fallback: any scene added without a photograph gets one
+automatically, and it says what it is — "drawn, not photographed — it shows the
+shape of the shot, not the picture." Adding a photograph for a new scene is a
+file in `app/photos/` named after the scene, one line in `photos.js`, and the
+same filename in the `sw.js` precache list.
 
 Above both sits the photographer's own. Every entry offers to use one of their
 pictures instead, downscaled to 560 px and kept in local storage, sent nowhere —
@@ -197,8 +197,6 @@ reused rather than wasted. GPS itself needs no signal, so the estimate works off
 
 ### Not built, deliberately
 
-- **Example photographs.** See below — the sourcing is a month of evenings and it
-  wants your own library, not a stranger's.
 - **Naming the dials on your camera.** Built brand-level, then cut from v1. Telling a
   beginner *which* control to turn is genuinely valuable, but doing it honestly needs
   per-body data, and the brand-level version could only ship hedged — "your own body may
