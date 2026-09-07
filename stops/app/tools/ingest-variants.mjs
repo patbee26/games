@@ -70,8 +70,8 @@ const ORDER = {
   group: ['base', 'ap-wide', 'ap-mid', 'ap-deep'],
   food: ['base', 'ap-wide', 'ap-mid', 'ap-deep'],
   indoor: ['base', 'ap-wide', 'ap-mid', 'ap-deep'],
-  street: ['base', 'ap-wide', 'ap-mid', 'ap-deep'],
-  'street-fl': ['fl-wide', 'fl-long'],
+  portrait: ['base', 'ap-wide', 'ap-mid', 'ap-deep', 'fl-wide', 'fl-long'],
+  street: ['base', 'ap-wide', 'ap-mid', 'ap-deep', 'fl-wide', 'fl-long'],
   landscape: ['base', 'fl-wide', 'fl-long'],
   architecture: ['base', 'fl-wide', 'fl-long'],
 };
