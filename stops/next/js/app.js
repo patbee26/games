@@ -18,8 +18,6 @@ import { LESSONS, lessonFor } from './lessons.js';
 import { shotFor, costOf } from './shot.js';
 import { chipsFor, resultOf, shotValue } from './chips.js';
 import { STANDARD, CROP, loadGear, saveGear, normalise, lensesIn, lensAdvice } from './gear.js';
-import { readExif, clippedFraction } from './exif.js';
-import { diagnose } from './diagnose.js';
 
 const app = document.getElementById('app');
 const tabsEl = document.getElementById('tabs');
@@ -41,7 +39,6 @@ const state = {
   gear: loadGear(),
   lensForm: false,
   lensError: '',
-  check: null,           // { url, exif, clipped, manual, error } once a file is picked
 };
 
 const SEEN = 'stops-next-seen';
@@ -62,7 +59,6 @@ const ICON = {
   warn: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3l9.5 17H2.5z"/><path d="M12 10v4M12 17.2v.1"/></svg>',
   filter: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17"/></svg>',
   tick: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
-  check: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16v13H4z"/><path d="M8 12.5l3 3 5-6"/></svg>',
   down: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>',
 };
 
@@ -159,12 +155,6 @@ function cardScreen() {
       ${idealPanel(r)}
       ${notices(r)}
       ${lensPanel(r)}
-      <button class="check-cta" data-act="check-open">
-        <span class="check-cta__i">${ICON.check}</span>
-        <span><span class="check-cta__t">Shot it? Check your picture.</span>
-          <span class="check-cta__s">Pick the photograph you took and this will tell you which
-            of the three settings was the one that mattered. It stays on your phone.</span></span>
-      </button>
     </div>`;
 }
 
@@ -309,152 +299,6 @@ function askSection(scene, r) {
       <div class="ask__h">${single ? esc(groups[0].question) : 'What happens if I change something?'}</div>
       ${body}
     </div>`;
-}
-
-
-/* ── Check your picture ──────────────────────────────────────────────────── */
-
-/**
- * The half of a tutorial that is usually missing.
- *
- * The app tells you what to set and shows you what it should look like, then
- * sends you outside. Without this it never finds out whether you got it, and
- * the learner comes back with a smeared photograph of their child and no idea
- * which of the three settings betrayed them.
- *
- * The file is read in the page and never leaves the device. That is not an
- * implementation note, it is the reason the feature is allowed to exist: these
- * are photographs of somebody's family, and a server that judged them would be
- * a different product with a different bargain.
- */
-function checkScreen() {
-  const scene = lessonFor(state.sceneId);
-  const c = state.check;
-  const head = header({ title: 'Check your picture', sub: scene.name, back: 'card', home: true });
-
-  if (!c) {
-    return `${head}
-      <div class="wrap">
-        <label class="pick">
-          <input type="file" accept="image/*" data-act="check-file">
-          <span class="pick__i">${ICON.check}</span>
-          <span class="pick__t">Choose the photograph you took</span>
-          <span class="pick__s">It is read here on your phone and never uploaded.</span>
-        </label>
-        <p class="g-p mt-14">Most cameras write the settings into the file, so this can compare
-          what you actually did against the ${esc(scene.name.toLowerCase())} card and tell you which
-          of the three was the one that mattered. If the settings are not in there, you can type
-          them in instead.</p>
-      </div>`;
-  }
-
-  if (!c.exif) return `${head}${noSettings(c)}`;
-
-  const d = diagnose({ scene, exif: c.exif, clipped: c.clipped ?? 0 });
-  return `${head}
-    <div class="wrap">
-      ${picked(c)}
-      <section class="ideal">
-        <div class="ideal__eyebrow"><span>${c.manual ? 'What you shot it at' : 'What your camera did'}</span>
-          ${c.manual ? '<button data-act="check-retype">Change</button>' : ''}</div>
-        <div class="cmp">
-          <div class="cmp__h"><span></span><span>Yours</span><span>The card</span></div>
-          ${d.rows.map(([k, mine, card]) => `<div class="cmp__r">
-            <span class="cmp__k">${esc(k)}</span><span class="cmp__a">${esc(mine)}</span>
-            <span class="cmp__b">${esc(card)}</span></div>`).join('')}
-        </div>
-        ${d.light ? `<p class="cmp__ev">Those three numbers say you were standing in about
-          <b>${esc(d.light.name.toLowerCase())}</b>, which is what lets the rest of this page tell the
-          difference between a wrong choice and a photograph that was not available to you.</p>` : ''}
-      </section>
-      ${d.findings.map((f) => note(f.tone === 'miss' ? 'warn' : f.tone === 'good' ? 'amber' : 'amber',
-        f.tone === 'miss' ? ICON.warn : f.tone === 'good' ? ICON.tick : ICON.sun, f.head, f.body)).join('')}
-      <button class="ghost-sm mt-14" data-act="check-again">Check another picture</button>
-    </div>`;
-}
-
-/**
- * The path that has to be as good as the main one, because it is common.
- *
- * Photographs that arrive through a messaging app, a screenshot, or an export
- * that strips metadata carry no settings at all. Three numbers typed in gets
- * the reader exactly the same answer, so the feature does not simply fail.
- */
-function noSettings(c) {
-  return `<div class="wrap">
-    ${picked(c)}
-    <div class="note note--amber"><span class="note__i">${ICON.warn}</span>
-      <span><b>This file does not carry its settings.</b>${esc(tidy(`That is normal. Sending a
-        photograph through a messaging app strips them out, and screenshots never had them. Type in
-        the three numbers from the back of the camera and you get the same answer.`))}</span></div>
-    <form class="lens-form" data-act="check-manual-form">
-      <div class="lens-form__k">What you shot it at</div>
-      <div class="lens-form__grid">
-        <label>Aperture, f/<input name="aperture" type="number" inputmode="decimal" step="0.1" min="0.7" max="90"
-          value="${c.draft?.aperture ?? ''}" placeholder="4"></label>
-        <label>ISO<input name="iso" type="number" inputmode="numeric" min="6" max="409600"
-          value="${c.draft?.iso ?? ''}" placeholder="400"></label>
-        <label>Lens<input name="focal" type="number" inputmode="numeric" min="4" max="2000"
-          value="${c.draft?.focal ?? ''}" placeholder="50"><span>mm</span></label>
-      </div>
-      <div class="lens-form__grid lens-form__grid--one">
-        <label>Shutter<input name="shutter" type="text" inputmode="text"
-          value="${c.draft?.shutter ?? ''}" placeholder="1/250"></label>
-      </div>
-      <p class="lens-form__p">Write the shutter the way the camera does: 1/250, or 2 for two seconds.</p>
-      ${c.error ? `<p class="lens-form__err">${esc(c.error)}</p>` : ''}
-      <div class="lens-card__acts">
-        <button class="primary-sm" type="submit" data-act="check-manual">See the answer</button>
-        <button class="ghost-sm" type="button" data-act="check-again">Different picture</button>
-      </div>
-    </form>
-  </div>`;
-}
-
-const picked = (c) => (c.showable && c.url
-  ? `<img class="check-img" src="${c.url}" alt="The photograph you chose">` : '');
-
-/** "1/250", "0.004" and "2" are all things a person might type for a shutter. */
-export function parseShutter(text) {
-  const s = String(text ?? '').trim().replace(/\s|"|sec(onds?)?$|s$/gi, '');
-  const fraction = s.match(/^(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
-  const value = fraction ? Number(fraction[1]) / Number(fraction[2]) : Number(s);
-  return Number.isFinite(value) && value > 0 && value <= 3600 ? value : null;
-}
-
-/**
- * Reads the picked file. Two jobs: the settings, and how much of the frame is
- * blown out. Either can fail on its own without taking the other down, since a
- * format the browser will not decode is still often a format we can read the
- * settings out of, and the reverse happens just as often.
- */
-async function takeFile(file) {
-  if (state.check?.url) URL.revokeObjectURL(state.check.url);
-  const next = { url: URL.createObjectURL(file), exif: null, clipped: 0, manual: false,
-                 draft: null, error: '', showable: false };
-  try {
-    next.exif = readExif(await file.arrayBuffer());
-  } catch { /* the manual path handles it */ }
-  try {
-    next.clipped = await measureClipping(file);
-    // Decoding it is also how we know it can be shown. A file this browser will
-    // not render must not leave a broken image sitting above the answer.
-    next.showable = true;
-  } catch { /* a format the browser will not decode; the settings still stand */ }
-  state.check = next;
-  render();
-}
-
-async function measureClipping(file) {
-  const bitmap = await createImageBitmap(file);
-  const w = 160;
-  const h = Math.max(1, Math.round((bitmap.height / bitmap.width) * w));
-  const canvas = document.createElement('canvas');
-  canvas.width = w; canvas.height = h;
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  ctx.drawImage(bitmap, 0, 0, w, h);
-  bitmap.close?.();
-  return clippedFraction(ctx.getImageData(0, 0, w, h).data);
 }
 
 /* ── The gear page ───────────────────────────────────────────────────────── */
@@ -818,7 +662,6 @@ function render() {
   sheetEl.innerHTML = state.intro === null ? '' : introSheet();
   app.innerHTML = state.tab === 'guide' ? guideScreen()
     : state.tab === 'gear' ? gearScreen()
-    : state.step === 'check' ? checkScreen()
     : state.step === 'card' ? cardScreen()
     : state.step === 'light' ? lightScreen()
     : scenesScreen();
@@ -851,16 +694,8 @@ function onClick(event) {
         ? null : { axis, step };
       break;
     case 'chip-off': state.change = null; break;
-    case 'back':
-      state.step = to === 'scenes' ? 'scenes' : to === 'card' ? 'card' : 'light';
-      if (to !== 'card') state.change = null;
-      break;
-    case 'check-open': state.step = 'check'; break;
-    case 'check-again': dropCheck(); break;
-    case 'check-retype':
-      state.check = { ...state.check, exif: null, manual: true, draft: draftFrom(state.check.exif), error: '' };
-      break;
-    case 'home': state.tab = 'shoot'; state.step = 'scenes'; state.change = null; dropCheck(); break;
+    case 'back': state.step = to === 'scenes' ? 'scenes' : 'light'; state.change = null; break;
+    case 'home': state.tab = 'shoot'; state.step = 'scenes'; state.change = null; break;
     case 'tab':
       state.tab = id;
       if (id === 'shoot' && !state.sceneId) state.step = 'scenes';
@@ -878,45 +713,11 @@ function onClick(event) {
   app.scrollTop = keepScroll ? y : 0;
 }
 
-/** Lets go of the picked picture, and the object URL holding it in memory. */
-function dropCheck() {
-  if (state.check?.url) URL.revokeObjectURL(state.check.url);
-  state.check = null;
-}
-
-const draftFrom = (exif) => (exif ? {
-  aperture: exif.aperture, iso: exif.iso, focal: exif.focal35 ?? exif.focal,
-  shutter: snapShutter(exif.shutter).label,
-} : null);
-
-function onFile(event) {
-  const input = event.target.closest('input[type="file"]');
-  if (!input || !input.files?.length) return;
-  takeFile(input.files[0]);
-}
-
 function onSubmit(event) {
   const form = event.target.closest('form');
   if (!form) return;
   event.preventDefault();
   const data = Object.fromEntries(new FormData(form).entries());
-
-  if (form.dataset.act === 'check-manual-form') {
-    const exif = {
-      aperture: Number(data.aperture),
-      shutter: parseShutter(data.shutter),
-      iso: Number(data.iso),
-      focal: data.focal ? Number(data.focal) : null,
-    };
-    const ok = exif.aperture > 0 && exif.shutter > 0 && exif.iso > 0;
-    state.check = ok
-      ? { ...state.check, exif, manual: true, error: '' }
-      : { ...state.check, manual: true, draft: data,
-          error: 'Check those: an f-number, a shutter like 1/250, and the ISO the camera used.' };
-    render();
-    return;
-  }
-
   const lens = normalise(data);
   if (!lens) {
     state.lensError = 'That does not look like a lens. Check the two focal lengths and the f-number on the front of it.';
@@ -931,7 +732,6 @@ function onSubmit(event) {
 
 document.addEventListener('click', onClick);
 document.addEventListener('submit', onSubmit);
-document.addEventListener('change', onFile);
 
 // A way to see the first run again without clearing the browser's storage:
 // open the page with ?intro on the end. The Gear page has a button for it too.
