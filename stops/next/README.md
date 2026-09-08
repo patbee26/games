@@ -1,7 +1,13 @@
-# Stops, the tutorial
+# Off Auto
 
 The rebuild, alongside the first app rather than replacing it, so the two can be
 compared. [`../SPEC.md`](../SPEC.md) is the argument; this is what got built.
+
+The name is the instruction: turn the dial off auto. The mark is a camera mode
+dial with its indicator moved onto M, drawn in `js/brand.js` as one SVG that the
+header, the favicon and the home-screen icons are all rendered from, so they
+cannot drift apart. The code still lives under `stops/`, which is the working
+name it was built under.
 
 ## The shape of it
 

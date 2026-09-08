@@ -112,13 +112,20 @@ button { font: inherit; color: inherit; background: none; border: none;
 /* Step 1, the scenes ----------------------------------------------------- */
 .lede { color: var(--ink-2); font-size: 14.5px; line-height: 1.5; margin: 2px 0 16px; }
 .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.tile { border-radius: 14px; overflow: hidden; background: var(--card);
+/* The name sits on the photograph rather than under it. Twelve tiles with a
+   label block each was a lot of chrome between the reader and the pictures,
+   which are the thing worth looking at. */
+.tile { position: relative; border-radius: 14px; overflow: hidden; background: var(--card);
         border: 1px solid var(--line); display: block; transition: border-color .12s; }
 .tile:hover { border-color: var(--line-2); }
-.tile img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block; }
-.tile__label { display: block; padding: 9px 11px 11px; }
-.tile__name { display: block; font-size: 14.5px; font-weight: 600; }
-.tile__hint { display: block; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.tile img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+.tile__scrim { position: absolute; inset: 40% 0 0; pointer-events: none;
+               background: linear-gradient(to bottom, transparent, rgba(6, 7, 8, .82) 78%); }
+.tile__label { position: absolute; left: 11px; right: 9px; bottom: 9px; }
+.tile__name { display: block; font-size: 15px; font-weight: 600; color: #F4F2EE;
+              text-shadow: 0 1px 3px rgba(0, 0, 0, .5); }
+.tile__hint { display: block; font-family: var(--data); font-size: 9.5px; letter-spacing: .1em;
+              text-transform: uppercase; color: var(--amber-light); margin-top: 3px; }
 
 /* Step 2, the light ------------------------------------------------------ */
 .lights { display: flex; flex-direction: column; gap: 8px; }
@@ -335,3 +342,17 @@ button { font: inherit; color: inherit; background: none; border: none;
 .rule__k { font-size: 13.6px; }
 .rule__v { font-size: 13px; color: var(--ink-2); }
 .top__gap { width: 34px; flex: none; }
+.top--flush { padding-left: var(--pad); }
+.top--flush .top__titles { padding-left: 0; }
+
+/* Brand ------------------------------------------------------------------- */
+.top--brand { padding-top: 16px; padding-bottom: 6px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--ink); }
+.brand__mark { width: 34px; height: 34px; flex: none; display: block; }
+.brand__mark svg { width: 100%; height: 100%; display: block; }
+.brand__word { display: flex; flex-direction: column; font-weight: 700; font-size: 16px;
+               line-height: .97; letter-spacing: .02em; }
+.brand__auto { color: var(--amber); }
+
+.h1 { font-size: 22px; font-weight: 600; letter-spacing: -.015em; margin: 12px 0 0; }
+.h1 + .lede { margin-top: 7px; }

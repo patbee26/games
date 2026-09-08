@@ -1,4 +1,4 @@
-// Stops, the tutorial.
+// Off Auto, the tutorial.
 //
 // Three screens: pick a scene, pick the light, read the card. The card is the
 // whole product. It states the shot and has no controls on it. Under the
@@ -14,6 +14,7 @@
 import { LIGHT, lightById, MOVERS, DEPTHS } from '../../app/js/data.js';
 import { FULL_STOPS, snapShutter, snapAperture } from '../../app/js/ladders.js';
 import { handheldFloor, motionThreshold, apertureForDepth } from '../../app/js/optics.js';
+import { LOCKUP } from './brand.js';
 import { LESSONS, lessonFor } from './lessons.js';
 import { shotFor, costOf } from './shot.js';
 import { chipsFor, resultOf, shotValue } from './chips.js';
@@ -84,13 +85,15 @@ function scenesScreen() {
   const tiles = LESSONS.map((s) => `
     <button class="tile" data-act="scene" data-id="${s.id}">
       <img src="${scenePhoto(s.id)}" alt="" loading="lazy">
+      <span class="tile__scrim"></span>
       <span class="tile__label">
         <span class="tile__name">${esc(s.name)}</span>
         <span class="tile__hint">${esc(TEACHES(s))}</span>
       </span>
     </button>`).join('');
-  return `${header({ title: 'What are you shooting?' })}
+  return `<div class="top top--brand">${LOCKUP}</div>
     <div class="wrap">
+      <h1 class="h1">What are you shooting?</h1>
       <p class="lede">Twelve photographs worth learning. Pick one and you will be told
         exactly what to set, shown what it looks like, and sent outside.</p>
       <div class="tiles">${tiles}</div>
@@ -638,9 +641,8 @@ function introSheet() {
 /* ── Chrome ──────────────────────────────────────────────────────────────── */
 
 function header({ title, sub, back, home }) {
-  return `<div class="top">
-    ${back ? `<button class="top__back" data-act="back" data-to="${back}" aria-label="Back">${ICON.back}</button>`
-           : '<span class="top__gap"></span>'}
+  return `<div class="top ${back ? '' : 'top--flush'}">
+    ${back ? `<button class="top__back" data-act="back" data-to="${back}" aria-label="Back">${ICON.back}</button>` : ''}
     <div class="top__titles">
       <div class="top__title">${esc(title)}</div>
       ${sub ? `<div class="top__sub">${esc(sub)}</div>` : ''}

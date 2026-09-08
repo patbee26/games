@@ -17,7 +17,7 @@ const read = (u, p) => readFileSync(new URL(p, u), 'utf8');
 // five come from the other app. The physics and the ladders are the same
 // physics and the same ladders, and a second copy of them would drift.
 const SHARED = ['js/ladders.js', 'js/optics.js', 'js/exposure.js', 'js/data.js'];
-const OWN = ['js/lessons.js', 'js/gear.js', 'js/shot.js', 'js/chips.js', 'js/app.js'];
+const OWN = ['js/brand.js', 'js/lessons.js', 'js/gear.js', 'js/shot.js', 'js/chips.js', 'js/app.js'];
 
 const strip = (src) => src
   .replace(/^import[\s\S]*?from '[^']+';$/gm, '')
@@ -119,7 +119,7 @@ const html = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0B0C0D">
-<title>Stops: learn your camera</title>
+<title>Off Auto: learn your camera</title>
 <style>${fonts}</style>
 <style>${read(here, 'styles.css')}</style>
 </head>
@@ -139,8 +139,12 @@ console.log(`dist/stops-next.html, ${Math.round(html.length / 1024)} KB, ${Objec
   const a = sw.match(/^[ \t]*\/\/ assets:start.*$/m);
   const b = sw.match(/^[ \t]*\/\/ assets:end.*$/m);
   if (!a || !b) { console.error('sw.js has no assets:start/assets:end markers.'); process.exit(1); }
+  // The icons belong here too. They were left out, so the deployed manifest
+  // pointed at files the package did not contain and the home-screen icon was
+  // a 404 on every install.
   const lines = ['styles.css', 'manifest.webmanifest', '../app/fonts.css',
     ...SHARED.map((f) => '../app/' + f), ...OWN,
+    ...readdirSync(new URL('icons/', here)).map((f) => 'icons/' + f),
     ...readdirSync(new URL('fonts/', shared)).filter((f) => f.endsWith('.woff2')).map((f) => '../app/fonts/' + f),
     ...want.map((p) => '../app/' + p)].map((p) => `  '${p}',`);
   const next = sw.slice(0, a.index + a[0].length) + '\n' + lines.join('\n') + '\n' + sw.slice(b.index);
