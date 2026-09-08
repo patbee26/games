@@ -17,7 +17,8 @@ const read = (u, p) => readFileSync(new URL(p, u), 'utf8');
 // five come from the other app. The physics and the ladders are the same
 // physics and the same ladders, and a second copy of them would drift.
 const SHARED = ['js/ladders.js', 'js/optics.js', 'js/exposure.js', 'js/data.js'];
-const OWN = ['js/lessons.js', 'js/gear.js', 'js/shot.js', 'js/chips.js', 'js/app.js'];
+const OWN = ['js/lessons.js', 'js/gear.js', 'js/exif.js', 'js/shot.js',
+             'js/diagnose.js', 'js/chips.js', 'js/app.js'];
 
 const strip = (src) => src
   .replace(/^import[\s\S]*?from '[^']+';$/gm, '')

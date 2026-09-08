@@ -298,9 +298,9 @@ button { font: inherit; color: inherit; background: none; border: none;
 .lens-form__grid span { position: absolute; right: 10px; bottom: 11px;
   font-family: var(--data); font-size: 12px; color: var(--ink-4); }
 .primary-sm { padding: 10px 18px; border-radius: 10px; background: var(--amber);
-              color: var(--amber-ink); font-size: 14px; font-weight: 600; }
+              color: var(--amber-ink); font-size: 14px; font-weight: 600; white-space: nowrap; }
 .ghost-sm { padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line-2);
-            color: var(--ink-2); font-size: 14px; }
+            color: var(--ink-2); font-size: 14px; white-space: nowrap; }
 .ghost-sm:hover { border-color: var(--ink-4); color: var(--ink); }
 
 /* Guide tables ------------------------------------------------------------ */
@@ -335,3 +335,38 @@ button { font: inherit; color: inherit; background: none; border: none;
 .rule__k { font-size: 13.6px; }
 .rule__v { font-size: 13px; color: var(--ink-2); }
 .top__gap { width: 34px; flex: none; }
+
+/* Check your picture ------------------------------------------------------ */
+.check-cta { display: flex; gap: 12px; width: 100%; margin-top: 12px; padding: 14px 15px;
+             border-radius: 14px; border: 1px dashed var(--line-2); background: none; }
+.check-cta:hover { border-color: var(--amber); }
+.check-cta__i { flex: none; color: var(--amber); padding-top: 1px; }
+.check-cta__t { display: block; font-size: 15px; font-weight: 600; }
+.check-cta__s { display: block; font-size: 12.8px; color: var(--ink-3); margin-top: 4px; line-height: 1.5; }
+
+.pick { display: block; text-align: center; padding: 30px 18px; border-radius: 16px;
+        border: 1px dashed var(--line-2); background: var(--card); cursor: pointer; }
+.pick:hover { border-color: var(--amber); }
+.pick input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.pick__i { display: block; color: var(--amber); }
+.pick__t { display: block; font-size: 16px; font-weight: 600; margin-top: 9px; }
+.pick__s { display: block; font-size: 12.8px; color: var(--ink-3); margin-top: 5px; }
+
+.check-img { display: block; width: 100%; border-radius: 14px; margin-bottom: 12px;
+             background: var(--card-2); }
+
+.cmp { padding: 4px 0 2px; }
+.cmp__h, .cmp__r { display: grid; grid-template-columns: 1fr auto auto; gap: 14px;
+                   padding: 9px 14px; align-items: baseline; }
+.cmp__h { font-family: var(--data); font-size: 10px; letter-spacing: .09em;
+          text-transform: uppercase; color: var(--ink-4); padding-bottom: 3px; }
+.cmp__h span:nth-child(2), .cmp__h span:nth-child(3),
+.cmp__a, .cmp__b { text-align: right; min-width: 66px; }
+.cmp__r { border-top: 1px solid var(--line-soft); }
+.cmp__k { font-size: 13.4px; color: var(--ink-2); }
+.cmp__a { font-family: var(--data); font-size: 16px; }
+.cmp__b { font-family: var(--data); font-size: 16px; color: var(--ink-4); }
+.cmp__ev { font-size: 12.8px; line-height: 1.55; color: var(--ink-3);
+           margin: 2px 0 0; padding: 11px 14px 13px; border-top: 1px solid var(--line-soft); }
+.cmp__ev b { color: var(--ink-1); font-weight: 600; }
+.lens-form__grid--one { grid-template-columns: 1fr; }

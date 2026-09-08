@@ -37,6 +37,40 @@ article.
 is what the "Your lens" line on every card then talks about. It also has the
 button that replays the introduction, as does `?intro` on the end of the URL.
 
+## Check your picture
+
+The other half of a tutorial, and the half usually missing. The app tells you
+what to set and shows you what it should look like, then sends you outside.
+Without this it never finds out whether you got it.
+
+Pick the photograph and it reads the settings out of the file, in the page,
+with nothing uploaded. That is not an implementation note. These are pictures
+of somebody's family, and a version that posted them to a server to be judged
+would be a different product with a different bargain.
+
+What it can say is more than a list of differences, because aperture, shutter
+and ISO together give away **the light the photographer was standing in**. With
+that known, the app can tell two opposite situations apart:
+
+> **The card was not available in that light.** 1/1000 at f/5.6 would have
+> needed ISO 53,333 where you were standing, and your camera stops at 12,800.
+> Nothing you set on the dial was going to fix that.
+
+versus the same shutter miss outdoors, where there was ISO to spare and the
+choice really was the mistake. Telling someone their shutter was wrong when the
+light never allowed it is how a beginner learns to distrust the app.
+
+**When there is no EXIF**, which is what a photograph that came through a
+messaging app looks like, the page says so plainly and offers three fields. The
+answer is identical from there on. That path is common enough that it is tested
+as carefully as the main one.
+
+Deliberately absent: any judgement of whether the photograph is *good*. That
+needs a model on a server, and the trade is not worth it. Sharpness scoring is
+absent for a different reason: it marks down a portrait for having a soft
+background, which is the thing the app just taught you to want. Clipped
+highlights are the one pixel measure that is unambiguous, so that one is in.
+
 ## The standard lens is a 24 to 105 mm f/2, which is not a real lens
 
 Deliberate, and the gear page says so. At f/4 no scene could show a background
@@ -69,6 +103,8 @@ already knows what they are doing. This one is for the afternoon before that.
 | `js/shot.js` | The one sum: the ISO the camera will pick, and whether it can |
 | `js/chips.js` | The wording of the questions under the card |
 | `js/gear.js` | The standard lens, the one they may add, and what to say about it |
+| `js/exif.js` | What the camera recorded, read out of the file on the device |
+| `js/diagnose.js` | That, held up against the card the photograph was meant to come from |
 | `js/app.js` | Three screens, a five page guide, a gear page and an intro |
 
 The physics is not duplicated. `app/js/ladders.js`, `optics.js`, `exposure.js`
