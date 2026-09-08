@@ -222,6 +222,7 @@ button { font: inherit; color: inherit; background: none; border: none;
 .sheet__in { flex: 1 1 auto; overflow-y: auto; padding: 0 var(--pad);
              max-width: 560px; margin: 0 auto; width: 100%;
              display: flex; flex-direction: column; justify-content: center; }
+.sheet__in .brand { margin-bottom: 20px; }
 .sheet__k { font-family: var(--data); font-size: 11px; letter-spacing: .12em;
             text-transform: uppercase; color: var(--amber); }
 .sheet__t { font-size: 27px; font-weight: 600; letter-spacing: -.02em; margin: 9px 0 12px; }
@@ -353,6 +354,14 @@ button { font: inherit; color: inherit; background: none; border: none;
 .brand__word { display: flex; flex-direction: column; font-weight: 700; font-size: 16px;
                line-height: .97; letter-spacing: .02em; }
 .brand__auto { color: var(--amber); }
+
+/* The first launch wears the mark in the tile it has on a home screen. */
+.brand--hero { gap: 16px; margin-bottom: 26px; }
+.brand--hero .brand__mark { width: 86px; height: 86px; border-radius: 22px;
+                            background: var(--card); border: 1px solid var(--line);
+                            display: grid; place-items: center; }
+.brand--hero .brand__mark svg { width: 54px; height: 54px; }
+.brand--hero .brand__word { font-size: 38px; letter-spacing: .01em; }
 
 .h1 { font-size: 22px; font-weight: 600; letter-spacing: -.015em; margin: 12px 0 0; }
 .h1 + .lede { margin-top: 7px; }

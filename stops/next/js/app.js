@@ -14,7 +14,7 @@
 import { LIGHT, lightById, MOVERS, DEPTHS } from '../../app/js/data.js';
 import { FULL_STOPS, snapShutter, snapAperture } from '../../app/js/ladders.js';
 import { handheldFloor, motionThreshold, apertureForDepth } from '../../app/js/optics.js';
-import { LOCKUP } from './brand.js';
+import { LOCKUP, lockup } from './brand.js';
 import { LESSONS, lessonFor } from './lessons.js';
 import { shotFor, costOf } from './shot.js';
 import { chipsFor, resultOf, shotValue } from './chips.js';
@@ -623,9 +623,15 @@ const INTRO = [
 
 function introSheet() {
   const c = INTRO[state.intro];
+  const first = state.intro === 0;
   const last = state.intro === INTRO.length - 1;
+  // The opening card is the only place the app gets to say what it is called,
+  // so the mark is there at the size it wears on a home screen. The cards after
+  // it carry the small lockup instead: enough to hold the thread, not enough to
+  // repeat itself twice more before anybody has seen a photograph.
   return `<div class="sheet">
     <div class="sheet__in">
+      ${lockup(first)}
       <div class="sheet__k">${esc(c.k)}</div>
       <h1 class="sheet__t">${esc(c.t)}</h1>
       ${c.p.map((p) => `<p class="sheet__p">${esc(p)}</p>`).join('')}

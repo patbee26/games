@@ -20,8 +20,14 @@ export const MARK = `<svg viewBox="0 0 64 64" fill="none" aria-hidden="true" foc
 /**
  * Mark and wordmark together. Two lines, because the name is two words that
  * mean opposite things and stacking them is what makes that read.
+ *
+ * `hero` puts the mark in the rounded tile it wears on a home screen, at the
+ * size the first launch wants. The same markup either way, so the small one in
+ * the header and the large one on the opening card cannot drift.
  */
-export const LOCKUP = `<div class="brand">
+export const lockup = (hero = false) => `<div class="brand${hero ? ' brand--hero' : ''}">
   <span class="brand__mark">${MARK}</span>
   <span class="brand__word"><span>OFF</span><span class="brand__auto">AUTO</span></span>
 </div>`;
+
+export const LOCKUP = lockup();
