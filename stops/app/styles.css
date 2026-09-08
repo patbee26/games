@@ -1,9 +1,9 @@
-/* Stops — a field instrument, not a document. Dark by default because this
+/* Stops: a field instrument, not a document. Dark by default because this
    gets used outdoors at dusk, one-handed, held at arm's length. */
 
 :root {
   /* Dark is the default: this gets used outdoors at dusk more than at a desk.
-     Light exists for the other half of the problem — direct sun on the screen. */
+     Light exists for the other half of the problem, direct sun on the screen. */
   --bg: #0B0C0D;
   --chrome: #0E0F11;
   --card: #141618;

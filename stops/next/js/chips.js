@@ -1,33 +1,36 @@
 // The chips under the picture: "what happens if I change something".
 //
 // A chip is not a control. Nothing on the card can be set, and the settings the
-// card shows are the settings for the shot. A chip answers a question — what
-// would this look like if I opened the aperture — and answering it swaps the
+// card shows are the settings for the shot. A chip answers a question, namely
+// what this would look like if I opened the aperture, and answering it swaps the
 // photograph, moves one number, and says what it cost. Tapping it again puts
 // the card back.
 //
 // The labels are written the way a person would say it out loud, with the
 // number they would dial in. "Open the aperture" and not "decrease f-number",
 // because the beginner reading this does not yet know that those are the same
-// sentence — and the note under the chip is where they find out.
+// sentence, and the note under the chip is where they find out.
 
 import { snapShutter, snapAperture } from '../../app/js/ladders.js';
 
 const ORDER = { ap: ['wide', 'mid', 'deep'], fl: ['wide', 'norm', 'long'], sh: ['fast', 'mid', 'slow'] };
 
 /** Wording for a move of one step, and of two, in each direction on each axis. */
+// Short, because these sit in a strip under the photograph and a long label
+// pushes the settings off the screen. The heading above them already names the
+// thing being changed, so the chip only has to say which way and how far.
 const MOVE = {
   ap: {
-    '-1': 'Open the aperture', '-2': 'Open it right up',
-    '+1': 'Close the aperture', '+2': 'Close it right down',
+    '-1': 'Open it a little', '-2': 'Open it right up',
+    '+1': 'Close it a little', '+2': 'Close it right down',
   },
   fl: {
-    '-1': 'Zoom out, step closer', '-2': 'Go wide, right up close',
-    '+1': 'Zoom in, step back', '+2': 'Go long, from far back',
+    '-1': 'Wider, step closer', '-2': 'Much wider, up close',
+    '+1': 'Longer, step back', '+2': 'Much longer, far back',
   },
   sh: {
-    '-1': 'Faster shutter', '-2': 'Much faster shutter',
-    '+1': 'Slower shutter', '+2': 'Much slower shutter',
+    '-1': 'A bit faster', '-2': 'Much faster',
+    '+1': 'A bit slower', '+2': 'Much slower',
   },
 };
 
@@ -39,8 +42,9 @@ const VALUE = {
 };
 
 /**
- * What actually changes in the picture. Said of the picture, not the setting —
- * the setting is already on the chip — and said of "the subject" and "the
+ * What actually changes in the picture. Said of the picture rather than of the
+ * setting, since the setting is already on the chip, and said of "the subject"
+ * and "the
  * movement" so that one sentence serves twelve scenes.
  */
 const RESULT = {

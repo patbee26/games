@@ -129,8 +129,8 @@ test('the shutter step follows the movement, not the subject', () => {
 });
 
 test('a scene whose subject stands still still has three shutter photographs', () => {
-  // water and nightcity both have speed: 0 — the rock and the skyline really
-  // are still — so a threshold derived from the subject is null and every
+  // water and nightcity both have speed: 0. The rock and the skyline really
+  // are still, so a threshold derived from the subject is null and every
   // shutter would land on the same picture. They declare their own boundaries.
   for (const id of ['water', 'nightcity']) {
     const scene = sceneById(id);
@@ -156,8 +156,8 @@ test('the thresholds are ordered, so no step is unreachable by construction', ()
 test('every photograph in every set can actually be reached on the shipped kit', () => {
   // A set of three where one is unreachable is two-thirds of a lesson and a
   // third of a wasted download. What makes this worth asserting is that the
-  // light never moves you across a set — light is absorbed by ISO, and the
-  // scene pins the creative setting — so reachability rests entirely on the
+  // light never moves you across a set. Light is absorbed by ISO and the
+  // scene pins the creative setting, so reachability rests entirely on the
   // focal lengths and apertures the kit in the bag can be set to.
   const FOCALS = [];
   const PAIRS = [];

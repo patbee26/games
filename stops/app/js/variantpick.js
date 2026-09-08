@@ -9,7 +9,7 @@
 // Instead each axis is picked on the quantity its three photographs are of:
 // aperture by how far the lens is stopped down from its own widest, and focal
 // length by how magnified the background is relative to the scene's own focal
-// length — the latter computed by the same optics that drive the preview.
+// length, the latter computed by the same optics that drive the preview.
 
 import { backgroundMagnification } from './optics.js';
 import { stopsBetween } from './exposure.js';
@@ -22,8 +22,8 @@ import { stopsBetween } from './exposure.js';
  * focal length: on this scene an 85 mm at f/8 throws more background out of
  * focus than a 35 mm wide open, so picking on blur would show the stopped-down
  * photograph to someone shooting wide open on a short lens. Stops from widest
- * is also how a photographer says it — wide open, a couple down, stopped right
- * down — and it is what the three photographs are of.
+ * is also how a photographer says it: wide open, a couple down, stopped right
+ * down. It is what the three photographs are of.
  */
 export const STOP_STEPS = [1.5, 3.5];
 
@@ -53,7 +53,7 @@ export function focalStep({ focal, baseFocal, subject, background }) {
  *
  * `motionThreshold` is where the smear crosses 0.6% of the frame width, which
  * is where a pixel-peeper notices it and nowhere near a streak. Four times that
- * is about 2.5% of the width — an unmistakable smear at arm's length, and the
+ * is about 2.5% of the width, an unmistakable smear at arm's length, and the
  * point at which the third photograph stops overstating what the shutter did.
  */
 export const SHUTTER_SPREAD = 4;
@@ -63,8 +63,8 @@ export const SHUTTER_SPREAD = 4;
  *
  * `bounds` is the scene's own pair of shutter times, in seconds, and it exists
  * because the thing that moves is not always the thing the scene measures. A
- * waterfall and a street of traffic both have `speed: 0` — the subject really
- * is standing still — so their motion has to be described directly rather than
+ * waterfall and a street of traffic both have `speed: 0`, since the subject
+ * really is standing still, so their motion has to be described directly rather than
  * derived from a subject crossing the frame.
  */
 export function shutterStep({ shutter, threshold, bounds }) {
@@ -78,12 +78,12 @@ export function shutterStep({ shutter, threshold, bounds }) {
 
 /**
  * What each photograph is showing, said in terms of the picture rather than the
- * setting — the number is already on the screen above it.
+ * setting, since the number is already on the screen above it.
  *
  * Deliberately said of "the subject" and "the movement" rather than of this or
  * that scene: twelve scenes share these three sentences per axis, and a note
  * that named a face would be wrong on a plate of pasta. Panning is the reason
- * the shutter notes say "the movement" and never "the background" — there it is
+ * the shutter notes say "the movement" and never "the background": there it is
  * the background that streaks, and the same sentence has to be true of both.
  */
 export const STEP_NOTE = {

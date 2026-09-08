@@ -3,7 +3,7 @@
 //
 // This exists to catch the one failure that matters and is invisible in a
 // folder of thumbnails: a focal-length set the model produced by cropping
-// instead of re-shooting. Read along a row — the subject must be the same
+// instead of re-shooting. Read along a row: the subject must be the same
 // height in all three. If it grows, the set is the wrong lesson and has to go
 // back.
 //
@@ -24,7 +24,7 @@ const { VARIANTS } = await import('../js/variants.js');
 // Arguments: an optional output path (anything ending .png) and any number of
 // scene names. With fifteen sets installed a single sheet is 8000px tall and
 // has to be downscaled to be looked at, which defeats the point of rendering at
-// the real banner width — so name the scenes you want to judge.
+// the real banner width, so name the scenes you want to judge.
 const args = process.argv.slice(2);
 const out = args.find((a) => a.endsWith('.png')) ?? 'variant-sheet.png';
 const wanted = args.filter((a) => !a.endsWith('.png'));
@@ -36,11 +36,11 @@ if (!scenes.length) { console.error('The manifest is empty.'); process.exit(1); 
 const LABEL = {
   ap: { wide: 'wide open', mid: 'middle', deep: 'stopped down' },
   fl: { wide: 'wide lens', norm: 'normal', long: 'long lens' },
-  sh: { fast: 'fast — frozen', mid: 'moderate', slow: 'slow — smeared' },
+  sh: { fast: 'fast, frozen', mid: 'moderate', slow: 'slow, smeared' },
 };
-const TITLE = { ap: 'Aperture — only the depth of field may differ',
-                fl: 'Focal length — the subject must be the SAME HEIGHT in all three',
-                sh: 'Shutter — only the moving things may differ; everything still stays identical' };
+const TITLE = { ap: 'Aperture: only the depth of field may differ',
+                fl: 'Focal length: the subject must be the SAME HEIGHT in all three',
+                sh: 'Shutter: only the moving things may differ; everything still stays identical' };
 
 const types = { '.jpg': 'image/jpeg', '.png': 'image/png', '.css': 'text/css', '.html': 'text/html' };
 const server = createServer((req, res) => {
@@ -82,5 +82,5 @@ await page.waitForTimeout(700);
 await page.screenshot({ path: out, fullPage: true });
 await browser.close();
 server.close();
-console.log(`${out} — ${rows.length} set(s) across ${scenes.length} scene(s).`);
+console.log(`${out}: ${rows.length} set(s) across ${scenes.length} scene(s).`);
 console.log('Read along each focal-length row: the subject must be the same height in all three.');

@@ -58,7 +58,7 @@ export function handheldFloor({ focal, crop = 1, stabiliserStops = 0, userSlowes
 }
 
 /**
- * The shutter speed at which this subject's movement starts to be visible —
+ * The shutter speed at which this subject's movement starts to be visible,
  * where its smear crosses a given fraction of the frame width. Useful for
  * telling a beginner what they are actually buying with a faster shutter.
  */
@@ -130,7 +130,7 @@ export function hyperfocalAperture({ focal, crop = 1, from }) {
  *   ratio = (f / bg) / (f0 / bg0),  and for a background at infinity, f / f0
  *
  * A crop of a photograph cannot show this. Cropping magnifies the subject and
- * the background together, which is what happens when you zoom without moving —
+ * the background together, which is what happens when you zoom without moving,
  * the other case, and the one that changes nothing about the relationship.
  */
 export function backgroundMagnification({ focal, baseFocal, subject, background }) {

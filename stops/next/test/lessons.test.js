@@ -30,7 +30,7 @@ test('every scene names lights that exist, and offers at least two', () => {
 test('the recommended card is shootable in every light the scene offers', () => {
   // This is the promise the whole app makes: pick a scene, pick a light, and
   // the card in front of you is a photograph you can actually take. The two
-  // exceptions are declared rather than discovered — water genuinely needs a
+  // exceptions are declared rather than discovered. Water genuinely needs a
   // filter in daylight, and that is the lesson rather than a fault.
   const ALLOWED = { 'nightcity/blue-hour': 1.1 };
   for (const scene of LESSONS) {
@@ -86,7 +86,7 @@ test('the chips are the other two, never the shot itself', () => {
 
 test('every picture a card can show is on disk', () => {
   // The scene picture is the base the variations were generated from, not the
-  // other app's photograph of the same subject — pairing them would change the
+  // other app's photograph of the same subject, and pairing them would change the
   // face the moment a chip was tapped.
   for (const scene of LESSONS) {
     assert.ok(picture(`photos/bases/${scene.id}.jpg`), `${scene.id} has no base photograph`);

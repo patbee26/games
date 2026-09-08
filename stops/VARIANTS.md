@@ -1,7 +1,7 @@
 # Generating variation photographs
 
 The app's preview is drawn rather than photographed because a flat JPEG cannot be
-made to answer the settings — see the README for the three reasons and the two
+made to answer the settings, see the README for the three reasons and the two
 experiments that failed. Real photographs *can* answer them, but only as sets
 that are genuinely the same scene shot differently.
 
@@ -10,23 +10,23 @@ whether to do the rest.
 
 ---
 
-## Do this first — one scene, about fifteen minutes
+## Do this first: one scene, about fifteen minutes
 
 ### 1. Get the base photograph
 
 Unzip the app. The photographs are in `stops/photos/`. Start with
-**`portrait.jpg`** — it is the clearest case.
+**`portrait.jpg`**: it is the clearest case.
 
 You do not generate a base. The photograph in the app *is* the base, and every
 variant is an edit of it. That is what keeps the set honest: if you generate each
 one from scratch you get five different photographs, and the app would be
-teaching every incidental difference — the face, the light, the background — as
+teaching every incidental difference (the face, the light, the background) as
 if it were aperture.
 
 ### 2. Upload it to ChatGPT and paste these five prompts
 
 Attach `portrait.jpg` to a new chat. Paste prompt 1. Save the result. Then, in
-the **same chat**, paste prompt 2, and so on — so each edit keeps working from
+the **same chat**, paste prompt 2, and so on, so each edit keeps working from
 the same picture.
 
 The prompts never describe the subject, because ChatGPT can see it. That means
@@ -41,7 +41,7 @@ the same five work for every scene.
 > move the camera and do not change the subject in any way.
 >
 > Change one thing only: the depth of field. Render everything behind the subject
-> completely dissolved into smooth, unreadable blur — no individual shape in the
+> completely dissolved into smooth, unreadable blur, no individual shape in the
 > background should be identifiable. The subject stays perfectly sharp. Keep the
 > same aspect ratio as the original.
 
@@ -51,7 +51,7 @@ the same five work for every scene.
 > camera not moved.
 >
 > This time the background is clearly soft but its shapes are still
-> recognisable — you can tell what things are, they are simply not sharp. The
+> recognisable. You can tell what things are, they are simply not sharp. The
 > subject stays perfectly sharp. Same aspect ratio.
 
 **Prompt 3** → save as `portrait__ap-deep.png`
@@ -72,7 +72,7 @@ the same five work for every scene.
 > crop.
 >
 > The subject must occupy exactly the same height in the frame as in the
-> original — this is the most important part. Because the camera is now close and
+> original. This is the most important part. Because the camera is now close and
 > the lens is wide, much more of the background is visible, everything in it looks
 > smaller and further away, and there is a slight wide-angle stretch to the
 > perspective. Same aspect ratio.
@@ -86,14 +86,14 @@ the same five work for every scene.
 > telephoto lens. They have MOVED. They have not zoomed in and this is not a crop.
 >
 > The subject must occupy exactly the same height in the frame as in the
-> original — this is the most important part. Because the camera is now far away
+> original. This is the most important part. Because the camera is now far away
 > and the lens is long, only a narrow slice of the background is visible, and it
 > appears magnified and compressed, looming larger behind the subject than it does
 > now. Same aspect ratio.
 
 ### 3. The sixth file is free
 
-`portrait__fl-norm.png` is the original photograph — the scene's own focal
+`portrait__fl-norm.png` is the original photograph, the scene's own focal
 length. Just copy `photos/portrait.jpg` and rename it:
 
 ```
@@ -110,7 +110,7 @@ node tools/variant-sheet.mjs
 ```
 
 The first validates the names, rescales everything the same way, and writes the
-manifest. The second writes `variant-sheet.png` — each set laid out side by side
+manifest. The second writes `variant-sheet.png`, each set laid out side by side
 at the width it will actually be seen at on a phone.
 
 ### 4b. If the subject drifts in size, normalise it
@@ -127,32 +127,32 @@ lengths, and the set's whole claim is that the subject does not change. Put a
 `scale` crops in by that factor, `cy` is the vertical centre of the crop. The
 ingest applies it automatically and says so. This is legitimate rather than a
 fudge: cropping in rescales subject and background together, so it fixes the
-framing without touching the ratio between them — which is the thing being
+framing without touching the ratio between them, which is the thing being
 demonstrated. It only ever crops in, so nothing is invented at the edges.
 
 The committed `variants-crops.json` is the one used for portrait, kept so the
 set can be rebuilt from the originals. Copy it into your source folder.
 
-### 5. Judge it — this is the step that matters
+### 5. Judge it: this is the step that matters
 
 Open `variant-sheet.png` and read along each row.
 
 **Aperture row:** the subject must be identical in all three. Only the background
 sharpness may differ. If the face changed, the model regenerated instead of
-editing — say "keep the subject pixel-identical, change only the background
+editing, say "keep the subject pixel-identical, change only the background
 blur" and try again.
 
 **Focal length row:** the subject must be the **same height** in all three, and
 the background must get bigger from left to right. If the subject grows across
 the row, ChatGPT cropped instead of re-shooting, and the set teaches the wrong
-lesson. Say "the subject is too large in this one — it must be exactly the same
+lesson. Say "the subject is too large in this one. It must be exactly the same
 size in the frame as the original; you have zoomed in, but the photographer
 walked backwards instead" and try again.
 
 Expect to re-roll a couple. The focal ones are the hard ones.
 
 **If the sheet looks right, tell me and I will wire it into the app.** If it
-looks wrong after a few tries, that is a real answer too — it means this is not
+looks wrong after a few tries, that is a real answer too. It means this is not
 worth doing, and the drawn preview stays.
 
 ---
@@ -160,7 +160,7 @@ worth doing, and the drawn preview stays.
 ## Then, only if the first one worked
 
 The same five prompts, with a different photograph attached each time. Do these
-five next — they have the widest subject-to-background separation, so the effect
+five next. They have the widest subject-to-background separation, so the effect
 is strongest and most legible at phone size:
 
 | Photograph | Why it is worth doing |
@@ -171,7 +171,7 @@ is strongest and most legible at phone size:
 | `macro.jpg` | depth of field measured in millimetres |
 | `food.jpg` | close subject, controllable background |
 
-Rename each file for its scene — `water__ap-wide.png`, `street__fl-long.png`,
+Rename each file for its scene, `water__ap-wide.png`, `street__fl-long.png`,
 and so on. Then re-run the same two commands; ingest picks up everything in the
 folder at once.
 
@@ -195,7 +195,7 @@ recognise, so these have to be right:
 <scene>__fl-wide     <scene>__fl-norm     <scene>__fl-long
 ```
 
-`.png` or `.jpg` both work. The scene name must match the app's own id — the ids
+`.png` or `.jpg` both work. The scene name must match the app's own id, the ids
 are the photograph filenames in `stops/photos/`.
 
 ## Why the prompts avoid f-numbers
@@ -216,7 +216,7 @@ photographs. Three things came out of judging them that were not obvious from
 doing one scene.
 
 **The model can answer the two focal-length prompts the wrong way round.** The
-`street` set came back with the telephoto frame — dome looming, street narrowed —
+`street` set came back with the telephoto frame, dome looming, street narrowed,
 saved as `fl-wide`, and the wide-angle frame as `fl-long`. Nothing about either
 picture is wrong; they are simply swapped, and swapped they teach the reverse of
 the lesson. This is invisible in a folder of thumbnails and obvious on the
@@ -228,7 +228,7 @@ put the real order in `variants-crops.json` so it survives a re-ingest.
 ```
 
 **Normalise the subject only when the drift is in one direction.** `architecture`
-came back with the building at 35%, 67% and 56% of the frame height — a real
+came back with the building at 35%, 67% and 56% of the frame height, a real
 drift, fixed with crops of x1.91 and x1.20. `landscape` came back at 32%, 41% and
 34%: not monotonic, therefore noise rather than a crop artefact, and cropping it
 would have cost the mountains for nothing. Leave it.
@@ -236,7 +236,7 @@ would have cost the mountains for nothing. Leave it.
 **Changing the light never moves you across a set.** This is worth knowing before
 you judge whether a set is earning its place. Light is absorbed by ISO and the
 scene pins the creative setting, so `water` is 1s in a blizzard and 1s at
-midnight — one photograph, always. The other two are reached only when the
+midnight, one photograph, always. The other two are reached only when the
 photographer changes aperture, shutter or focal length themselves. That every
 step is reachable *somehow*, on the lenses actually in the bag, is asserted in
 `test/variantpick.test.js`; that it is reachable by changing the light is not

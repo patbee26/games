@@ -3,7 +3,7 @@
 // cache-first, so a launch with no signal is the same as a launch with one.
 //
 // The asset list below is written by tools/bundle.mjs from what the page
-// actually references — the first app shipped a hand-kept list and it silently
+// actually references. The first app shipped a hand-kept list and it silently
 // fell thirty-six pictures behind.
 
 const CACHE = 'stops-next-v1';
@@ -11,7 +11,7 @@ const CACHE = 'stops-next-v1';
 const ASSETS = [
   './',
   'index.html',
-  // assets:start — written by tools/bundle.mjs, do not edit by hand
+  // assets:start, written by tools/bundle.mjs, do not edit by hand
   'styles.css',
   'manifest.webmanifest',
   '../app/fonts.css',
@@ -20,6 +20,7 @@ const ASSETS = [
   '../app/js/exposure.js',
   '../app/js/data.js',
   'js/lessons.js',
+  'js/gear.js',
   'js/shot.js',
   'js/chips.js',
   'js/app.js',

@@ -4,7 +4,7 @@
 > images in, 42 variants and 12 base photographs out. What follows is the recipe
 > that produced them, kept for the next scene rather than as a list of work
 > outstanding. Read [`VARIANTS.md`](VARIANTS.md) for what judging the full batch
-> taught — in particular that a focal-length pair can come back swapped.
+> taught, in particular that a focal-length pair can come back swapped.
 
 **33 images to generate, 3 free copies, 6 you already made.** Everything the
 twelve scenes need in order to have their one option each.
@@ -14,13 +14,13 @@ The method is the one that worked for portrait, and the background to it is in
 
 > **One base image. Every variant is an edit of it. Exactly one thing changes.**
 
-Attach the app's own photograph — `stops/photos/<scene>.jpg` — to a new ChatGPT
+Attach the app's own photograph (`stops/photos/<scene>.jpg`) to a new ChatGPT
 chat, then paste the prompts for that scene in order, staying in the same chat so
 each edit works from the same picture.
 
 ---
 
-## Do this first — one scene, fifteen minutes
+## Do this first: one scene, fifteen minutes
 
 **`water`**, the shutter set. It is the most dramatic of the three axes and the
 one we have not proved yet, so it is the right thing to test before you make
@@ -37,7 +37,7 @@ shutter scenes to no option and the build is unaffected.**
 
 ## 1. The full list
 
-### Shutter — 5 scenes, 15 images
+### Shutter: 5 scenes, 15 images
 
 | Attach | Save as |
 |---|---|
@@ -47,7 +47,7 @@ shutter scenes to no option and the build is unaffected.**
 | `panning.jpg` | `panning__sh-fast` `panning__sh-mid` `panning__sh-slow` |
 | `nightcity.jpg` | `nightcity__sh-fast` `nightcity__sh-mid` `nightcity__sh-slow` |
 
-### Aperture — 4 scenes, 12 images
+### Aperture: 4 scenes, 12 images
 
 | Attach | Save as |
 |---|---|
@@ -56,7 +56,7 @@ shutter scenes to no option and the build is unaffected.**
 | `indoor.jpg` | `indoor__ap-wide` `indoor__ap-mid` `indoor__ap-deep` |
 | `street.jpg` | `street__ap-wide` `street__ap-mid` `street__ap-deep` |
 
-### Focal length — 3 scenes, 6 images + 3 free
+### Focal length: 3 scenes, 6 images + 3 free
 
 | Attach | Save as | Free |
 |---|---|---|
@@ -80,7 +80,7 @@ cp stops/photos/street.jpg ~/stops-v2/street__fl-norm.jpg
 ## 2. Naming and sending
 
 `.png` or `.jpg`, named exactly as above. Put everything in one folder, zip it,
-and attach the zip — pasted images do not reach the disk and I cannot process
+and attach the zip, pasted images do not reach the disk and I cannot process
 them.
 
 You can send them in batches. The ingest picks up whatever is in the folder and
@@ -88,7 +88,7 @@ tells me what is still missing from each set.
 
 ---
 
-## 3. The shutter prompts — new
+## 3. The shutter prompts: new
 
 Three prompts per scene. Each one has a scene-specific line, marked **[what
 moves]**, taken from this table:
@@ -118,7 +118,7 @@ moves]**, taken from this table:
 > Same photograph, same framing, same light, camera not moved.
 >
 > This time the shutter was moderately fast: **[what moves]** shows a small
-> amount of movement — the fastest-moving parts are slightly soft while the main
+> amount of movement, the fastest-moving parts are slightly soft while the main
 > body of it stays sharp. Everything stationary is perfectly sharp. Same aspect
 > ratio.
 
@@ -131,7 +131,7 @@ moves]**, taken from this table:
 > travel, while everything stationary in the frame stays perfectly sharp. Same
 > aspect ratio.
 
-### 3.1 Panning — a bespoke set
+### 3.1 Panning: a bespoke set
 
 Panning is the one where the *camera* moves, so the generic set does not apply.
 Attach `panning.jpg`:
@@ -142,7 +142,7 @@ Attach `panning.jpg`:
 > light, same crop.
 >
 > Change one thing only: the shutter was fast and the camera was held still. The
-> rider is sharp **and so is the entire background** — every tree and every
+> rider is sharp **and so is the entire background**: every tree and every
 > roadside detail is crisp and readable. The picture looks static, as though the
 > rider were parked. Same aspect ratio.
 
@@ -151,7 +151,7 @@ Attach `panning.jpg`:
 > Same photograph, same rider in the same place in the frame, same light.
 >
 > This time the camera followed the rider at a moderate shutter speed: the rider
-> stays sharp and the background shows a mild horizontal smear — you can still
+> stays sharp and the background shows a mild horizontal smear. You can still
 > make out what the background objects are, but they are stretched sideways.
 > Same aspect ratio.
 
@@ -160,13 +160,13 @@ Attach `panning.jpg`:
 > Same photograph, same rider in the same place in the frame, same light.
 >
 > This time the camera followed the rider at a slow shutter speed: the rider is
-> still sharp, and the background is pulled into strong horizontal streaks —
+> still sharp, and the background is pulled into strong horizontal streaks,
 > unreadable bands of colour running across the frame. The wheels show rotational
 > blur. Same aspect ratio.
 
 ---
 
-## 4. The aperture prompts — as used for portrait
+## 4. The aperture prompts: as used for portrait
 
 Scene-specific line marked **[the background]**:
 
@@ -184,14 +184,14 @@ Scene-specific line marked **[the background]**:
 > and nothing has been rearranged.
 >
 > Change one thing only: the depth of field. **[the background]** is completely
-> dissolved into smooth, unreadable blur — no individual shape back there can be
+> dissolved into smooth, unreadable blur, no individual shape back there can be
 > identified. The nearest subject stays perfectly sharp. Same aspect ratio.
 
 **Prompt 2** → `<scene>__ap-mid`
 
 > Same photograph, same subject, same framing, same light, camera not moved.
 >
-> This time **[the background]** is clearly soft but still recognisable — you can
+> This time **[the background]** is clearly soft but still recognisable. You can
 > tell what things are, they are simply not sharp. The nearest subject stays
 > perfectly sharp. Same aspect ratio.
 
@@ -199,7 +199,7 @@ Scene-specific line marked **[the background]**:
 
 > Same photograph, same subject, same framing, same light, camera not moved.
 >
-> This time everything is sharp front to back — **[the background]** rendered in
+> This time everything is sharp front to back, **[the background]** rendered in
 > full crisp detail, exactly as sharp as the nearest subject. Same aspect ratio.
 
 **For `group`, add this line to all three:** "The front row and the back row are
@@ -208,10 +208,10 @@ is the point of this set."
 
 ---
 
-## 5. The focal-length prompts — as used for portrait
+## 5. The focal-length prompts: as used for portrait
 
 The hard one. A model asked for a longer lens will usually just crop, which is
-zooming without moving — the opposite of what this teaches. Say it explicitly
+zooming without moving, the opposite of what this teaches. Say it explicitly
 every time.
 
 **Prompt 1** → `<scene>__fl-wide`
@@ -223,7 +223,7 @@ every time.
 > crop.
 >
 > The main subject must occupy exactly the same height in the frame as in the
-> original — this is the most important part. Because the camera is now close and
+> original. This is the most important part. Because the camera is now close and
 > the lens is wide, much more of the background is visible, everything in it
 > looks smaller and further away, and there is a slight wide-angle stretch to the
 > perspective. Same aspect ratio.
@@ -237,7 +237,7 @@ every time.
 > crop.
 >
 > The main subject must occupy exactly the same height in the frame as in the
-> original — this is the most important part. Because the camera is now far away
+> original. This is the most important part. Because the camera is now far away
 > and the lens is long, only a narrow slice of background is visible, and it
 > appears magnified and compressed, looming larger behind the subject than it
 > does now. Same aspect ratio.
@@ -245,9 +245,9 @@ every time.
 **`landscape` and `architecture` have no single subject**, so replace "the main
 subject" with:
 
-- `landscape` — "the nearest foreground element — the rock, the tree, whatever
+- `landscape` ("the nearest foreground element) the rock, the tree, whatever
   anchors the bottom of the frame"
-- `architecture` — "the building"
+- `architecture`, "the building"
 
 ---
 
@@ -257,13 +257,13 @@ The two failures worth catching yourself, both visible at a glance:
 
 - **Aperture and shutter sets:** the subject must be identical in all three.
   Only the blur changes. If the face or the pose changed, the model regenerated
-  instead of editing — say *"keep the subject identical, change only the blur"*
+  instead of editing, say *"keep the subject identical, change only the blur"*
   and try again.
 - **Focal sets:** the subject must be the **same size** in all three, and the
   background must get bigger from left to right. If the subject grows across the
-  row, it cropped. Say *"the subject is too large — it must be exactly the same
+  row, it cropped. Say *"the subject is too large. It must be exactly the same
   size in the frame as the original; you zoomed in, but the photographer walked
   backwards"*.
 
 Small size drift on the focal sets is fixable at my end with a crop factor, as we
-did for portrait — do not re-roll for a 10% difference, only for an obvious one.
+did for portrait, do not re-roll for a 10% difference, only for an obvious one.

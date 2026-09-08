@@ -166,7 +166,7 @@ function rememberLast() {
       lightId: state.lightId,
       sky: state.customLight?.cover?.id ?? null,
     }));
-  } catch { /* storage unavailable — the resume card simply will not appear */ }
+  } catch { /* storage unavailable, so the resume card simply will not appear */ }
 }
 
 /**
@@ -194,8 +194,8 @@ function readLast() {
  * Tile art for the scene list and the guide's rows: the photographer's own
  * picture first, then the tile crop, then the full example, then a drawing.
  *
- * The crop is preferred over the example because it is framed for this size —
- * the subject sits clear of the bottom third, where the label goes — where the
+ * The crop is preferred over the example because it is framed for this size:
+ * the subject sits clear of the bottom third, where the label goes, whereas the
  * example is composed to be looked at whole.
  */
 function tileArt(scene) {
@@ -340,7 +340,7 @@ function lightScreen() {
 /**
  * Four apertures the lens can actually reach, always including the one in use.
  * Centring the window on the current value instead offered f/1 and f/1.2 on a
- * lens that opens to f/1.8 — two dead chips out of four.
+ * lens that opens to f/1.8, which is two dead chips out of four.
  */
 function apertureWindow(current, widest) {
   // Anchored on the aperture in use, stepped in whole stops, and never wider
@@ -405,7 +405,7 @@ function shutterLesson(r) {
     return `Slower than about ${snapShutter(threshold).label} and the movement starts to show. Faster costs ISO.`;
   }
   if (r.scene.tripod) return 'Nothing here is moving and the camera is on a tripod, so the shutter can take as long as it needs.';
-  return `Nothing here is moving, so the limit is your own hands — ${snapShutter(r.floor).label} is the slowest you said you trust.`;
+  return `Nothing here is moving, so the limit is your own hands. ${snapShutter(r.floor).label} is the slowest you said you trust.`;
 }
 
 const APERTURE_LESSON = 'Each step to the right doubles how much stays sharp, and costs one stop of light.';
@@ -428,9 +428,9 @@ function lensSection(r) {
   })).join('');
 
   // Picking a lens that cannot reach the scene's usual focal length is a real
-  // choice, not a mistake — but the photographer should be told what it costs.
+  // choice rather than a mistake, but the photographer should be told what it costs.
   const short = Math.abs(Math.log2(r.focal / r.scene.focal)) > 0.2
-    ? `<p class="field__hint mt-8">Not enough reach for the usual ${r.scene.focal} mm here — frame wider and crop in later.</p>`
+    ? `<p class="field__hint mt-8">Not enough reach for the usual ${r.scene.focal} mm here. Frame wider and crop in later.</p>`
     : '';
 
   const stepper = r.lens.min !== r.lens.max ? `
@@ -515,8 +515,8 @@ const STEP_LABEL = {
 /**
  * The variation photograph for the current settings, when the scene has a set.
  *
- * Only one axis can be shown at a time — the photographs vary aperture at a
- * fixed focal length or the reverse, never both — so the photographer chooses
+ * Only one axis can be shown at a time, since the photographs vary aperture at
+ * a fixed focal length or the reverse and never both, so the photographer chooses
  * which question the picture is answering, and the app picks the nearest of the
  * three on that axis.
  */
@@ -545,8 +545,8 @@ function variantSet(scene, r) {
 
 /**
  * The diagram and the photograph answer different questions, so the panel holds
- * both rather than choosing. The diagram is the live one — its blur, smear and
- * grain are driven by the numbers on this screen — so it leads, and the
+ * both rather than choosing. The diagram is the live one, with its blur, smear
+ * and grain driven by the numbers on this screen, so it leads, and the
  * photograph is the target to compare it against.
  *
  * The photograph is never blurred or smeared to match the settings: an aperture
@@ -626,7 +626,7 @@ function resultScreen() {
   const isoWhy = isShort && atCap ? 'Your ceiling, and still not enough'
     : atCap ? 'Right at the ceiling you set'
     : r.solvedBy === 'iso' ? 'The app moves this one, never you'
-    : r.iso.v <= (state.gear.isoMin ?? 100) ? 'Base ISO — the cleanest file your camera makes'
+    : r.iso.v <= (state.gear.isoMin ?? 100) ? 'Base ISO, the cleanest file your camera makes'
     : 'Settled by the other two';
 
   let alert = '';
@@ -721,7 +721,7 @@ function resultScreen() {
 }
 
 function shutterWhy(r) {
-  if (state.lock.t != null) return 'Your choice — the app is working around it';
+  if (state.lock.t != null) return 'Your choice, and the app is working around it';
   if (r.solvedBy === 'shutter') return 'Takes up whatever the other two leave';
   if (r.scene.shutterRule === '500') return r.scene.shutterWhy;
   const floor = r.floor;
@@ -732,8 +732,8 @@ function shutterWhy(r) {
 }
 
 function apertureWhy(r) {
-  if (state.lock.N != null) return 'Your choice — the app is working around it';
-  if (Math.abs(Math.log2(r.aperture.N / r.widest)) < 0.04) return 'Wide open — your lens has no more to give';
+  if (state.lock.N != null) return 'Your choice, and the app is working around it';
+  if (Math.abs(Math.log2(r.aperture.N / r.widest)) < 0.04) return 'Wide open, and your lens has no more to give';
   if (r.solvedBy === 'aperture') return 'Opened up to find the light';
   return r.scene.apertureWhy ?? 'Deep enough for this subject';
 }
@@ -776,7 +776,7 @@ const NARROWEST_F = 22;
  * uses, against the photographer's own gear, rather than being a table of
  * numbers kept alongside it.
  *
- * They used to be flat lists — "a still portrait, 1/160" — which was wrong in
+ * They used to be flat lists, as in "a still portrait, 1/160", which was wrong in
  * both directions at once: 1/160 is a stop too slow to hold a 200 mm steady and
  * more than a stop faster than a 24 mm needs. A guide that can contradict the
  * engine is a second source of truth, and the engine is the one that knows the
@@ -834,7 +834,7 @@ function shutterTab() {
   const moveRows = MOVERS.map((m) => {
     const subject = m.at50 * (focal / 50);
     const t = motionThreshold({ focal, crop, speed: m.speed, subject });
-    return [m.name, t ? snapShutter(t).label : '—',
+    return [m.name, t ? snapShutter(t).label : 'any',
       `${m.speed} m/s, ${subject.toFixed(subject < 10 ? 1 : 0)} m away at ${focal} mm`];
   });
 
@@ -843,7 +843,7 @@ function shutterTab() {
     <strong style="color:var(--ink)">Subject movement</strong> smears only the thing that moved.
     The shutter has to beat whichever is worse.</p>
     ${focalChips()}
-    <span class="lab mt-22">Camera shake — your floor at ${focal} mm</span>
+    <span class="lab mt-22">Camera shake, your floor at ${focal} mm</span>
     <div class="card mt-8 deftable">${shakeRows.map(([k, v, note]) =>
       `<div><dt>${esc(k)}<span class="dt__note">${esc(note)}</span></dt><dd>${esc(v)}</dd></div>`).join('')}</div>
     <p class="muted mt-10">This is the number that moves when you zoom, which is why one shutter speed cannot
@@ -854,7 +854,7 @@ function shutterTab() {
     <p class="muted mt-10">A close dog needs a faster shutter than a distant bird: what matters is how fast the
       subject crosses the <em>frame</em>, not how fast it is travelling.</p>
     <p class="muted mt-10">Change the focal chips and this table does not move, while the one above it does. Framed
-      the same way, a moving subject needs the same shutter on any lens — zooming in asks more of your hands, not
+      the same way, a moving subject needs the same shutter on any lens. Zooming in asks more of your hands, not
       of the subject. Stand still and zoom without stepping back, though, and these numbers rise with the
       magnification.</p>
     <p class="muted mt-10">Faster is not better. Every stop of shutter is a stop taken from aperture or ISO, and
@@ -868,7 +868,7 @@ function apertureTab() {
   const depthRows = DEPTHS.map((d) => {
     const subject = d.at50 * (focal / 50);
     const n = apertureForDepth({ focal, crop, subject, far: subject + d.gap });
-    return [d.name, n == null ? '—' : n > NARROWEST_F ? `past f/22` : snapAperture(n).label,
+    return [d.name, n == null ? 'any' : n > NARROWEST_F ? `past f/22` : snapAperture(n).label,
       `${subject.toFixed(subject < 10 ? 1 : 0)} m away`];
   });
 
@@ -897,7 +897,7 @@ function apertureTab() {
     <div class="card mt-8 deftable">${hyperRows.map(([k, v, note]) =>
       `<div><dt>${esc(k)}<span class="dt__note">${esc(note)}</span></dt><dd>${esc(v)}</dd></div>`).join('')}</div>
     <p class="muted mt-10">Change the focal chips above and watch how little the first table moves. At the same
-      framing, depth of field barely depends on focal length — a long lens makes you stand further back, and the
+      framing, depth of field barely depends on focal length. A long lens makes you stand further back, and the
       two effects very nearly cancel.</p>
     <p class="muted mt-10">"Past f/22" is a real answer, not a missing one: that shot does not fit at this focal
       length, and no aperture on the dial will make it. Step back and use a wider lens, or accept that the far
@@ -950,7 +950,7 @@ function exampleBlock(scene) {
   }
 
   return `<div class="banner mt-18">${scenery(scene.id, { rounded: 13 })}</div>
-    <p class="muted" style="margin-top:8px">Drawn, not photographed — it shows the shape of the shot, not the picture.</p>
+    <p class="muted" style="margin-top:8px">Drawn, not photographed. It shows the shape of the shot, not the picture.</p>
     <button class="ghost mt-10" data-act="shot-pick" data-id="${scene.id}">
       ${icon('plus', 15)}<span>Use one of your own as the example</span></button>${failed}`;
 }
@@ -1011,7 +1011,7 @@ function guideScreen() {
 
   let body = '';
   if (state.guideTab === 'scenes') {
-    body = `<p class="sub mt-18">Eighteen scenes, and how to shoot each one — beyond what to set the dials to.</p>
+    body = `<p class="sub mt-18">Eighteen scenes, and how to shoot each one, beyond what to set the dials to.</p>
       <div class="card rows mt-12">${guideList()}</div>`;
   } else if (state.guideTab === 'stops') {
     const cells = FULL_STOPS.shutter.map((_, i) =>
@@ -1074,7 +1074,7 @@ const CROPS = [[1, 'Full frame'], [1.5, 'APS-C'], [1.6, 'APS-C (Canon)'], [2, 'M
 const WIDEST_CHOICES = [1.4, 1.8, 2, 2.8, 3.5, 4, 5.6];
 
 /** What the lens choice does to the shot currently on screen, shown where the
- *  choice is made — otherwise the effect is two taps away and invisible. */
+ *  choice is made, since otherwise the effect is two taps away and invisible. */
 function mountedEffect() {
   const r = currentSolve();
   if (!r) return '';
@@ -1265,7 +1265,7 @@ function introSheet() {
     <div class="sheet__inner">
       <span class="wordmark">${icon('aperture', 17)}<span>STOPS</span></span>
       <h1 class="h1 mt-18" id="intro-title">Four taps to three numbers.</h1>
-      <p class="sub">A field guide that solves the exposure triangle for your gear and your light — not for an average camera in an average field.</p>
+      <p class="sub">A field guide that solves the exposure triangle for your gear and your light, not for an average camera in an average field.</p>
       <div class="steps">
         ${STEPS.map(([title, detail], i) => `<div class="step">
           <span class="step__n mono">${i + 1}</span>
@@ -1531,7 +1531,7 @@ function announceUpdate() {
   if (document.querySelector('.update')) return;
   const bar = document.createElement('button');
   bar.className = 'update';
-  bar.textContent = 'A newer version is ready — tap to load it';
+  bar.textContent = 'A newer version is ready. Tap to load it';
   bar.addEventListener('click', () => location.reload());
   document.body.appendChild(bar);
 }

@@ -60,7 +60,7 @@ const ASSETS = [
   'thumbs/street.jpg',
   'thumbs/water.jpg',
   'thumbs/wildlife.jpg',
-  // variants:start — written by tools/ingest-variants.mjs, do not edit by hand
+  // variants:start, written by tools/ingest-variants.mjs, do not edit by hand
   'photos/variants/architecture__fl-long.jpg',
   'photos/variants/architecture__fl-norm.jpg',
   'photos/variants/architecture__fl-wide.jpg',

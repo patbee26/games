@@ -1,6 +1,6 @@
 // The photographer's own kit, in local storage. Three numbers do most of the
-// work — the widest aperture at the focal length in use, the ISO ceiling, and
-// the slowest shutter they trust hand-held — and they are the whole reason the
+// work: the widest aperture at the focal length in use, the ISO ceiling, and
+// the slowest shutter they trust hand-held. They are the whole reason the
 // app's answers differ from a printed chart.
 
 import { widestAt } from './optics.js';
@@ -37,7 +37,7 @@ export function saveGear(gear) {
   try {
     localStorage.setItem(KEY, JSON.stringify(gear));
   } catch {
-    /* private mode, or storage full — the app still works, it just forgets. */
+    /* private mode, or storage full. The app still works, it just forgets. */
   }
 }
 

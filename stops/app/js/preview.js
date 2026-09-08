@@ -2,7 +2,7 @@
 // motion smear and grain are driven by the same numbers the app is suggesting.
 //
 // The first two come from real optics rather than a pleasing curve, which is
-// the whole point — a preview that shows lush bokeh from a 24 mm lens at f/8
+// the whole point. A preview that shows lush bokeh from a 24 mm lens at f/8
 // would be teaching a lie. Grain is the one cosmetic mapping here, and it is
 // only ever illustrative.
 
@@ -14,7 +14,7 @@ import { backgroundBlurMm, motionBlurMm, asFrameFraction, backgroundMagnificatio
  *
  * It spans well past the frame because a wide lens shows more of it: at the long
  * end only the middle of this field is on screen, magnified, and at the wide end
- * most of it is, small. That difference is the whole point — it is the one thing
+ * most of it is, small. That difference is the whole point: it is the one thing
  * a longer lens really changes about a picture, and a fixed set of circles in
  * screen percentages cannot show it.
  *
@@ -126,7 +126,7 @@ export function previewHtml({ result, scene, gear, width = 340 }) {
   })));
 
   // Distant scenes have no near highlights to throw out of focus, so their
-  // texture is faint — otherwise a landscape at f/11 sprouts bokeh balls.
+  // texture is faint, since otherwise a landscape at f/11 sprouts bokeh balls.
   const texture = LAND_SCENES.has(scene.id) ? 0.34 : 1;
   const bokeh = FIELD.map((f) => {
     // Project the plane: position and size both scale with magnification.

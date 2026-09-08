@@ -1,7 +1,7 @@
 # Stops
 
 A photography field guide for the phone. Two taps from "what am I shooting" to
-three numbers on the camera dial — and an honest answer when the shot is not
+three numbers on the camera dial, and an honest answer when the shot is not
 possible with the gear in your hand.
 
 > **Status: built and working.** Working name. The app is in [`app/`](app/); the
@@ -18,11 +18,11 @@ npm run serve       # http://localhost:8080
 ```
 
 There is no build step and no dependencies. `app/` is the deployable artefact
-exactly as it sits — point any static host at that directory. On a phone, open it
+exactly as it sits, point any static host at that directory. On a phone, open it
 and use *Add to Home Screen*; after the first load it works with no signal at all.
 
 `node app/tools/bundle.mjs` flattens the whole thing into a single self-contained
-page at `app/dist/stops.html` — that is what the link above serves. It is a copy
+page at `app/dist/stops.html`. That is what the link above serves. It is a copy
 for sharing, not something the app depends on, and being one page it has no
 service worker, so it needs a connection to open. The version in `app/` is the one
 that works in a canyon.
@@ -31,13 +31,13 @@ that works in a canyon.
 
 ## Why not just a printed card
 
-A printed pocket guide is a lookup table: *sports, sunny — 1/1000, f/5.6, ISO 400.*
+A printed pocket guide is a lookup table: *sports, sunny, 1/1000, f/5.6, ISO 400.*
 It is right about the average case and silent about yours. It does not know that your
 zoom is f/5.6 at 200 mm, that you will not go past ISO 6400, or that the gym is four
 stops darker than the table assumed.
 
-A phone can **solve** the exposure triangle instead of looking it up, and — the part
-that actually matters in the field — it can tell you when there is no solution and
+A phone can **solve** the exposure triangle instead of looking it up. And, the part
+that actually matters in the field, it can tell you when there is no solution and
 price the ways out.
 
 ## The engine
@@ -48,7 +48,7 @@ About 200 lines of arithmetic, no model, no network.
 hazy sun 14, bright overcast 13, heavy cloud 12, late day 11, blue hour 9, bright
 indoors 7, dim indoors 5. This is the standard EV table; it is decades old and it works.
 
-**2. Subject becomes a constraint and a priority.** A scene is not a preset — it is an
+**2. Subject becomes a constraint and a priority.** A scene is not a preset. It is an
 *anchor* plus an ordering of what gives way first:
 
 | Scene | Anchors | Gives way, in order |
@@ -64,7 +64,7 @@ indoors 7, dim indoors 5. This is the standard EV table; it is decades old and i
 
 **4. Clamp to your gear, then be honest.** The lens has a widest aperture at that focal
 length. The photographer has an ISO ceiling and a hand-held floor. When the solution
-falls outside that box, do **not** quietly round it in — report the shortfall in stops
+falls outside that box, do **not** quietly round it in, report the shortfall in stops
 and offer the ways to buy it back, each with its cost. Grain, blur, or depth of field:
 one of the three always pays.
 
@@ -72,22 +72,22 @@ That fourth step is the product. Everything else is table lookup.
 
 ## Three inputs, one profile
 
-The gear profile is three numbers — widest aperture per lens, ISO ceiling, hand-held
+The gear profile is three numbers, widest aperture per lens, ISO ceiling, hand-held
 floor. Set once, and every answer afterwards is yours rather than generic. It is also
 the only reason the app can say "you are one stop short" instead of "try ISO 12800".
 
 ## Shape of the app
 
-- **Shoot** — scene, then light, then settings. Two taps.
-- **Guide** — what you look up rather than compute: the stops ladder, shutter speeds by
+- **Shoot**: scene, then light, then settings. Two taps.
+- **Guide**: what you look up rather than compute: the stops ladder, shutter speeds by
   subject, aperture by how much must be sharp, the reciprocal and 500 rules.
-- **Gear** — the profile.
+- **Gear**: the profile.
 
 ## How it is built
 
 A static progressive web app: no backend, no accounts, no sign-in, no network at
 runtime. Gyms, canyons and aeroplanes are exactly where this gets used, so the
-service worker caches everything — including the two typefaces — on first load.
+service worker caches everything (including the two typefaces) on first load.
 The gear profile lives in `localStorage`. Total payload is around 270 KB, most of
 it the fonts.
 
@@ -114,7 +114,7 @@ test for exactly that.
 
 Dark is the default because the app is used outdoors at dusk more than at a desk.
 Light exists for the other half of the problem: direct sun on the screen, where a
-dark interface becomes a mirror. It is not the dark palette inverted — the amber
+dark interface becomes a mirror. It is not the dark palette inverted, the amber
 accent drops to a much darker tone so it still carries on a washed-out screen, and
 the preview stays exactly as it is in both, because it stands for a photograph
 rather than for the interface around it. System, Light and Dark, under Appearance.
@@ -123,7 +123,7 @@ rather than for the interface around it. System, Light and Dark, under Appearanc
 
 The app is aimed at someone learning, so an answer on its own is not the deliverable.
 
-Every scene carries **a second recipe** — the same situation judged differently, with
+Every scene carries **a second recipe**: the same situation judged differently, with
 the cost of the difference stated. Sports offers *Cleaner file*: half the ISO, and feet
 and hands smear a little while faces stay sharp. One answer reads as magic; two read as
 a choice, which is what photography actually is.
@@ -143,7 +143,7 @@ what a nineteenth scene would get before anyone photographed it.
 Where a photograph exists it wins, and all eighteen scenes now have one. Each
 photograph is captioned with what is worth noticing
 in the frame rather than with an exposure the project cannot vouch for: the macro
-example reads "one plane sharp — the near wing and the flower head — and
+example reads "one plane sharp (the near wing and the flower head) and
 everything behind it gone."
 
 Pictures come in two sizes doing two jobs. `app/photos/` holds the full examples,
@@ -151,18 +151,18 @@ shown whole in the guide and behind "The shot" on the settings screen.
 `app/thumbs/` holds the tile crops for the scene list and the guide's rows, and
 they are framed for the tile rather than scaled down from the example: 448×320,
 subject kept clear of the bottom third where the app draws its own label. A crop
-carries no burnt-in text — where a source sheet had a caption band, it was
-measured off the tile before cropping — because the label belongs to the app,
+carries no burnt-in text, where a source sheet had a caption band, it was
+measured off the tile before cropping, because the label belongs to the app,
 which themes it, and not to the JPEG.
 
 The drawings stay as the fallback: any scene added without either gets one
-automatically, and it says what it is — "drawn, not photographed — it shows the
+automatically, and it says what it is ("drawn, not photographed) it shows the
 shape of the shot, not the picture." Adding pictures for a new scene is a file in
 `app/photos/` and one in `app/thumbs/` named after the scene, a line and a set
 entry in `photos.js`, and the same two filenames in the `sw.js` precache list.
 
 Above both sits the photographer's own. Every entry offers to use one of their
-pictures instead, downscaled to 560 px and kept in local storage, sent nowhere —
+pictures instead, downscaled to 560 px and kept in local storage, sent nowhere,
 because their own work answers "what does good look like here" better than
 anyone else's could, and it was taken on their gear.
 
@@ -171,12 +171,12 @@ anyone else's could, and it was taken on their gear.
 The field guide opens on the eighteen scenes, and each is a short tutorial rather
 than a row in a table: what makes the scene hard, three things to do before the
 shutter, and the mistake that spoils most attempts. *Kids and pets* begins "the
-problem is rarely the camera — it is that you are two feet too high and half a
+problem is rarely the camera. It is that you are two feet too high and half a
 second too late", and ends on waiting for a smile when the second before and the
 second after are the better picture.
 
 Each entry also reads back, out of the same data that drives the solver, what the
-app holds fixed for that scene and what it lets go of first — so the advice and
+app holds fixed for that scene and what it lets go of first, so the advice and
 the arithmetic are visibly the same object. *Shoot this now* goes from the page
 straight to the light picker, and the tip on the settings screen opens the full
 entry for whatever is being shot.
@@ -186,7 +186,7 @@ entry for whatever is being shot.
 Outdoors, the light screen offers *Work it out from the sun*: position from the
 phone, time from its clock, and the NOAA solar-position algorithm gives the sun's
 altitude to a fraction of a degree. A piecewise curve turns that altitude into the
-brightest the scene can be — anchored at the top by the sunny 16 rule, at the
+brightest the scene can be, anchored at the top by the sunny 16 rule, at the
 bottom by a moonless night, with the conventional twilight values between.
 
 The honest part is what it does **not** claim. Position fixes the ceiling; it says
@@ -196,7 +196,7 @@ photographer pick the one they are standing under. One tap, and more accurate th
 scrolling a list, because the time and place are real.
 
 Two consequences fall out of the model rather than being special-cased. Cloud stops
-mattering as the sun sets — it cannot block a sun that is not there — so below the
+mattering as the sun sets (it cannot block a sun that is not there) so below the
 horizon the four options collapse to one. And past −18°, astronomical twilight is
 over and the curve goes flat: a sun 40° down is no darker than one 20° down.
 
@@ -209,18 +209,18 @@ reused rather than wasted. GPS itself needs no signal, so the estimate works off
 An EV is a scene luminance, and exposing to a scene luminance renders that
 scene's average middle grey. That is wrong the moment the frame is not average,
 and the table this app ships makes it visible: snow in sun is listed at EV 16,
-a stop *brighter* than harsh sun, because snow reflects more — so exposing to it
+a stop *brighter* than harsh sun, because snow reflects more, so exposing to it
 renders the snow grey. Worse, a face in that snow is lit by the same sun as
 EV 15, so the same exposure puts the face a stop under. "Make the snow white"
 and "make the face right" are different corrections, 14⅓ against 15, which is
 why this cannot be a constant folded into the table. It has to be a choice.
 
 So `recommend()` takes a compensation in stops and subtracts it from the target
-— subtracts, because a higher target is *less* exposure. It is offered as what
+, subtracts, because a higher target is *less* exposure. It is offered as what
 is in the frame rather than as a number, since "the snow is the whole picture"
 is a question a photographer can answer while standing in it and "+1⅔" is only
-the answer. Scenes and light levels may suggest one — a concert suggests
-spotlit, snow suggests mostly white — and the suggestion is pre-selected,
+the answer. Scenes and light levels may suggest one, a concert suggests
+spotlit, snow suggests mostly white, and the suggestion is pre-selected,
 labelled as a suggestion, and overridable. A scene's suggestion and a
 photographer's choice never sum: they are disagreeing, not stacking, and the
 chip on screen is always the one the numbers were solved with.
@@ -231,7 +231,7 @@ out are priced against the corrected number. Both are tested, because that is
 where this kind of change goes wrong.
 
 There is no camera control that corresponds to any of this. In manual with a
-fixed ISO the compensation dial does nothing — it is a semi-auto feature — so
+fixed ISO the compensation dial does nothing (it is a semi-auto feature) so
 the correction has to land in the three numbers themselves. The app says so on
 screen, because a beginner who goes looking for the dial will otherwise apply
 the correction twice.
@@ -240,8 +240,8 @@ the correction twice.
 
 - **Naming the dials on your camera.** Built brand-level, then cut from v1. Telling a
   beginner *which* control to turn is genuinely valuable, but doing it honestly needs
-  per-body data, and the brand-level version could only ship hedged — "your own body may
-  be laid out differently" — which in a beginner app is close to no answer at all.
+  per-body data, and the brand-level version could only ship hedged, "your own body may
+  be laid out differently", which in a beginner app is close to no answer at all.
   Layout clusters into roughly thirty families rather than four hundred models, so it is
   tractable; the sourcing is the work, and guessing it from memory would be worse than
   silence. If it returns, it should come back inverted: three questions that derive the
@@ -251,16 +251,16 @@ the correction twice.
   alone can never give absolute light; you need the exposure the camera *chose*.
   Chrome on Android exposes `exposureTime` and `iso`; iOS is listed as an unsupported
   platform in the [spec's implementation status](https://github.com/w3c/mediacapture-image/blob/main/implementation-status.md),
-  so in an iPhone browser it cannot be done at all. A *relative* spot meter — compare
-  two areas of the frame, get the difference in stops — would work everywhere, and is
+  so in an iPhone browser it cannot be done at all. A *relative* spot meter, compare
+  two areas of the frame, get the difference in stops, would work everywhere, and is
   the more useful feature anyway.
-- **Night mode** — red on black, to keep dark-adapted eyes for astro.
+- **Night mode**: red on black, to keep dark-adapted eyes for astro.
 
 ## Example pictures
 
 Two different things, with very different costs.
 
-**A live preview beside the settings** — a diagram that behaves like a photograph.
+**A live preview beside the settings**: a diagram that behaves like a photograph.
 Aperture drives background blur, shutter drives motion ghosting, ISO drives grain,
 exposure error drives brightness; all four are plain CSS and SVG filters, GPU
 composited, smooth on a phone if the canvas stays small. Two or three days, most of it
@@ -268,7 +268,7 @@ art direction rather than engineering. This is what teaches the tradeoff, which 
 photograph can.
 
 The preview answers every setting on the screen. Aperture drives the background blur,
-shutter the ghosting, ISO the grain, exposure error the brightness — and focal length
+shutter the ghosting, ISO the grain, exposure error the brightness, and focal length
 drives the background's magnification, which is the one thing a longer lens genuinely
 changes about a picture. The background is a field of features held in world units on a
 plane behind the subject rather than a fixed set of circles in screen percentages, so a
@@ -279,12 +279,12 @@ rather than being drawn in.
 **Why the photographs cannot do this, though it was tried.** Making the *photographs*
 respond to the settings is the obvious wish, and three separate things rule it out.
 Aperture needs the subject separated from the background: a sharpness map is the
-principled way to infer it, and on these frames it fails exactly where it matters —
+principled way to infer it, and on these frames it fails exactly where it matters,
 a smooth in-focus cheek carries no high frequencies and reads as background, while a knit
 sweater reads as subject, so the mask blurs the face. A hand-placed subject ellipse was
 tried next and looks like a smudge rather than depth by six pixels of blur, because a
 person is not an ellipse. Even with a perfect mask, stopping *down* is impossible: you
-cannot recover detail a wide aperture never recorded. And focal length fares no better —
+cannot recover detail a wide aperture never recorded. And focal length fares no better,
 cropping a photograph magnifies subject and background together, which is zooming without
 moving, the opposite case from the constant-framing one the Aperture tab teaches. A crop
 would contradict the guide.
@@ -293,7 +293,7 @@ A layered scene does not have these problems, because its depth separation is re
 construction rather than inferred. That is what the preview is, and it is why it is drawn.
 
 Photographs *can* answer the settings, but only as sets that are genuinely the same scene
-shot differently — which is a generation problem, not a processing one. Portrait now has
+shot differently, which is a generation problem, not a processing one. Portrait now has
 one: three apertures and three focal lengths, generated as edits of the app's own
 photograph. On the settings screen "The shot" picks the nearest of the three on whichever
 axis the photographer selects, and says it is doing that, because three photographs on a
@@ -318,17 +318,17 @@ The settings screen carries both, on a toggle in one frame: **Your settings** is
 diagram, **The shot** is the scene's photograph. The diagram leads because it is the one
 that answers "what will *these numbers* do"; the photograph answers "what am I aiming
 at", and the photographer's own picture displaces the supplied one here exactly as it
-does in the guide. The photograph is never blurred or smeared to match the settings — an
+does in the guide. The photograph is never blurred or smeared to match the settings, an
 aperture throws a *background* out of focus, and blurring a whole frame would teach the
 same lie the diagram exists to avoid. Neither panel crops to a common height either:
 the examples run from 3:2 landscape to 5:6 upright, and forcing an upright frame through
 a fixed letterbox showed a band across the middle of it. The diagram is a 3:2 camera
-frame — the shape of the thing it stands for — which ten of the eighteen match to within
+frame (the shape of the thing it stands for) which ten of the eighteen match to within
 a pixel, so the toggle usually moves nothing; the rest change the panel's height rather
 than lose the top and bottom of the picture.
 
 **The Shutter and Aperture tabs are computed, not written.** They used to be flat
-lists — "a still portrait, 1/160" — and a flat list in an app built to replace
+lists ("a still portrait, 1/160") and a flat list in an app built to replace
 flat lists is a second source of truth that can contradict the first. It did:
 1/160 is a stop too slow to hold a 200 mm steady and more than a stop faster
 than a 24 mm needs, and "two people side by side, f/4" is right at 35 mm and
@@ -337,16 +337,16 @@ solver uses, against the photographer's own crop, stabilisation and floor, with
 a focal-length selector built from the lenses they actually own.
 
 Deriving them turned up a better lesson than the tables had. Holding the framing
-constant — standing further back with a longer lens, which is what anyone
-actually does — depth of field barely moves: f/5.0 at 24 mm against f/5.5 at
+constant, standing further back with a longer lens, which is what anyone
+actually does, depth of field barely moves: f/5.0 at 24 mm against f/5.5 at
 200 mm for the same pair of eyes. Subject-motion blur does not move at all; the
 focal length cancels out of the equation exactly. What does move is background
 blur, more than tripling from 24 mm to 135 mm at the same framing and aperture.
 So a long lens does not thin the depth on the face, it magnifies what is behind
-it — which is the opposite of what the old flat table implied, and both halves
+it, which is the opposite of what the old flat table implied, and both halves
 are now asserted in tests.
 
-**Real photographs in the guide tab** — a reference gallery. Trivial code, and the
+**Real photographs in the guide tab**: a reference gallery. Trivial code, and the
 sourcing is the entire job: the EXIF has to genuinely match the settings shown, which
 rules out Unsplash and Pexels (EXIF stripped, unsearchable by aperture) and leaves
 Flickr's Creative Commons corpus, with per-photo attribution. Far better: read the
@@ -372,8 +372,8 @@ settings screen displaces the EV tick scale, the maths ledger, and turns the
 2. **Anchors on whole stops, the solved variable on thirds.** The number the subject
    dictates is memorable (1/1000, f/8); the number the app works out lands wherever the
    light puts it, which on a real camera is a third-stop position.
-3. **The lens is part of the answer.** It is picked automatically — the fastest one
-   that covers the focal length — and overridden from either the settings screen or
+3. **The lens is part of the answer.** It is picked automatically, the fastest one
+   that covers the focal length, and overridden from either the settings screen or
    the gear profile, because changing glass moves the aperture, the hand-held floor
    and the depth of field all at once. A lens chosen in the gear profile is a fact
    about the camera rather than a choice about one shot: it stays mounted across
@@ -385,7 +385,7 @@ settings screen displaces the EV tick scale, the maths ledger, and turns the
 
 - **Do example photographs come before or after this?** They are the difference between
   a calculator and a field guide, and the longest pole in the tent.
-- **The default kit is a slow one** — an 18–55 and a 55–200. That is honest, and it means
+- **The default kit is a slow one**: an 18–55 and a 55–200. That is honest, and it means
   the app's first answers are ISO-heavy and its previews are not very blurry. Right for
   most people, underwhelming for anyone arriving with fast glass.
 - **Exposure compensation** has no home yet: snow, backlit subjects and silhouettes all

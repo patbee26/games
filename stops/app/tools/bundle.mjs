@@ -1,7 +1,7 @@
 // Flattens the app into one self-contained HTML page: modules concatenated in
 // dependency order, stylesheet inlined, fonts embedded as data URIs. Used to
 // publish a version that opens from a link on a phone. The app in this
-// directory stays the deployable artefact — this is a copy of it, not a build
+// directory stays the deployable artefact. This is a copy of it, not a build
 // step it depends on.
 import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
 
@@ -97,7 +97,7 @@ ${script}
 
 mkdirSync(new URL('../dist/', import.meta.url), { recursive: true });
 writeFileSync(new URL('../dist/stops.html', import.meta.url), page);
-console.log(`dist/stops.html — ${(page.length / 1024).toFixed(0)} KB`);
+console.log(`dist/stops.html, ${(page.length / 1024).toFixed(0)} KB`);
 
 const leftovers = script.match(/^\s*(import|export) /gm);
 if (leftovers) console.warn(`WARNING: ${leftovers.length} import/export statements survived bundling`);

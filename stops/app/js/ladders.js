@@ -33,7 +33,7 @@ export const ISOS = [
 /**
  * Ceilings a photographer would actually cap themselves at, in whole stops.
  * The engine suggests from this list and the gear screen offers it, so the two
- * cannot drift apart — which is exactly how the app came to suggest a ceiling
+ * cannot drift apart, which is exactly how the app came to suggest a ceiling
  * its own settings screen could not express.
  */
 export const ISO_CEILINGS = [1600, 3200, 6400, 12800, 25600, 51200];
@@ -66,7 +66,7 @@ export const snapShutter = (s) => snap(s, SHUTTERS, 's');
 export const snapAperture = (N) => snap(N, APERTURES, 'N');
 export const snapIso = (v) => snap(v, ISOS, 'v');
 
-/** Nearest rung at or slower/wider/higher than the value — never suggests less light. */
+/** Nearest rung at or slower/wider/higher than the value. Never suggests less light. */
 export function snapAtLeast(value, ladder, key) {
   const ordered = [...ladder].sort((a, b) => a[key] - b[key]);
   return ordered.find((r) => r[key] >= value - 1e-9) ?? ordered[ordered.length - 1];

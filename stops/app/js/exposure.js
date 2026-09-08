@@ -43,7 +43,7 @@ function startingShutter(scene, focal, crop, floor) {
  *
  * `comp` is exposure compensation in stops, positive for a brighter picture.
  * It exists because an EV is a scene luminance, and exposing to a scene
- * luminance renders that scene's average middle grey — which is wrong whenever
+ * luminance renders that scene's average middle grey, which is wrong whenever
  * the frame is not average. Snow exposed to its own brightness comes out grey.
  *
  * It is subtracted rather than added: a higher target is less exposure.
@@ -153,7 +153,7 @@ export function recommend({ scene, ev, gear, lens, focal, lock = {}, comp = 0 })
 }
 
 /**
- * When the shot does not fit, the honest answer is not a rounded number — it is
+ * When the shot does not fit, the honest answer is not a rounded number. It is
  * the price list. Each way out buys back the missing light and costs something
  * the photographer should get to choose.
  */
@@ -182,7 +182,7 @@ function waysOut({ scene, gear, lens, focal, snapped, shortfallStops, floor, tar
         id: 'zoom',
         title: 'Zoom back to ' + Math.round(lens.min) + ' mm',
         detail: 'Your lens opens to f/' + snapAperture(wideEndAperture).N + ' there. Buys '
-          + describeStops(bought) + ' — crop the rest back later.',
+          + describeStops(bought) + '. Crop the rest back later.',
         settings: { shutter: snapped.t, aperture: snapAperture(wideEndAperture), iso: snapped.iso },
         remaining: missing - bought,
       });
@@ -214,7 +214,7 @@ function waysOut({ scene, gear, lens, focal, snapped, shortfallStops, floor, tar
       title: 'Lift the ISO cap to ' + ceiling,
       ceiling,
       detail: left > 0.05
-        ? `Grain is fixable and blur is not — but the dial stops here, so this buys `
+        ? `Grain is fixable and blur is not, but the dial stops here, so this buys `
           + `${describeStops(bought)} and leaves you ${describeStops(left)} short.`
         : 'Grain is fixable. Blur is not. Raise your ceiling for the evening and shoot raw.',
       settings: { shutter: snapped.t, aperture: snapped.N, iso: reached },

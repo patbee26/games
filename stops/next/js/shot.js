@@ -28,7 +28,7 @@ export function isoFor({ aperture, shutter, ev }) {
 /**
  * The settings for a scene in a light, optionally with one thing changed.
  *
- * `change` is `{ axis, step }` — the chip the photographer tapped. It replaces
+ * `change` is `{ axis, step }`, the chip the photographer tapped. It replaces
  * one setting and leaves the rest alone, which is the point: the picture and
  * the ISO both move, and nothing else does.
  */
@@ -51,7 +51,7 @@ export function shotFor({ sceneId, lightId, change = null }) {
   const wanted = isoFor({ aperture: settings.aperture, shutter: settings.shutter, ev: light.ev });
   const iso = Math.min(ISO_MAX, Math.max(ISO_MIN, wanted));
   // A camera cannot go below its base ISO, so light beyond that is light you
-  // have to take away — with a filter, or by waiting. Above the ceiling it is
+  // have to take away, with a filter or by waiting. Above the ceiling it is
   // light you do not have.
   const over = wanted < ISO_MIN ? Math.log2(ISO_MIN / wanted) : 0;
   const under = wanted > ISO_MAX ? Math.log2(wanted / ISO_MAX) : 0;
@@ -71,7 +71,7 @@ export function shotFor({ sceneId, lightId, change = null }) {
 /**
  * Which photograph goes with these settings.
  *
- * With no chip tapped it is the scene's own picture — the base the variations
+ * With no chip tapped it is the scene's own picture, the base the variations
  * were generated from, in photos/bases/, and not the first app's photograph of
  * the same subject. Those are two different pictures, and pairing the card with
  * the wrong one would change the face the instant a chip was tapped.

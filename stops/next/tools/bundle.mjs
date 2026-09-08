@@ -1,6 +1,6 @@
 // Two jobs, from one source of truth about what the app needs.
 //
-//   1. dist/stops-next.html — the whole app in one file, pictures and fonts
+//   1. dist/stops-next.html, the whole app in one file, with pictures and fonts
 //      inlined, for opening from a link on a phone or dropping on a host.
 //   2. sw.js's precache list, rewritten from that same list.
 //
@@ -14,10 +14,10 @@ const shared = new URL('../../app/', import.meta.url); // stops/app/
 const read = (u, p) => readFileSync(new URL(p, u), 'utf8');
 
 // Dependency order: each module imports only from the ones above it. The first
-// five come from the other app — the physics and the ladders are the same
+// five come from the other app. The physics and the ladders are the same
 // physics and the same ladders, and a second copy of them would drift.
 const SHARED = ['js/ladders.js', 'js/optics.js', 'js/exposure.js', 'js/data.js'];
-const OWN = ['js/lessons.js', 'js/shot.js', 'js/chips.js', 'js/app.js'];
+const OWN = ['js/lessons.js', 'js/gear.js', 'js/shot.js', 'js/chips.js', 'js/app.js'];
 
 const strip = (src) => src
   .replace(/^import[\s\S]*?from '[^']+';$/gm, '')
@@ -26,11 +26,27 @@ const strip = (src) => src
   // One page, no service worker to register against.
   .replace(/^if \('serviceWorker' in navigator\) \{[\s\S]*?^\}$/gm, '');
 
+// A module missing from that list becomes a ReferenceError in the bundle and a
+// blank page, while the unbundled app carries on working, so the mistake ships.
+// Read what each module actually imports and check the list covers it.
+{
+  const missing = new Set();
+  for (const file of OWN) {
+    for (const m of read(here, file).matchAll(/from '\.\/([\w.-]+)'/g)) {
+      if (!OWN.includes('js/' + m[1])) missing.add('js/' + m[1]);
+    }
+  }
+  if (missing.size) {
+    console.error(`OWN is missing ${[...missing].join(', ')}, so the bundle would throw at load.`);
+    process.exit(1);
+  }
+}
+
 let script = [...SHARED.map((f) => strip(read(shared, f))),
               ...OWN.map((f) => strip(read(here, f)))].join('\n');
 
 // Concatenating modules into one scope means two of them declaring the same
-// name is a SyntaxError at load and a blank page — and this app shares four
+// name is a SyntaxError at load and a blank page, and this app shares four
 // modules with the other one, which has its own SCENES and its own sceneById.
 // Cheaper to catch here, by name, than in a browser console.
 {
@@ -41,7 +57,7 @@ let script = [...SHARED.map((f) => strip(read(shared, f))),
   }
   if (clash.length) {
     console.error(`Two modules declare the same top-level name, so the bundle would not parse: ${[...new Set(clash)].join(', ')}`);
-    console.error('Rename one of them — the shared modules under app/js/ own their names.');
+    console.error('Rename one of them. The shared modules under app/js/ own their names.');
     process.exit(1);
   }
 }
@@ -77,7 +93,7 @@ const before = script;
 script = script.replace(/const photoSrc = \(path\) => `\.\.\/app\/\$\{path\}`;/,
   `const __PICTURES = ${JSON.stringify(pictures)};\nconst photoSrc = (path) => __PICTURES[path] ?? '';`);
 if (script === before) {
-  console.error('The photoSrc definition moved — pictures were NOT inlined. Fix the bundler.');
+  console.error('The photoSrc definition moved, so pictures were NOT inlined. Fix the bundler.');
   process.exit(1);
 }
 
@@ -93,7 +109,7 @@ const page = read(here, 'index.html');
 const body = page.slice(page.indexOf('<body>') + 6, page.indexOf('</body>'))
   .replace(/<script[\s\S]*?<\/script>/g, '');
 for (const id of ['id="app"', 'id="tabs"', 'id="sheet"']) {
-  if (!body.includes(id)) { console.error(`index.html has no ${id} — the bundle would not run.`); process.exit(1); }
+  if (!body.includes(id)) { console.error(`index.html has no ${id}, so the bundle would not run.`); process.exit(1); }
 }
 
 const html = `<!doctype html>
@@ -102,7 +118,7 @@ const html = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0B0C0D">
-<title>Stops — learn your camera</title>
+<title>Stops: learn your camera</title>
 <style>${fonts}</style>
 <style>${read(here, 'styles.css')}</style>
 </head>
@@ -113,7 +129,7 @@ const html = `<!doctype html>
 `;
 mkdirSync(new URL('dist/', here), { recursive: true });
 writeFileSync(new URL('dist/stops-next.html', here), html);
-console.log(`dist/stops-next.html — ${Math.round(html.length / 1024)} KB, ${Object.keys(pictures).length} pictures`);
+console.log(`dist/stops-next.html, ${Math.round(html.length / 1024)} KB, ${Object.keys(pictures).length} pictures`);
 
 // The same list, into the service worker.
 {

@@ -1,4 +1,4 @@
-# Prompts to paste — one section per scene
+# Prompts to paste: one section per scene
 
 Nothing to fill in. Attach the photograph named at the top of a section, paste
 the primer, then paste the numbered prompts one at a time and save each reply
@@ -13,7 +13,7 @@ When a section is done, start a **new chat** for the next one.
 
 ---
 
-## water — Shutter speed
+## water: Shutter speed
 
 **Attach:** `stops/photos/water.jpg`
 
@@ -22,7 +22,7 @@ When a section is done, start a **new chat** for the next one.
 > I am going to ask you for three edits of this photograph, one at a time. Rules that apply to all three:
 > 
 > - Work from THIS photograph every time. Do not generate a new scene.
-> - Change exactly one thing per edit. Everything else — the subject, the pose, the framing, the crop, the light, the colours, the time of day — must stay identical.
+> - Change exactly one thing per edit. Everything else (the subject, the pose, the framing, the crop, the light, the colours, the time of day) must stay identical.
 > - Always return the same aspect ratio as the original.
 > - Give me one image per reply.
 > 
@@ -38,7 +38,7 @@ When a section is done, start a **new chat** for the next one.
 
 > Same photograph, same framing, same light, camera not moved.
 > 
-> This time the shutter was moderately fast: the falling water shows a small amount of movement — the fastest-moving parts are slightly soft while the main body of it stays sharp. Everything stationary is perfectly sharp. Same aspect ratio.
+> This time the shutter was moderately fast: the falling water shows a small amount of movement, the fastest-moving parts are slightly soft while the main body of it stays sharp. Everything stationary is perfectly sharp. Same aspect ratio.
 
 ### 3. Save the reply as `water__sh-slow.png`
 
@@ -48,7 +48,7 @@ When a section is done, start a **new chat** for the next one.
 
 ---
 
-## kids — Shutter speed
+## kids: Shutter speed
 
 **Attach:** `stops/photos/kids.jpg`
 
@@ -57,7 +57,7 @@ When a section is done, start a **new chat** for the next one.
 > I am going to ask you for three edits of this photograph, one at a time. Rules that apply to all three:
 > 
 > - Work from THIS photograph every time. Do not generate a new scene.
-> - Change exactly one thing per edit. Everything else — the subject, the pose, the framing, the crop, the light, the colours, the time of day — must stay identical.
+> - Change exactly one thing per edit. Everything else (the subject, the pose, the framing, the crop, the light, the colours, the time of day) must stay identical.
 > - Always return the same aspect ratio as the original.
 > - Give me one image per reply.
 > 
@@ -73,7 +73,7 @@ When a section is done, start a **new chat** for the next one.
 
 > Same photograph, same framing, same light, camera not moved.
 > 
-> This time the shutter was moderately fast: the running child and the dog shows a small amount of movement — the fastest-moving parts are slightly soft while the main body of it stays sharp. Everything stationary is perfectly sharp. Same aspect ratio.
+> This time the shutter was moderately fast: the running child and the dog shows a small amount of movement, the fastest-moving parts are slightly soft while the main body of it stays sharp. Everything stationary is perfectly sharp. Same aspect ratio.
 
 ### 3. Save the reply as `kids__sh-slow.png`
 
@@ -83,7 +83,7 @@ When a section is done, start a **new chat** for the next one.
 
 ---
 
-## sports — Shutter speed
+## sports: Shutter speed
 
 **Attach:** `stops/photos/sports.jpg`
 
@@ -92,7 +92,7 @@ When a section is done, start a **new chat** for the next one.
 > I am going to ask you for three edits of this photograph, one at a time. Rules that apply to all three:
 > 
 > - Work from THIS photograph every time. Do not generate a new scene.
-> - Change exactly one thing per edit. Everything else — the subject, the pose, the framing, the crop, the light, the colours, the time of day — must stay identical.
+> - Change exactly one thing per edit. Everything else (the subject, the pose, the framing, the crop, the light, the colours, the time of day) must stay identical.
 > - Always return the same aspect ratio as the original.
 > - Give me one image per reply.
 > 
@@ -108,7 +108,7 @@ When a section is done, start a **new chat** for the next one.
 
 > Same photograph, same framing, same light, camera not moved.
 > 
-> This time the shutter was moderately fast: the player and the ball shows a small amount of movement — the fastest-moving parts are slightly soft while the main body of it stays sharp. Everything stationary is perfectly sharp. Same aspect ratio.
+> This time the shutter was moderately fast: the player and the ball shows a small amount of movement, the fastest-moving parts are slightly soft while the main body of it stays sharp. Everything stationary is perfectly sharp. Same aspect ratio.
 
 ### 3. Save the reply as `sports__sh-slow.png`
 
@@ -118,7 +118,7 @@ When a section is done, start a **new chat** for the next one.
 
 ---
 
-## nightcity — Shutter speed
+## nightcity: Shutter speed
 
 **Attach:** `stops/photos/nightcity.jpg`
 
@@ -127,7 +127,7 @@ When a section is done, start a **new chat** for the next one.
 > I am going to ask you for three edits of this photograph, one at a time. Rules that apply to all three:
 > 
 > - Work from THIS photograph every time. Do not generate a new scene.
-> - Change exactly one thing per edit. Everything else — the subject, the pose, the framing, the crop, the light, the colours, the time of day — must stay identical.
+> - Change exactly one thing per edit. Everything else (the subject, the pose, the framing, the crop, the light, the colours, the time of day) must stay identical.
 > - Always return the same aspect ratio as the original.
 > - Give me one image per reply.
 > 
@@ -143,7 +143,7 @@ When a section is done, start a **new chat** for the next one.
 
 > Same photograph, same framing, same light, camera not moved.
 > 
-> This time the shutter was moderately fast: the cars and their headlights shows a small amount of movement — the fastest-moving parts are slightly soft while the main body of it stays sharp. Everything stationary is perfectly sharp. Same aspect ratio.
+> This time the shutter was moderately fast: the cars and their headlights shows a small amount of movement, the fastest-moving parts are slightly soft while the main body of it stays sharp. Everything stationary is perfectly sharp. Same aspect ratio.
 
 ### 3. Save the reply as `nightcity__sh-slow.png`
 
@@ -153,7 +153,7 @@ When a section is done, start a **new chat** for the next one.
 
 ---
 
-## panning — Shutter speed
+## panning: Shutter speed
 
 **Attach:** `stops/photos/panning.jpg`
 
@@ -162,7 +162,7 @@ When a section is done, start a **new chat** for the next one.
 > I am going to ask you for three edits of this photograph, one at a time. Rules that apply to all three:
 > 
 > - Work from THIS photograph every time. Do not generate a new scene.
-> - Change exactly one thing per edit. Everything else — the subject, the pose, the framing, the crop, the light, the colours, the time of day — must stay identical.
+> - Change exactly one thing per edit. Everything else (the subject, the pose, the framing, the crop, the light, the colours, the time of day) must stay identical.
 > - Always return the same aspect ratio as the original.
 > - Give me one image per reply.
 > 
@@ -172,23 +172,23 @@ When a section is done, start a **new chat** for the next one.
 
 > Edit this photograph. Same rider, same bike, same position in the frame, same light, same crop.
 > 
-> Change one thing only: the shutter was fast and the camera was held still. The rider is sharp AND SO IS THE ENTIRE BACKGROUND — every tree and roadside detail crisp and readable. The picture looks static, as though the rider were parked. Same aspect ratio.
+> Change one thing only: the shutter was fast and the camera was held still. The rider is sharp AND SO IS THE ENTIRE BACKGROUND, every tree and roadside detail crisp and readable. The picture looks static, as though the rider were parked. Same aspect ratio.
 
 ### 2. Save the reply as `panning__sh-mid.png`
 
 > Same photograph, same rider in the same place in the frame, same light.
 > 
-> This time the camera followed the rider at a moderate shutter speed: the rider stays sharp and the background shows a mild horizontal smear — you can still make out what the background objects are, but they are stretched sideways. Same aspect ratio.
+> This time the camera followed the rider at a moderate shutter speed: the rider stays sharp and the background shows a mild horizontal smear. You can still make out what the background objects are, but they are stretched sideways. Same aspect ratio.
 
 ### 3. Save the reply as `panning__sh-slow.png`
 
 > Same photograph, same rider in the same place in the frame, same light.
 > 
-> This time the camera followed the rider at a slow shutter speed: the rider is still sharp, and the background is pulled into strong horizontal streaks — unreadable bands of colour running across the frame. The wheels show rotational blur. Same aspect ratio.
+> This time the camera followed the rider at a slow shutter speed: the rider is still sharp, and the background is pulled into strong horizontal streaks, unreadable bands of colour running across the frame. The wheels show rotational blur. Same aspect ratio.
 
 ---
 
-## group — Aperture
+## group: Aperture
 
 **Attach:** `stops/photos/group.jpg`
 
@@ -197,7 +197,7 @@ When a section is done, start a **new chat** for the next one.
 > I am going to ask you for three edits of this photograph, one at a time. Rules that apply to all three:
 > 
 > - Work from THIS photograph every time. Do not generate a new scene.
-> - Change exactly one thing per edit. Everything else — the subject, the pose, the framing, the crop, the light, the colours, the time of day — must stay identical.
+> - Change exactly one thing per edit. Everything else (the subject, the pose, the framing, the crop, the light, the colours, the time of day) must stay identical.
 > - Always return the same aspect ratio as the original.
 > - Give me one image per reply.
 > 
@@ -207,23 +207,23 @@ When a section is done, start a **new chat** for the next one.
 
 > Edit this photograph. Keep the subject, the framing, the composition, the light, the colours and the crop exactly as they are. The camera has not moved and nothing has been rearranged.
 > 
-> Change one thing only: the depth of field. everyone behind the front row, and the scene behind them is completely dissolved into smooth, unreadable blur — no individual shape back there can be identified. The nearest subject stays perfectly sharp. The front row and the back row are at clearly different distances from the camera, and the difference between them is the point of this set. Same aspect ratio.
+> Change one thing only: the depth of field. everyone behind the front row, and the scene behind them is completely dissolved into smooth, unreadable blur, no individual shape back there can be identified. The nearest subject stays perfectly sharp. The front row and the back row are at clearly different distances from the camera, and the difference between them is the point of this set. Same aspect ratio.
 
 ### 2. Save the reply as `group__ap-mid.png`
 
 > Same photograph, same subject, same framing, same light, camera not moved.
 > 
-> This time everyone behind the front row, and the scene behind them is clearly soft but still recognisable — you can tell what things are, they are simply not sharp. The nearest subject stays perfectly sharp. The front row and the back row are at clearly different distances from the camera, and the difference between them is the point of this set. Same aspect ratio.
+> This time everyone behind the front row, and the scene behind them is clearly soft but still recognisable. You can tell what things are, they are simply not sharp. The nearest subject stays perfectly sharp. The front row and the back row are at clearly different distances from the camera, and the difference between them is the point of this set. Same aspect ratio.
 
 ### 3. Save the reply as `group__ap-deep.png`
 
 > Same photograph, same subject, same framing, same light, camera not moved.
 > 
-> This time everything is sharp front to back — everyone behind the front row, and the scene behind them rendered in full crisp detail, exactly as sharp as the nearest subject. The front row and the back row are at clearly different distances from the camera, and the difference between them is the point of this set. Same aspect ratio.
+> This time everything is sharp front to back, everyone behind the front row, and the scene behind them rendered in full crisp detail, exactly as sharp as the nearest subject. The front row and the back row are at clearly different distances from the camera, and the difference between them is the point of this set. Same aspect ratio.
 
 ---
 
-## food — Aperture
+## food: Aperture
 
 **Attach:** `stops/photos/food.jpg`
 
@@ -232,7 +232,7 @@ When a section is done, start a **new chat** for the next one.
 > I am going to ask you for three edits of this photograph, one at a time. Rules that apply to all three:
 > 
 > - Work from THIS photograph every time. Do not generate a new scene.
-> - Change exactly one thing per edit. Everything else — the subject, the pose, the framing, the crop, the light, the colours, the time of day — must stay identical.
+> - Change exactly one thing per edit. Everything else (the subject, the pose, the framing, the crop, the light, the colours, the time of day) must stay identical.
 > - Always return the same aspect ratio as the original.
 > - Give me one image per reply.
 > 
@@ -242,23 +242,23 @@ When a section is done, start a **new chat** for the next one.
 
 > Edit this photograph. Keep the subject, the framing, the composition, the light, the colours and the crop exactly as they are. The camera has not moved and nothing has been rearranged.
 > 
-> Change one thing only: the depth of field. the rest of the table and the room behind it is completely dissolved into smooth, unreadable blur — no individual shape back there can be identified. The nearest subject stays perfectly sharp. Same aspect ratio.
+> Change one thing only: the depth of field. the rest of the table and the room behind it is completely dissolved into smooth, unreadable blur, no individual shape back there can be identified. The nearest subject stays perfectly sharp. Same aspect ratio.
 
 ### 2. Save the reply as `food__ap-mid.png`
 
 > Same photograph, same subject, same framing, same light, camera not moved.
 > 
-> This time the rest of the table and the room behind it is clearly soft but still recognisable — you can tell what things are, they are simply not sharp. The nearest subject stays perfectly sharp. Same aspect ratio.
+> This time the rest of the table and the room behind it is clearly soft but still recognisable. You can tell what things are, they are simply not sharp. The nearest subject stays perfectly sharp. Same aspect ratio.
 
 ### 3. Save the reply as `food__ap-deep.png`
 
 > Same photograph, same subject, same framing, same light, camera not moved.
 > 
-> This time everything is sharp front to back — the rest of the table and the room behind it rendered in full crisp detail, exactly as sharp as the nearest subject. Same aspect ratio.
+> This time everything is sharp front to back, the rest of the table and the room behind it rendered in full crisp detail, exactly as sharp as the nearest subject. Same aspect ratio.
 
 ---
 
-## indoor — Aperture
+## indoor: Aperture
 
 **Attach:** `stops/photos/indoor.jpg`
 
@@ -267,7 +267,7 @@ When a section is done, start a **new chat** for the next one.
 > I am going to ask you for three edits of this photograph, one at a time. Rules that apply to all three:
 > 
 > - Work from THIS photograph every time. Do not generate a new scene.
-> - Change exactly one thing per edit. Everything else — the subject, the pose, the framing, the crop, the light, the colours, the time of day — must stay identical.
+> - Change exactly one thing per edit. Everything else (the subject, the pose, the framing, the crop, the light, the colours, the time of day) must stay identical.
 > - Always return the same aspect ratio as the original.
 > - Give me one image per reply.
 > 
@@ -277,23 +277,23 @@ When a section is done, start a **new chat** for the next one.
 
 > Edit this photograph. Keep the subject, the framing, the composition, the light, the colours and the crop exactly as they are. The camera has not moved and nothing has been rearranged.
 > 
-> Change one thing only: the depth of field. the room behind the subject is completely dissolved into smooth, unreadable blur — no individual shape back there can be identified. The nearest subject stays perfectly sharp. Same aspect ratio.
+> Change one thing only: the depth of field. the room behind the subject is completely dissolved into smooth, unreadable blur, no individual shape back there can be identified. The nearest subject stays perfectly sharp. Same aspect ratio.
 
 ### 2. Save the reply as `indoor__ap-mid.png`
 
 > Same photograph, same subject, same framing, same light, camera not moved.
 > 
-> This time the room behind the subject is clearly soft but still recognisable — you can tell what things are, they are simply not sharp. The nearest subject stays perfectly sharp. Same aspect ratio.
+> This time the room behind the subject is clearly soft but still recognisable. You can tell what things are, they are simply not sharp. The nearest subject stays perfectly sharp. Same aspect ratio.
 
 ### 3. Save the reply as `indoor__ap-deep.png`
 
 > Same photograph, same subject, same framing, same light, camera not moved.
 > 
-> This time everything is sharp front to back — the room behind the subject rendered in full crisp detail, exactly as sharp as the nearest subject. Same aspect ratio.
+> This time everything is sharp front to back, the room behind the subject rendered in full crisp detail, exactly as sharp as the nearest subject. Same aspect ratio.
 
 ---
 
-## street — Aperture
+## street: Aperture
 
 **Attach:** `stops/photos/street.jpg`
 
@@ -302,7 +302,7 @@ When a section is done, start a **new chat** for the next one.
 > I am going to ask you for three edits of this photograph, one at a time. Rules that apply to all three:
 > 
 > - Work from THIS photograph every time. Do not generate a new scene.
-> - Change exactly one thing per edit. Everything else — the subject, the pose, the framing, the crop, the light, the colours, the time of day — must stay identical.
+> - Change exactly one thing per edit. Everything else (the subject, the pose, the framing, the crop, the light, the colours, the time of day) must stay identical.
 > - Always return the same aspect ratio as the original.
 > - Give me one image per reply.
 > 
@@ -312,23 +312,23 @@ When a section is done, start a **new chat** for the next one.
 
 > Edit this photograph. Keep the subject, the framing, the composition, the light, the colours and the crop exactly as they are. The camera has not moved and nothing has been rearranged.
 > 
-> Change one thing only: the depth of field. the street receding behind the subject is completely dissolved into smooth, unreadable blur — no individual shape back there can be identified. The nearest subject stays perfectly sharp. Same aspect ratio.
+> Change one thing only: the depth of field. the street receding behind the subject is completely dissolved into smooth, unreadable blur, no individual shape back there can be identified. The nearest subject stays perfectly sharp. Same aspect ratio.
 
 ### 2. Save the reply as `street__ap-mid.png`
 
 > Same photograph, same subject, same framing, same light, camera not moved.
 > 
-> This time the street receding behind the subject is clearly soft but still recognisable — you can tell what things are, they are simply not sharp. The nearest subject stays perfectly sharp. Same aspect ratio.
+> This time the street receding behind the subject is clearly soft but still recognisable. You can tell what things are, they are simply not sharp. The nearest subject stays perfectly sharp. Same aspect ratio.
 
 ### 3. Save the reply as `street__ap-deep.png`
 
 > Same photograph, same subject, same framing, same light, camera not moved.
 > 
-> This time everything is sharp front to back — the street receding behind the subject rendered in full crisp detail, exactly as sharp as the nearest subject. Same aspect ratio.
+> This time everything is sharp front to back, the street receding behind the subject rendered in full crisp detail, exactly as sharp as the nearest subject. Same aspect ratio.
 
 ---
 
-## street — Focal length
+## street: Focal length
 
 **Attach:** `stops/photos/street.jpg`
 
@@ -337,7 +337,7 @@ When a section is done, start a **new chat** for the next one.
 > I am going to ask you for three edits of this photograph, one at a time. Rules that apply to all three:
 > 
 > - Work from THIS photograph every time. Do not generate a new scene.
-> - Change exactly one thing per edit. Everything else — the subject, the pose, the framing, the crop, the light, the colours, the time of day — must stay identical.
+> - Change exactly one thing per edit. Everything else (the subject, the pose, the framing, the crop, the light, the colours, the time of day) must stay identical.
 > - Always return the same aspect ratio as the original.
 > - Give me one image per reply.
 > 
@@ -349,9 +349,9 @@ When a section is done, start a **new chat** for the next one.
 > 
 > The photographer has physically walked closer and put on a wide-angle lens. They have MOVED. They have not zoomed out and this is not a crop.
 > 
-> The person in the street must occupy exactly the same height in the frame as in the original — this is the most important part. Because the camera is now close and the lens is wide, much more of the background is visible, everything in it looks smaller and further away, and there is a slight wide-angle stretch to the perspective. Same aspect ratio.
+> The person in the street must occupy exactly the same height in the frame as in the original. This is the most important part. Because the camera is now close and the lens is wide, much more of the background is visible, everything in it looks smaller and further away, and there is a slight wide-angle stretch to the perspective. Same aspect ratio.
 
-### → `street__fl-norm` — no prompt needed
+### → `street__fl-norm`: no prompt needed
 
 This step is the original photograph. Copy and rename it:
 
@@ -365,11 +365,11 @@ cp stops/photos/street.jpg ~/stops-v2/street__fl-norm.jpg
 > 
 > The photographer has physically walked a long way back and put on a long telephoto lens. They have MOVED. They have not zoomed in and this is not a crop.
 > 
-> The person in the street must occupy exactly the same height in the frame as in the original — this is the most important part. Because the camera is now far away and the lens is long, only a narrow slice of background is visible, and it appears magnified and compressed, looming larger behind the subject than it does now. Same aspect ratio.
+> The person in the street must occupy exactly the same height in the frame as in the original. This is the most important part. Because the camera is now far away and the lens is long, only a narrow slice of background is visible, and it appears magnified and compressed, looming larger behind the subject than it does now. Same aspect ratio.
 
 ---
 
-## landscape — Focal length
+## landscape: Focal length
 
 **Attach:** `stops/photos/landscape.jpg`
 
@@ -378,7 +378,7 @@ cp stops/photos/street.jpg ~/stops-v2/street__fl-norm.jpg
 > I am going to ask you for three edits of this photograph, one at a time. Rules that apply to all three:
 > 
 > - Work from THIS photograph every time. Do not generate a new scene.
-> - Change exactly one thing per edit. Everything else — the subject, the pose, the framing, the crop, the light, the colours, the time of day — must stay identical.
+> - Change exactly one thing per edit. Everything else (the subject, the pose, the framing, the crop, the light, the colours, the time of day) must stay identical.
 > - Always return the same aspect ratio as the original.
 > - Give me one image per reply.
 > 
@@ -390,9 +390,9 @@ cp stops/photos/street.jpg ~/stops-v2/street__fl-norm.jpg
 > 
 > The photographer has physically walked closer and put on a wide-angle lens. They have MOVED. They have not zoomed out and this is not a crop.
 > 
-> The nearest foreground element — the rock, the tree, whatever anchors the bottom of the frame must occupy exactly the same height in the frame as in the original — this is the most important part. Because the camera is now close and the lens is wide, much more of the background is visible, everything in it looks smaller and further away, and there is a slight wide-angle stretch to the perspective. Same aspect ratio.
+> The nearest foreground element, the rock, the tree, whatever anchors the bottom of the frame must occupy exactly the same height in the frame as in the original. This is the most important part. Because the camera is now close and the lens is wide, much more of the background is visible, everything in it looks smaller and further away, and there is a slight wide-angle stretch to the perspective. Same aspect ratio.
 
-### → `landscape__fl-norm` — no prompt needed
+### → `landscape__fl-norm`: no prompt needed
 
 This step is the original photograph. Copy and rename it:
 
@@ -406,11 +406,11 @@ cp stops/photos/landscape.jpg ~/stops-v2/landscape__fl-norm.jpg
 > 
 > The photographer has physically walked a long way back and put on a long telephoto lens. They have MOVED. They have not zoomed in and this is not a crop.
 > 
-> The nearest foreground element — the rock, the tree, whatever anchors the bottom of the frame must occupy exactly the same height in the frame as in the original — this is the most important part. Because the camera is now far away and the lens is long, only a narrow slice of background is visible, and it appears magnified and compressed, looming larger behind the subject than it does now. Same aspect ratio.
+> The nearest foreground element, the rock, the tree, whatever anchors the bottom of the frame must occupy exactly the same height in the frame as in the original. This is the most important part. Because the camera is now far away and the lens is long, only a narrow slice of background is visible, and it appears magnified and compressed, looming larger behind the subject than it does now. Same aspect ratio.
 
 ---
 
-## architecture — Focal length
+## architecture: Focal length
 
 **Attach:** `stops/photos/architecture.jpg`
 
@@ -419,7 +419,7 @@ cp stops/photos/landscape.jpg ~/stops-v2/landscape__fl-norm.jpg
 > I am going to ask you for three edits of this photograph, one at a time. Rules that apply to all three:
 > 
 > - Work from THIS photograph every time. Do not generate a new scene.
-> - Change exactly one thing per edit. Everything else — the subject, the pose, the framing, the crop, the light, the colours, the time of day — must stay identical.
+> - Change exactly one thing per edit. Everything else (the subject, the pose, the framing, the crop, the light, the colours, the time of day) must stay identical.
 > - Always return the same aspect ratio as the original.
 > - Give me one image per reply.
 > 
@@ -431,9 +431,9 @@ cp stops/photos/landscape.jpg ~/stops-v2/landscape__fl-norm.jpg
 > 
 > The photographer has physically walked closer and put on a wide-angle lens. They have MOVED. They have not zoomed out and this is not a crop.
 > 
-> The building must occupy exactly the same height in the frame as in the original — this is the most important part. Because the camera is now close and the lens is wide, much more of the background is visible, everything in it looks smaller and further away, and there is a slight wide-angle stretch to the perspective. Same aspect ratio.
+> The building must occupy exactly the same height in the frame as in the original. This is the most important part. Because the camera is now close and the lens is wide, much more of the background is visible, everything in it looks smaller and further away, and there is a slight wide-angle stretch to the perspective. Same aspect ratio.
 
-### → `architecture__fl-norm` — no prompt needed
+### → `architecture__fl-norm`: no prompt needed
 
 This step is the original photograph. Copy and rename it:
 
@@ -447,7 +447,7 @@ cp stops/photos/architecture.jpg ~/stops-v2/architecture__fl-norm.jpg
 > 
 > The photographer has physically walked a long way back and put on a long telephoto lens. They have MOVED. They have not zoomed in and this is not a crop.
 > 
-> The building must occupy exactly the same height in the frame as in the original — this is the most important part. Because the camera is now far away and the lens is long, only a narrow slice of background is visible, and it appears magnified and compressed, looming larger behind the subject than it does now. Same aspect ratio.
+> The building must occupy exactly the same height in the frame as in the original. This is the most important part. Because the camera is now far away and the lens is long, only a narrow slice of background is visible, and it appears magnified and compressed, looming larger behind the subject than it does now. Same aspect ratio.
 
 ---
 

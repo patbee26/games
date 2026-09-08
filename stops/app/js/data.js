@@ -1,7 +1,7 @@
 // Scenes and light. This file is the field guide's actual content: everything
 // else is arithmetic around it.
 
-// Light conditions, as EV at ISO 100. These are the standard exposure values —
+// Light conditions, as EV at ISO 100. These are the standard exposure values,
 // the same table that has been on the back of film boxes for seventy years.
 export const LIGHT = [
   { id: 'snow',        name: 'Snow or sand in sun',  sub: 'Painfully bright, you are squinting', ev: 16, common: false, suggestComp: 'white' },
@@ -171,7 +171,7 @@ export const SCENES = [
     id: 'moon', name: 'The moon', hint: 'brighter than you think', icon: 'moon',
     evOverride: 15, shutter: 1 / 250, aperture: 8, give: ['iso'], giveBright: ['shutter', 'aperture'],
     focal: 300, subject: 384000000, background: Infinity, speed: 0,
-    apertureWhy: 'The moon is a sunlit rock — treat it as daylight',
+    apertureWhy: 'The moon is a sunlit rock, so treat it as daylight',
     alt: { name: 'Insurance', why: 'A stop faster against shake on a long lens, paid for in ISO.', shutter: 1 / 500 },
     tip: 'The night around it is irrelevant. Meter the moon itself or everything blows out.',
   },
@@ -226,7 +226,7 @@ export const MOVERS = [
 
 /**
  * Content for the guide's Aperture tab. `gap` is the physical distance between
- * the near and far thing that both have to be sharp — it does not scale with
+ * the near and far thing that both have to be sharp. It does not scale with
  * the lens, because two people standing side by side are the same distance
  * apart whatever you photograph them with.
  */

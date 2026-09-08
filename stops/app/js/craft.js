@@ -1,7 +1,7 @@
 // How to shoot each scene, as opposed to what to set.
 //
 // The engine answers the exposure question. This file answers the one a
-// beginner actually asks next — "yes, but how do I take a good one?" — and it
+// beginner actually asks next, which is "yes, but how do I take a good one?", and it
 // is deliberately the least clever file in the project: no derivation, no
 // arithmetic, just what someone standing next to you would say.
 
@@ -40,7 +40,7 @@ export const CRAFT = {
       ['Focus on the near eye', 'Wide open, the far eye may already be soft. That is fine. The near one must not be.'],
       ['Talk, and keep shooting', 'The frame just after they laugh at their own answer is usually the one.'],
     ],
-    mistake: 'Standing close with a wide lens. Step back and zoom in instead — noses will thank you.',
+    mistake: 'Standing close with a wide lens. Step back and zoom in instead. Noses will thank you.',
   },
   group: {
     intro: 'Depth of field is the whole problem here: everyone has to be sharp, and everyone has to be looking.',
@@ -76,7 +76,7 @@ export const CRAFT = {
       ['Find a background, then wait for a subject', 'Good light on an interesting wall, and patience. Far easier than chasing.'],
       ['Get closer than feels polite', 'Then one step closer. Most street pictures fail from timidity, not technique.'],
     ],
-    mistake: 'Shooting from the hip to avoid being noticed. Look through the camera — people mind far less than you expect.',
+    mistake: 'Shooting from the hip to avoid being noticed. Look through the camera. People mind far less than you expect.',
   },
   indoor: {
     intro: 'You are always short of light indoors, and the answer is usually to move rather than to change a setting.',
@@ -166,7 +166,7 @@ export const CRAFT = {
       ['Use the longest lens you have, then crop', '300 mm still gives a small moon. That is normal.'],
       ['Shoot it low, next to something', 'A moon beside a building or a ridge has scale. A moon alone in black is a circle.'],
     ],
-    mistake: 'Trying to get the moon and a lit landscape in one frame. They are about ten stops apart — take two.',
+    mistake: 'Trying to get the moon and a lit landscape in one frame. They are about ten stops apart, so take two.',
   },
 };
 

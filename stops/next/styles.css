@@ -1,9 +1,9 @@
-/* Stops — a field instrument, not a document. Dark by default because this
+/* Stops: a field instrument, not a document. Dark by default because this
    gets used outdoors at dusk, one-handed, held at arm's length. */
 
 :root {
   /* Dark is the default: this gets used outdoors at dusk more than at a desk.
-     Light exists for the other half of the problem — direct sun on the screen. */
+     Light exists for the other half of the problem, direct sun on the screen. */
   --bg: #0B0C0D;
   --chrome: #0E0F11;
   --card: #141618;
@@ -28,6 +28,8 @@
   --warn-dim: #A08278;
   --warn-bg: #1A1211;
   --warn-line: #40241C;
+  --raise: #1E2226;
+  --raise-line: #333940;
   --shadow: rgba(0, 0, 0, .5);
   --pad: 18px;
   --chrome-font: "IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow", system-ui, -apple-system, sans-serif;
@@ -62,6 +64,8 @@
   --warn-dim: #8A5A4C;
   --warn-bg: #FDF1EC;
   --warn-line: #F0CDC0;
+  --raise: #FFFFFF;
+  --raise-line: #D8D0C2;
   --shadow: rgba(60, 50, 30, .22);
   color-scheme: light;
 }
@@ -105,7 +109,7 @@ button { font: inherit; color: inherit; background: none; border: none;
             border-radius: 9px; color: var(--ink-3); flex: none; }
 .top__act:hover { background: var(--card); color: var(--ink); }
 
-/* Step 1 — the scenes ----------------------------------------------------- */
+/* Step 1, the scenes ----------------------------------------------------- */
 .lede { color: var(--ink-2); font-size: 14.5px; line-height: 1.5; margin: 2px 0 16px; }
 .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .tile { border-radius: 14px; overflow: hidden; background: var(--card);
@@ -116,7 +120,7 @@ button { font: inherit; color: inherit; background: none; border: none;
 .tile__name { display: block; font-size: 14.5px; font-weight: 600; }
 .tile__hint { display: block; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
 
-/* Step 2 — the light ------------------------------------------------------ */
+/* Step 2, the light ------------------------------------------------------ */
 .lights { display: flex; flex-direction: column; gap: 8px; }
 .light { display: flex; align-items: center; gap: 12px; padding: 14px 15px;
          background: var(--card); border: 1px solid var(--line); border-radius: 13px;
@@ -128,7 +132,7 @@ button { font: inherit; color: inherit; background: none; border: none;
 .light__name { display: block; font-size: 15.5px; font-weight: 600; }
 .light__sub { display: block; font-size: 12.5px; color: var(--ink-3); margin-top: 2px; }
 
-/* Step 3 — the card ------------------------------------------------------- */
+/* Step 3, the card ------------------------------------------------------- */
 .shot { border-radius: 16px; overflow: hidden; background: var(--card);
         border: 1px solid var(--line); }
 .shot__img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; display: block;
@@ -167,17 +171,17 @@ button { font: inherit; color: inherit; background: none; border: none;
 .note__i { flex: none; padding-top: 1px; }
 
 /* The chips --------------------------------------------------------------- */
-.ask { margin-top: 22px; }
-.ask__h { font-size: 16px; font-weight: 600; }
-.ask__s { font-size: 13px; color: var(--ink-3); margin-top: 3px; line-height: 1.45; }
-.ask__g { margin-top: 15px; }
-.ask__q { font-size: 13px; color: var(--ink-2); font-weight: 600; margin-bottom: 8px; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { display: inline-flex; align-items: baseline; gap: 7px; padding: 9px 13px;
-        border-radius: 999px; border: 1px solid var(--line-2); background: var(--card);
-        font-size: 13.5px; transition: background .12s, border-color .12s, color .12s; }
+.ask { padding: 12px 13px 13px; }
+.ask__h { font-size: 13.5px; font-weight: 600; color: var(--ink-1); }
+.ask__g { margin-top: 9px; }
+.ask__q { font-size: 12px; color: var(--ink-4); margin-bottom: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: baseline; gap: 5px; padding: 7px 11px;
+        border-radius: 999px; border: 1px solid var(--line-2); background: var(--card-2);
+        font-size: 12.5px; line-height: 1.25;
+        transition: background .12s, border-color .12s, color .12s; }
 .chip:hover { border-color: var(--ink-4); }
-.chip__v { font-family: var(--data); font-size: 12px; color: var(--ink-3); }
+.chip__v { font-family: var(--data); font-size: 11px; color: var(--ink-3); }
 .chip[aria-pressed="true"] { background: var(--amber); border-color: var(--amber);
                              color: var(--amber-ink); font-weight: 600; }
 .chip[aria-pressed="true"] .chip__v { color: var(--amber-ink-2); }
@@ -228,3 +232,106 @@ button { font: inherit; color: inherit; background: none; border: none;
          border-radius: 12px; color: var(--ink-3); font-size: 14px; margin-top: 8px; }
 
 .mt-14 { margin-top: 14px; }
+
+/* The settings, raised out of the page ------------------------------------ */
+/* This is the answer to the question the photographer arrived with, so it is
+   the thing that has to win the eye. Everything around it sits on --card; this
+   sits on --raise, which is lighter in the dark theme and pure white against
+   the warm ground of the light one. */
+
+.ideal { background: var(--raise); border: 1px solid var(--raise-line);
+         border-radius: 16px; margin-top: 12px; overflow: hidden;
+         box-shadow: 0 2px 14px var(--shadow); }
+.ideal--changed { border-color: var(--amber-line); }
+.ideal__eyebrow { display: flex; align-items: center; justify-content: space-between;
+                  gap: 10px; padding: 11px 14px 0; }
+.ideal__eyebrow > span { font-family: var(--data); font-size: 10.5px; letter-spacing: .1em;
+                         text-transform: uppercase; color: var(--amber); }
+.ideal__eyebrow button { font-size: 12.5px; color: var(--amber);
+                         text-decoration: underline; text-underline-offset: 3px; }
+.ideal .dials { border-bottom: none; }
+.ideal .why { border-top: 1px solid var(--line-soft); }
+.amber { color: var(--amber); font-weight: 600; }
+
+/* Your lens --------------------------------------------------------------- */
+.lensbox { margin-top: 12px; padding: 13px 14px 14px; border-radius: 13px;
+           background: var(--card); border: 1px solid var(--line); }
+.lensbox--warn { background: var(--warn-bg); border-color: var(--warn-line); }
+.lensbox--good { background: var(--amber-bg); border-color: var(--amber-line); }
+.lensbox__h { display: flex; gap: 11px; }
+.lensbox__i { flex: none; padding-top: 2px; color: var(--ink-3); }
+.lensbox--warn .lensbox__i { color: var(--warn); }
+.lensbox--good .lensbox__i { color: var(--amber); }
+.lensbox__k { display: block; font-family: var(--data); font-size: 10.5px;
+              letter-spacing: .09em; text-transform: uppercase; color: var(--ink-4); }
+.lensbox__v { display: block; font-size: 14.5px; font-weight: 600; margin-top: 3px;
+              line-height: 1.4; }
+.lensbox__p { font-size: 13.2px; line-height: 1.55; color: var(--ink-2); margin: 9px 0 0; }
+.lensbox__add { margin-top: 11px; font-size: 13.5px; color: var(--amber);
+                text-decoration: underline; text-underline-offset: 3px; }
+
+/* Gear -------------------------------------------------------------------- */
+.lens-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+             padding: 15px 16px 16px; margin-top: 12px; }
+.lens-card--own { background: var(--raise); border-color: var(--raise-line); }
+.lens-card__k { font-family: var(--data); font-size: 10.5px; letter-spacing: .09em;
+                text-transform: uppercase; color: var(--ink-4); }
+.lens-card__n { font-size: 20px; font-weight: 600; margin-top: 5px; letter-spacing: -.01em; }
+.lens-card__p { font-size: 13.4px; line-height: 1.55; color: var(--ink-2); margin: 9px 0 0; }
+.lens-card__acts { display: flex; gap: 9px; margin-top: 13px; }
+.add-lens { display: block; width: 100%; margin-top: 12px; padding: 15px 16px;
+            border-radius: 14px; border: 1px dashed var(--line-2); background: none; }
+.add-lens > span:first-child { font-size: 15px; font-weight: 600; color: var(--amber); }
+.add-lens__s { display: block; font-size: 12.5px; color: var(--ink-3); margin-top: 3px; }
+.lens-form { display: block; background: var(--raise); border: 1px solid var(--raise-line);
+             border-radius: 14px; padding: 15px 16px 16px; margin-top: 12px; }
+.lens-form__k { font-family: var(--data); font-size: 10.5px; letter-spacing: .09em;
+                text-transform: uppercase; color: var(--amber); }
+.lens-form__p { font-size: 12.8px; line-height: 1.5; color: var(--ink-3); margin: 8px 0 0; }
+.lens-form__err { font-size: 13px; line-height: 1.5; color: var(--warn); margin: 10px 0 0; }
+.lens-form__grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 9px; margin-top: 12px; }
+.lens-form__grid label { display: block; font-size: 11.5px; color: var(--ink-3); position: relative; }
+.lens-form__grid input { display: block; width: 100%; margin-top: 4px; padding: 10px 11px;
+  border-radius: 10px; border: 1px solid var(--line-2); background: var(--bg);
+  color: var(--ink); font-family: var(--data); font-size: 17px; }
+.lens-form__grid input:focus { outline: 2px solid var(--amber); outline-offset: -1px; }
+.lens-form__grid span { position: absolute; right: 10px; bottom: 11px;
+  font-family: var(--data); font-size: 12px; color: var(--ink-4); }
+.primary-sm { padding: 10px 18px; border-radius: 10px; background: var(--amber);
+              color: var(--amber-ink); font-size: 14px; font-weight: 600; }
+.ghost-sm { padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line-2);
+            color: var(--ink-2); font-size: 14px; }
+.ghost-sm:hover { border-color: var(--ink-4); color: var(--ink); }
+
+/* Guide tables ------------------------------------------------------------ */
+.seg { display: flex; gap: 4px; margin: 4px 0 2px; overflow-x: auto;
+       scrollbar-width: none; padding-bottom: 2px; }
+.seg::-webkit-scrollbar { display: none; }
+.seg button { flex: none; padding: 8px 13px; border-radius: 999px; font-size: 13.5px;
+              color: var(--ink-3); border: 1px solid transparent; }
+.seg button[aria-pressed="true"] { background: var(--card); border-color: var(--line-2); color: var(--ink); }
+.g-card--flush { padding: 0; overflow: hidden; }
+.ladder-head { display: flex; align-items: center; gap: 7px; color: var(--amber);
+               margin-top: 14px; font-family: var(--data); font-size: 10.5px;
+               letter-spacing: .1em; }
+.ladder { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+.ladder__h { font-family: var(--data); font-size: 10.5px; letter-spacing: .08em;
+             text-transform: uppercase; color: var(--ink-4); padding: 11px 8px 9px;
+             text-align: center; border-bottom: 1px solid var(--line); }
+.ladder__c { font-family: var(--data); font-size: 14px; padding: 8px; text-align: center;
+             color: var(--ink-1); border-bottom: 1px solid var(--line-soft); }
+.ladder__c:nth-child(3n+1) { color: var(--ink); }
+.r3 { display: grid; grid-template-columns: 1fr auto; gap: 3px 12px;
+      padding: 11px 14px; align-items: baseline;
+      border-bottom: 1px solid var(--line-soft); }
+.r3:last-child { border-bottom: none; }
+.r3__a { grid-column: 1; font-size: 13.8px; }
+.r3__b { grid-column: 2; grid-row: 1; text-align: right;
+         font-family: var(--data); font-size: 15px; color: var(--amber); }
+.r3__c { grid-column: 1 / -1; font-size: 11.8px; color: var(--ink-4); }
+.rule { display: grid; grid-template-columns: 44% 1fr; gap: 12px; padding: 11px 14px;
+        align-items: baseline; border-bottom: 1px solid var(--line-soft); }
+.rule:last-child { border-bottom: none; }
+.rule__k { font-size: 13.6px; }
+.rule__v { font-size: 13px; color: var(--ink-2); }
+.top__gap { width: 34px; flex: none; }

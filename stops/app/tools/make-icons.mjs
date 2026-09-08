@@ -1,4 +1,4 @@
-// Draws the app mark — an aperture ring with three blades — straight into PNG
+// Draws the app mark, an aperture ring with three blades, straight into PNG
 // files. Written by hand because the environment has no image tooling, and a
 // PWA needs real PNGs (iOS in particular will not take an SVG).
 import { deflateSync } from 'node:zlib';

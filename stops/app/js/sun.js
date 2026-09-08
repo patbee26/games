@@ -1,6 +1,6 @@
 // Where the sun is, and what that means for the light.
 //
-// Two separate jobs, and only the first is exact. Solar position is arithmetic —
+// Two separate jobs, and only the first is exact. Solar position is arithmetic,
 // the NOAA algorithm, good to a fraction of a degree for any date this century.
 // Turning an altitude into an exposure value is a model of the atmosphere, and
 // the atmosphere is not obliged to cooperate: the sun's height sets the ceiling,
@@ -13,7 +13,7 @@ const julianDay = (date) => date.getTime() / 86400000 + 2440587.5;
 
 /**
  * Atmospheric refraction, in degrees, lifting the apparent sun. Negligible
- * overhead, worth half a degree at the horizon — which is exactly where the
+ * overhead, worth half a degree at the horizon, which is exactly where the
  * light is changing fastest, so it earns its place.
  */
 function refraction(altitude) {

@@ -1,9 +1,9 @@
 // Small drawn scenes, one per subject.
 //
 // These are illustrations, not photographs, and the app never calls them
-// anything else. What they can honestly do is show the *shape* of a picture —
+// anything else. What they can honestly do is show the *shape* of a picture,
 // where the subject sits, how far the background falls away, what time of day
-// it is — which is most of what a thumbnail is for. Drawn rather than fetched
+// it is, which is most of what a thumbnail is for. Drawn rather than fetched
 // so they cost nothing, work offline, and carry no licence.
 
 const SHAPES = {

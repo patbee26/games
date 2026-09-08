@@ -4,7 +4,7 @@
 // app took a scene and a light and worked out three numbers; a beginner then
 // had to follow the working. This one asserts the shot: this focal length, this
 // aperture, this shutter, because that is how this picture is taken. The light
-// changes exactly one thing — the ISO the camera will choose for itself — and
+// changes exactly one thing, the ISO the camera will choose for itself, and
 // that is the only arithmetic on the page.
 //
 // Each scene names, per axis, the three settings its three photographs were

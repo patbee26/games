@@ -158,7 +158,7 @@ test('a locked aperture cannot beat the lens it is on', () => {
   const kit = gear.lenses.find((l) => l.id === 'kit');
   const r = recommend({ scene, ev: 5, gear, lens: kit, focal: 35, lock: { N: 1.8 } });
   // The dial has no f/4.63, so the honest answer is the nearest rung to the
-  // lens's real maximum — which is what the lens reports at this focal length.
+  // lens's real maximum, which is what the lens reports at this focal length.
   assert.equal(r.aperture.label, snapAperture(widestAt(kit, 35)).label,
     `suggested ${r.aperture.label} on a lens that only opens to f/${widestAt(kit, 35).toFixed(2)}`);
   assert.ok(r.aperture.N > 3, 'the f/1.8 lock must not have survived the switch');
