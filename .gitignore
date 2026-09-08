@@ -3,6 +3,10 @@ dist/
 # The Netlify package, built from sw.js's own precache list. Generated output,
 # reproducible from the tree, and several megabytes of photographs already in it.
 stops-netlify.zip
+stops-tutorial.zip
+# The deployable directory, assembled from the tree by next/tools/package.mjs.
+next/deploy/
+stops/next/deploy/
 .env
 .env.*
 !.env.example

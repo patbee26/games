@@ -83,9 +83,47 @@ app's photograph would change the face the instant a chip was tapped.
 ## Building it
 
 ```
+node tools/package.mjs     # deploy/, the directory you put on a host
 node tools/bundle.mjs      # dist/stops-next.html, the whole app in one file
 npm test                   # from stops/, runs both apps' tests
 ```
+
+Deploy **the contents of `deploy/`** as the site root. The app lives in `next/`
+but reaches across to `app/` for the physics, the fonts and the photographs,
+which is right for working on it and impossible to host, since a page at the
+site root cannot refer to a sibling directory above it. The packager mirrors the
+two under one root, and because a leading `../` is clamped at the root by every
+browser, nothing needs rewriting: `/index.html` asking for `../app/fonts.css`
+gets `/app/fonts.css`.
+
+The single file is for opening from a link or sending to somebody. Do not deploy
+it as a site: it carries no service worker, so it cannot replace one a previous
+deploy left behind.
+
+## The page is fetched network-first, and this is not a detail
+
+Both apps used to serve the page itself cache-first. That meant **a deploy was
+invisible to anyone who had ever opened the site**: their browser kept handing
+them the copy it already had, and publishing again changed nothing. It cost a
+real afternoon of "I pushed it and it still shows the old version".
+
+Now a navigation goes to the network first and falls back to the cache, so the
+app is as offline-capable as it was and a deploy lands on the next load.
+Everything that is not the page stays cache-first, which is what makes it open
+instantly in a canyon.
+
+Two supporting pieces, both there because the failure was a thing somebody had
+to remember:
+
+- The cache name is **stamped with a hash of the package** by `package.mjs`.
+  Six versions of this app shipped under one cache name because bumping it was
+  a manual step. It is not one any more.
+- A page already running under an older worker **reloads itself once** when the
+  new one takes over, so nobody has to be told to clear anything.
+
+`swtest.mjs` in the working notes drives the whole thing: it loads the site, lets
+a worker take control, publishes a change, reloads, and asserts the change is
+visible and that the app still renders with the server switched off.
 
 The bundler is the single source of truth for what the app needs: it inlines
 every picture it can reach and writes the service worker's precache list from

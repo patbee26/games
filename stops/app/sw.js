@@ -1,6 +1,8 @@
 // Offline is not a nicety here: this app earns its keep in gyms, canyons and
-// aeroplanes. Everything is cached on install and served cache-first, so a
-// launch with no signal is indistinguishable from a launch with one.
+// aeroplanes. Everything is cached on install, so a launch with no signal is
+// indistinguishable from a launch with one. Assets are served cache-first; the
+// page itself is not, or a deploy would never reach anyone who had already
+// visited.
 
 const CACHE = 'stops-v23';
 
@@ -135,6 +137,29 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
+
+  // The page itself goes to the network first, and falls back to the cache when
+  // there is no signal. Everything else stays cache-first, which is what makes
+  // the app open instantly with no signal at all.
+  //
+  // It used to be cache-first for the page too. That meant a deploy was
+  // invisible to anybody who had ever opened the site: the browser kept handing
+  // them the copy it already had, and publishing again changed nothing. Offline
+  // is unaffected, because the fallback below reads the same cache it did before.
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
+          }
+          return response;
+        })
+        .catch(() => caches.match(request).then((hit) => hit ?? caches.match('index.html'))),
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(request).then((hit) => {

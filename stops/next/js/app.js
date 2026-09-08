@@ -740,5 +740,17 @@ if (seen.get()) state.intro = null;
 render();
 
 if ('serviceWorker' in navigator) {
+  // A page already running under an older worker reloads itself once, the
+  // moment the new one takes over. Without this a deploy is correct on the
+  // server and stale on the phone until the reader thinks to reload twice,
+  // which nobody does and nobody should have to.
+  //
+  // The guard matters: this event also fires on a first ever visit, when there
+  // was no controller to replace, and reloading then would be a loop.
+  let controlled = Boolean(navigator.serviceWorker.controller);
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!controlled) { controlled = true; return; }
+    location.reload();
+  });
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }

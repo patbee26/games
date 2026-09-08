@@ -2,11 +2,13 @@
 // a gallery, or a canyon. Everything is cached on install and served
 // cache-first, so a launch with no signal is the same as a launch with one.
 //
-// The asset list below is written by tools/bundle.mjs from what the page
-// actually references. The first app shipped a hand-kept list and it silently
-// fell thirty-six pictures behind.
+// The asset list below, and the cache name, are written by tools/bundle.mjs
+// from what the page actually references. The first app shipped a hand-kept
+// list and it silently fell thirty-six pictures behind, and this one shipped
+// six versions under one cache name because bumping it was a thing to remember.
+// Neither is a thing to remember any more.
 
-const CACHE = 'stops-next-v1';
+const CACHE = 'stops-next-0000000';   // build:cache
 
 const ASSETS = [
   './',
@@ -91,7 +93,33 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-  event.respondWith(caches.match(event.request, { ignoreSearch: true })
-    .then((hit) => hit ?? fetch(event.request)));
+  const { request } = event;
+  if (request.method !== 'GET') return;
+  if (new URL(request.url).origin !== self.location.origin) return;
+
+  // The page itself goes to the network first, and falls back to the cache when
+  // there is no signal. Everything else stays cache-first, which is what makes
+  // the app open instantly in a canyon.
+  //
+  // It used to be cache-first for the page too, which meant a deploy was
+  // invisible to anybody who had ever opened the site: their browser kept
+  // handing them the copy it already had, forever, and no amount of publishing
+  // changed it. Offline still works because the fallback below is the same
+  // cache it was reading before.
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE).then((c) => c.put(request, copy)).catch(() => {});
+          return response;
+        })
+        .catch(() => caches.match(request, { ignoreSearch: true })
+          .then((hit) => hit ?? caches.match('index.html'))),
+    );
+    return;
+  }
+
+  event.respondWith(caches.match(request, { ignoreSearch: true })
+    .then((hit) => hit ?? fetch(request)));
 });
