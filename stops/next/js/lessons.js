@@ -8,13 +8,25 @@
 // that is the only arithmetic on the page.
 //
 // Each scene names, per axis, the three settings its three photographs were
-// made at, and which of them is the shot. The other two become the chips under
-// the picture. Declaring them rather than deriving them is deliberate: a
-// threshold that decides which photograph to show is a thing that can be
-// subtly wrong, and here there is nothing for it to be wrong about.
+// made at. Any of those that is not the scene's own setting becomes a chip
+// under the picture. Declaring them rather than deriving them is deliberate: a
+// threshold that decides which photograph to show is a thing that can be subtly
+// wrong, and here there is nothing for it to be wrong about.
+//
+// On the aperture axis the scene's own setting is deliberately not one of the
+// three, which gives four pictures rather than three: the dissolved one, the
+// scene's own, the soft one and the sharp one. The three photographs really do
+// read in that order, and the arrangement it replaces wasted the best of them,
+// since the base photograph stood in for the dissolved one and the dissolved
+// one was therefore never shown.
 
-/** Every aperture scene walks the same three: wide open, the middle, right down. */
-const APERTURE_SET = { wide: 4, mid: 8, deep: 16 };
+/**
+ * Every aperture scene offers the same three photographs: the background gone,
+ * the background soft, everything sharp. f/2 is the wide end because the lens
+ * this app teaches with opens that far, and without it no scene could show a
+ * background that has genuinely dissolved.
+ */
+const APERTURE_SET = { wide: 2, mid: 8, deep: 16 };
 
 export const LESSONS = [
   {
@@ -26,7 +38,7 @@ export const LESSONS = [
       aperture: 'A touch off wide open. At 1/1000 in daylight you still have light\n        to spare, and it buys you a margin on focus you will be glad of.',
       focal: 'Close enough to fill the frame without standing on top of them.',
     },
-    axes: { sh: { ideal: 'fast', steps: { fast: 1 / 1000, mid: 1 / 125, slow: 1 / 30 } } },
+    axes: { sh: { steps: { fast: 1 / 1000, mid: 1 / 125, slow: 1 / 30 } } },
   },
   {
     id: 'portrait', name: 'Portrait', blurb: 'One person, and a background that gets out of the way.',
@@ -40,20 +52,20 @@ export const LESSONS = [
       focal: 'The long end, so the background is magnified and the face is not stretched.',
     },
     axes: {
-      ap: { ideal: 'wide', steps: APERTURE_SET },
-      fl: { ideal: 'long', steps: { wide: 24, norm: 50, long: 105 } },
+      ap: { steps: APERTURE_SET },
+      fl: { steps: { wide: 24, norm: 50, long: 105 } },
     },
   },
   {
     id: 'group', name: 'Group photo', blurb: 'Two rows of people, and everyone wants to be sharp.',
-    focal: 35, aperture: 8, shutter: 1 / 500,
+    focal: 35, aperture: 5.6, shutter: 1 / 500,
     lights: ['hazy-sun', 'overcast', 'heavy-cloud', 'late-day'],
     why: {
       aperture: 'Stopped down far enough to carry the back row as well as the front.',
       shutter: 'Fast enough for a group that will not quite hold still.',
       focal: 'Wide enough to get everyone in without walking backwards into the sea.',
     },
-    axes: { ap: { ideal: 'mid', steps: APERTURE_SET } },
+    axes: { ap: { steps: APERTURE_SET } },
   },
   {
     id: 'sports', name: 'Sports & action', blurb: 'A football match from the touchline.',
@@ -64,20 +76,20 @@ export const LESSONS = [
       aperture: 'Just off wide open, which in daylight still leaves the shutter\n        all the light it needs.',
       focal: 'The longest this lens goes, and honestly it is short for a pitch.',
     },
-    axes: { sh: { ideal: 'fast', steps: { fast: 1 / 1000, mid: 1 / 125, slow: 1 / 30 } } },
+    axes: { sh: { steps: { fast: 1 / 1000, mid: 1 / 125, slow: 1 / 30 } } },
   },
   {
     id: 'street', name: 'Street', blurb: 'A city street, and something happening in it.',
-    focal: 35, aperture: 8, shutter: 1 / 250,
+    focal: 35, aperture: 5.6, shutter: 1 / 500,
     lights: ['hazy-sun', 'overcast', 'heavy-cloud', 'late-day', 'blue-hour'],
     why: {
       aperture: 'Deep enough that anything a few metres away is already sharp.',
-      shutter: 'Fast enough for someone walking past you.',
+      shutter: 'Fast enough for someone walking past you, and fast enough that\n        a wide-ish aperture in daylight does not run out of ISO.',
       focal: 'The classic street length: about what you see without turning your head.',
     },
     axes: {
-      ap: { ideal: 'mid', steps: APERTURE_SET },
-      fl: { ideal: 'norm', steps: { wide: 24, norm: 35, long: 105 } },
+      ap: { steps: APERTURE_SET },
+      fl: { steps: { wide: 24, norm: 35, long: 105 } },
     },
   },
   {
@@ -89,7 +101,7 @@ export const LESSONS = [
       shutter: 'Nothing is moving, so this is just fast enough for your hands.',
       focal: 'The wide end, which is what the wide end is for.',
     },
-    axes: { fl: { ideal: 'wide', steps: { wide: 24, norm: 50, long: 105 } } },
+    axes: { fl: { steps: { wide: 24, norm: 50, long: 105 } } },
   },
   {
     id: 'architecture', name: 'Architecture', blurb: 'A building you want to show whole.',
@@ -100,7 +112,7 @@ export const LESSONS = [
       shutter: 'A building is not going anywhere; this is for your hands.',
       focal: 'Wide enough to fit the building in from across the square.',
     },
-    axes: { fl: { ideal: 'wide', steps: { wide: 24, norm: 50, long: 105 } } },
+    axes: { fl: { steps: { wide: 24, norm: 50, long: 105 } } },
   },
   {
     id: 'indoor', name: 'Indoors, no flash', blurb: 'A room, the light that is already in it, and no flash.',
@@ -111,7 +123,7 @@ export const LESSONS = [
       shutter: 'About as slow as you can hand-hold and still be sharp.',
       focal: 'Wide enough for a room you cannot back out of.',
     },
-    axes: { ap: { ideal: 'wide', steps: APERTURE_SET } },
+    axes: { ap: { steps: APERTURE_SET } },
   },
   {
     id: 'food', name: 'Food & tabletop', blurb: 'What is in front of you, by the window.',
@@ -122,7 +134,7 @@ export const LESSONS = [
       shutter: 'Enough to be sharp leaning over a table.',
       focal: 'Close to what your eye sees, so the plate keeps its shape.',
     },
-    axes: { ap: { ideal: 'wide', steps: APERTURE_SET } },
+    axes: { ap: { steps: APERTURE_SET } },
   },
   {
     id: 'nightcity', name: 'Night & city', blurb: 'A skyline after the sun has gone, from a tripod.',
@@ -133,7 +145,7 @@ export const LESSONS = [
       shutter: 'Long enough for headlights to draw themselves across the frame.',
       focal: 'Wide, for the whole skyline and the road running into it.',
     },
-    axes: { sh: { ideal: 'slow', steps: { fast: 1 / 30, mid: 1 / 4, slow: 1 } } },
+    axes: { sh: { steps: { fast: 1 / 30, mid: 1 / 4, slow: 1 } } },
   },
   {
     id: 'water', name: 'Silky water', blurb: 'A waterfall, turned to smoke. Tripod, and a filter.',
@@ -144,7 +156,7 @@ export const LESSONS = [
       shutter: 'A full second. This is the whole trick.',
       focal: 'Wide, close in, with a rock in the foreground.',
     },
-    axes: { sh: { ideal: 'slow', steps: { fast: 1 / 500, mid: 1 / 15, slow: 1 } } },
+    axes: { sh: { steps: { fast: 1 / 500, mid: 1 / 15, slow: 1 } } },
   },
   {
     id: 'panning', name: 'Panning', blurb: 'Following something past you, so it stays sharp and the world does not.',
@@ -155,7 +167,7 @@ export const LESSONS = [
       aperture: 'Right down, and not for depth: a thirtieth of a second in daylight\n        is far more light than the lowest ISO can take.',
       focal: 'Enough reach to stand safely off the road.',
     },
-    axes: { sh: { ideal: 'slow', steps: { fast: 1 / 500, mid: 1 / 125, slow: 1 / 30 } } },
+    axes: { sh: { steps: { fast: 1 / 500, mid: 1 / 125, slow: 1 / 30 } } },
   },
 ];
 

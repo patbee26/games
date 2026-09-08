@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 
 import { LESSONS, lessonFor } from '../js/lessons.js';
 import { shotFor, isoFor, costOf, ISO_MIN, ISO_MAX } from '../js/shot.js';
-import { chipsFor, STEP_ORDER } from '../js/chips.js';
+import { chipsFor, STEP_ORDER, shotValue } from '../js/chips.js';
 import { lightById } from '../../app/js/data.js';
 
 const picture = (path) => existsSync(new URL('../../app/' + path, import.meta.url));
@@ -56,31 +56,81 @@ test('a scene that needs a filter says so, and only water does', () => {
   assert.equal(r.iso.v, ISO_MIN, 'the camera should sit at its floor, not climb');
 });
 
-test('every ideal step is one of the axis it belongs to', () => {
+test('every step belongs to its axis, and the shot is somewhere sensible on it', () => {
   for (const scene of LESSONS) {
     for (const [axis, spec] of Object.entries(scene.axes)) {
       assert.ok(STEP_ORDER[axis], `${scene.id} has an axis "${axis}" nothing knows about`);
-      assert.ok(spec.steps[spec.ideal] != null,
-        `${scene.id} ${axis} calls "${spec.ideal}" the shot but has no setting for it`);
       for (const step of Object.keys(spec.steps)) {
         assert.ok(STEP_ORDER[axis].includes(step), `${scene.id} ${axis} has an unknown step "${step}"`);
+      }
+      // The settings have to climb in the same direction as the photographs do,
+      // or a chip shows a picture that contradicts the number next to it.
+      const values = STEP_ORDER[axis].map((step) => spec.steps[step]).filter((v) => v != null);
+      for (let i = 1; i < values.length; i++) {
+        assert.ok(values[i] > values[i - 1],
+          `${scene.id} ${axis} goes ${values.join(', ')}, which is not in the order of its photographs`);
       }
     }
   }
 });
 
-test('the chips are the other two, never the shot itself', () => {
-  // A chip that shows the picture already on the screen teaches nothing, and
+test('the aperture ladder puts the shot between the dissolved and the soft picture', () => {
+  // Four pictures, not three: the dissolved variation, the scene's own
+  // photograph, the soft variation, the sharp one. That only reads correctly if
+  // the aperture on the card really does sit between the first two, which is
+  // what makes the dissolved photograph reachable at all.
+  for (const scene of LESSONS) {
+    const ap = scene.axes.ap;
+    if (!ap) continue;
+    assert.ok(scene.aperture > ap.steps.wide,
+      `${scene.id} is shot at f/${scene.aperture}, which is not narrower than its wide-open photograph`);
+    assert.ok(scene.aperture < ap.steps.mid,
+      `${scene.id} is shot at f/${scene.aperture}, which is not wider than its soft-background photograph`);
+  }
+});
+
+test('the chips are every step that is not the shot itself', () => {
+  // A chip that shows the picture already on the screen teaches nothing and
   // would leave the card looking broken when tapped.
   for (const scene of LESSONS) {
     for (const group of chipsFor(scene)) {
       const spec = scene.axes[group.axis];
-      assert.ok(group.chips.length >= 1, `${scene.id} ${group.axis} has no chips`);
+      const shot = shotValue(scene, group.axis);
+      const expected = Object.entries(spec.steps)
+        .filter(([, v]) => Math.abs(v / shot - 1) >= 0.01).length;
+      assert.equal(group.chips.length, expected,
+        `${scene.id} ${group.axis} offers ${group.chips.length} chips, expected ${expected}`);
       for (const chip of group.chips) {
-        assert.notEqual(chip.step, spec.ideal, `${scene.id} offers a chip for its own shot`);
+        assert.notEqual(spec.steps[chip.step], shot, `${scene.id} offers a chip for its own shot`);
         assert.ok(chip.label && chip.value && chip.result, `${scene.id} ${group.axis}-${chip.step} is missing wording`);
       }
     }
+  }
+});
+
+test('no two chips on a card read the same', () => {
+  // The wording is derived from how far a step is from the shot, so a scene
+  // whose settings happen to land two steps in the same size band would print
+  // the same label twice and give the reader two identical-looking buttons.
+  for (const scene of LESSONS) {
+    const labels = chipsFor(scene).flatMap((g) => g.chips.map((c) => c.label));
+    assert.equal(new Set(labels).size, labels.length,
+      `${scene.id} has repeated chip labels: ${labels.join(' | ')}`);
+  }
+});
+
+test('the aperture axis really does offer a completely dissolved background', () => {
+  // The reason the standard lens opens to f/2. Under the old arrangement the
+  // scene photograph stood in for the wide-open step, so the one picture that
+  // shows a background gone entirely was never reachable.
+  for (const id of ['portrait', 'food', 'indoor', 'group', 'street']) {
+    const scene = lessonFor(id);
+    const ap = chipsFor(scene).find((g) => g.axis === 'ap');
+    assert.ok(ap, `${id} has no aperture chips`);
+    const wide = ap.chips.find((c) => c.step === 'wide');
+    assert.ok(wide, `${id} cannot reach its wide-open photograph`);
+    assert.equal(wide.value, 'f/2');
+    assert.match(wide.result, /dissolve/);
   }
 });
 
@@ -125,6 +175,8 @@ test('what a chip costs is stated in stops, and the ISO agrees', () => {
   const change = { axis: 'ap', step: 'deep' };
   const cost = costOf({ sceneId: 'portrait', lightId: 'overcast', change });
   assert.ok(Math.abs(cost - 4) < 0.1, `f/4 to f/16 is four stops, got ${cost.toFixed(2)}`);
+  const open = costOf({ sceneId: 'portrait', lightId: 'overcast', change: { axis: 'ap', step: 'wide' } });
+  assert.ok(Math.abs(open + 2) < 0.1, `f/4 to f/2 gives back two stops, got ${open.toFixed(2)}`);
   const a = shotFor({ sceneId: 'portrait', lightId: 'overcast' });
   const b = shotFor({ sceneId: 'portrait', lightId: 'overcast', change });
   assert.ok(Math.abs(Math.log2(b.isoWanted / a.isoWanted) - cost) < 0.01);

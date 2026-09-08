@@ -11,14 +11,21 @@
 import { snapAperture } from '../../app/js/ladders.js';
 
 /**
- * The lens every scene is written for: the zoom these cameras are sold with.
- * Full frame, so there is no crop factor to explain on day one.
+ * The lens every scene is written for. Full frame, so there is no crop factor to
+ * explain on day one.
+ *
+ * f/2 rather than the f/4 a real kit zoom offers, and no such lens is sold. It
+ * is a teaching lens: at f/4 no scene could show a background that had genuinely
+ * dissolved, so the most striking thing an aperture does was missing from an app
+ * whose whole job is to show what apertures do. The honest half of that trade is
+ * on the gear page, which says plainly that a real kit zoom is f/4 and invites
+ * the photographer to add theirs.
  */
 export const STANDARD = {
   id: 'standard',
-  name: '24 to 105 mm f/4',
+  name: '24 to 105 mm f/2',
   short: '24 to 105 mm',
-  min: 24, max: 105, widest: 4,
+  min: 24, max: 105, widest: 2,
   standard: true,
 };
 
@@ -73,9 +80,9 @@ export function lensAdvice({ gear, focal, aperture }) {
     return {
       lens: STANDARD, tone: 'ok',
       verdict: `Set the standard zoom to ${focal} mm.`,
-      lines: [`Everything in this app is written for a ${STANDARD.name}, which is the
-               lens most cameras are sold with. Add your own on the Gear page and this
-               will talk about that one instead.`],
+      lines: [`Everything in this app is written for a ${STANDARD.name}, which is a
+               teaching lens rather than one you can buy. Add your own on the Gear page
+               and this will talk about that one instead.`],
     };
   }
 
@@ -87,13 +94,19 @@ export function lensAdvice({ gear, focal, aperture }) {
     if (own.widest > aperture) {
       // Their lens cannot open as wide as the shot asks for.
       const short = stopsWider(aperture, own.widest);
+      // Two different things are lost here and both are worth saying. The light
+      // comes back on the ISO, which costs grain. The depth of field does not
+      // come back at all, and since the aperture chips exist precisely to show
+      // what a wider opening does to the background, telling the reader the
+      // picture would be identical would be telling them the opposite.
       return {
         lens: own, tone: 'warn',
         verdict: `Your ${own.short} reaches ${focal} mm, but only opens to f/${own.widest}.`,
-        lines: [`That is ${stopsLabel(short)} short of the f/${aperture} on the card. Shoot it at
-                 f/${own.widest} and the camera will pick ${stopsLabel(short)} more ISO to make up
-                 the difference. The picture is the same picture; it will just be
-                 a little grainier.`],
+        lines: [`That is ${stopsLabel(short)} short of the f/${aperture} on the card. Shoot it
+                 at f/${own.widest} and the camera picks ${stopsLabel(short)} more ISO to make the
+                 brightness up, which costs you a little grain.`,
+                `The background is the part that does not come back. It will stay closer
+                 to what you see at f/${own.widest} than to the photograph above.`],
       };
     }
     if (gap >= 0.9) {

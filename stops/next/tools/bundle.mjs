@@ -69,11 +69,12 @@ const want = [];
 for (const scene of LESSONS) {
   want.push(`photos/bases/${scene.id}.jpg`);
   for (const [axis, spec] of Object.entries(scene.axes)) {
-    // Not the ideal step: the card shows the base photograph for the shot, so
-    // that variation is never reached and would be a megabyte of dead weight
-    // across the twelve scenes.
-    for (const step of Object.keys(spec.steps)) {
-      if (step !== spec.ideal) want.push(`photos/variants/${scene.id}__${axis}-${step}.jpg`);
+    // Not the step the scene is already shot at: the card shows the base
+    // photograph for that one, so its variation is never reached and would be a
+    // megabyte of dead weight across the twelve scenes.
+    const shot = { ap: scene.aperture, fl: scene.focal, sh: scene.shutter }[axis];
+    for (const [step, value] of Object.entries(spec.steps)) {
+      if (Math.abs(value / shot - 1) >= 0.01) want.push(`photos/variants/${scene.id}__${axis}-${step}.jpg`);
     }
   }
 }

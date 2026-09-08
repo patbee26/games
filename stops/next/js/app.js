@@ -16,7 +16,7 @@ import { FULL_STOPS, snapShutter, snapAperture } from '../../app/js/ladders.js';
 import { handheldFloor, motionThreshold, apertureForDepth } from '../../app/js/optics.js';
 import { LESSONS, lessonFor } from './lessons.js';
 import { shotFor, costOf } from './shot.js';
-import { chipsFor, resultOf } from './chips.js';
+import { chipsFor, resultOf, shotValue } from './chips.js';
 import { STANDARD, CROP, loadGear, saveGear, normalise, lensesIn, lensAdvice } from './gear.js';
 
 const app = document.getElementById('app');
@@ -124,7 +124,7 @@ function lightScreen() {
         <span class="light__sub">${esc(l.sub)}</span></span>
     </button>`;
   }).join('');
-  return `${header({ title: 'What is the light like?', sub: scene.name, back: 'scenes' })}
+  return `${header({ title: 'What is the light like?', sub: scene.name, back: 'scenes', home: true })}
     <div class="wrap">
       <p class="lede">Look up, not at a meter. The light does not change what you set.
         It changes what the camera has to do about it.</p>
@@ -209,7 +209,7 @@ function whyRow(axis, label, r) {
   const key = { ap: 'aperture', fl: 'focal', sh: 'shutter' }[axis];
   const lead = axis === 'fl' ? `${r.focal} mm. ` : '';
   if (r.change && r.change.axis === axis) {
-    const was = r.scene.axes[axis].steps[r.scene.axes[axis].ideal];
+    const was = shotValue(r.scene, axis);
     const shown = axis === 'ap' ? `f/${was}` : axis === 'fl' ? `${was} mm` : snapShutter(was).label;
     const moved = axis === 'fl'
       ? 'and you have moved your feet to keep the subject the same size, not just turned the zoom ring'
@@ -305,17 +305,19 @@ function askSection(scene, r) {
 
 function gearScreen() {
   const own = state.gear.own;
-  return `${header({ title: 'Your gear' })}
+  return `${header({ title: 'Your gear', home: true })}
     <div class="wrap">
       <p class="lede">Two things live here, and nothing else needs setting up.</p>
 
       <div class="lens-card lens-card--std">
         <div class="lens-card__k">The lens this app assumes</div>
         <div class="lens-card__n">${esc(STANDARD.name)}</div>
-        <p class="lens-card__p">On a full-frame camera. It is the zoom most of these
-          cameras are sold with, and every one of the twelve scenes is written for it:
-          the focal lengths sit inside 24 to 105 mm and no shot asks for a wider
-          aperture than f/4.</p>
+        <p class="lens-card__p">On a full-frame camera. No zoom like this is actually
+          sold: it is a teaching lens, chosen so that every lesson here is reachable
+          without owning anything else. The f/2 end is what lets a background dissolve
+          completely, which is a thing worth seeing before you go looking for it.</p>
+        <p class="lens-card__p">The kit zoom on a real camera is usually f/4. Add yours
+          below and every card will say what changes.</p>
       </div>
 
       ${own ? `
@@ -378,7 +380,7 @@ function guideScreen() {
     `<button data-act="guide-tab" data-v="${id}" aria-pressed="${state.guideTab === id}">${label}</button>`).join('');
   const body = { theory: guideTheory, stops: guideStops, shutter: guideShutter,
                  aperture: guideAperture, rules: guideRules }[state.guideTab]();
-  return `${header({ title: 'How it works' })}
+  return `${header({ title: 'How it works', home: true })}
     <div class="wrap"><div class="seg">${tabs}</div>${body}</div>`;
 }
 

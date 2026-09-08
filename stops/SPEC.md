@@ -123,7 +123,14 @@ and sent outside.
 
 ## 5. Gear
 
-**Default: a 24–105 mm f/4 zoom on a full-frame body.** No setup, no questions.
+**Default: a 24 to 105 mm f/2 zoom on a full-frame body.** No setup, no questions.
+
+No lens like that is sold. It is a teaching lens, and f/2 rather than f/4 for one
+reason: at f/4 the scene's own aperture *was* the wide-open step, so the scene
+photograph stood in for it and the one picture showing a background gone entirely
+was never reachable. At f/2 the shot sits between the dissolved photograph and
+the soft one, which makes an aperture scene four pictures rather than three. The
+gear page says plainly that a real kit zoom is f/4.
 This replaces the three-lens profile, the ISO ceiling question, the stabilisation
 question and the hand-held floor question.
 

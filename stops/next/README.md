@@ -37,6 +37,23 @@ article.
 is what the "Your lens" line on every card then talks about. It also has the
 button that replays the introduction, as does `?intro` on the end of the URL.
 
+## The standard lens is a 24 to 105 mm f/2, which is not a real lens
+
+Deliberate, and the gear page says so. At f/4 no scene could show a background
+that had genuinely dissolved: the scene photograph stood in for the wide-open
+step, so the one picture in the whole set that shows a background gone entirely
+was never reachable. Opening the teaching lens to f/2 puts the scene's own
+aperture *between* the dissolved photograph and the soft one, which turns three
+pictures per aperture scene into four:
+
+| f/2 | the shot | f/8 | f/16 |
+|---|---|---|---|
+| background gone | the scene photograph | background soft | sharp front to back |
+
+A real kit zoom is f/4. Add yours on the Gear page and the card will say what
+that costs you, in grain and in background, whenever a chip asks for more than
+it has.
+
 ## What it does not have
 
 Everything the first app can do and this one cannot is deliberate: no aperture
