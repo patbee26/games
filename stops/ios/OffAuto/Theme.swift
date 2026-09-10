@@ -45,9 +45,3 @@ extension Font {
     .system(size: size, weight: weight, design: .monospaced)
   }
 }
-
-/// The environment's colour scheme, read once and passed down, so every view
-/// reaches for the palette the same way.
-struct Scheme: EnvironmentKey {
-  static let defaultValue: ColorScheme = .dark
-}

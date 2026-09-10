@@ -92,16 +92,25 @@ struct GuideView: View {
     .padding(.bottom, 12)
   }
 
-  private func rows(_ items: [(String, String, String?)]) -> some View {
+  /// A row of one of the reference tables: a name, a number, and sometimes the
+  /// working behind it.
+  struct Row: Identifiable {
+    let name: String
+    let value: String
+    var note: String? = nil
+    var id: String { name }
+  }
+
+  private func rows(_ items: [Row]) -> some View {
     VStack(spacing: 0) {
       ForEach(Array(items.enumerated()), id: \.offset) { index, item in
         VStack(alignment: .leading, spacing: 3) {
           HStack(alignment: .firstTextBaseline) {
-            Text(item.0).font(.system(size: 13.8)).foregroundStyle(Palette.ink(scheme))
+            Text(item.name).font(.system(size: 13.8)).foregroundStyle(Palette.ink(scheme))
             Spacer(minLength: 12)
-            Text(item.1).font(.data(15)).foregroundStyle(Palette.amber(scheme))
+            Text(item.value).font(.data(15)).foregroundStyle(Palette.amber(scheme))
           }
-          if let note = item.2 {
+          if let note = item.note {
             Text(note).font(.system(size: 11.8)).foregroundStyle(Palette.ink4(scheme))
           }
         }
@@ -208,16 +217,18 @@ struct GuideView: View {
       focalPicker
       heading("Camera shake, at \(printed(focal)) mm")
       rows([
-        ("The reciprocal rule", Ladders.shutter(1 / focal).label, "1 divided by \(printed(focal))"),
-        ("With a stabilised lens", Ladders.shutter(pow(2, 3) / focal).label, "about three stops of help"),
+        Row(name: "The reciprocal rule", value: Ladders.shutter(1 / focal).label,
+            note: "1 divided by \(printed(focal))"),
+        Row(name: "With a stabilised lens", value: Ladders.shutter(pow(2, 3) / focal).label,
+            note: "about three stops of help"),
       ])
       para("The old rule is that you can hand-hold down to one over the focal length. It is a rough thing, not a law: braced against a wall you will do better, and cold or tired you will do worse.")
       heading("Subject movement, at \(printed(focal)) mm")
-      rows(Movers.all.map { mover in
+      rows(Movers.all.map { mover -> Row in
         let subject = mover.at50 * (focal / 50)
         let threshold = Movers.threshold(focal: focal, speed: mover.speed, subject: subject)
-        return (mover.name, Ladders.shutter(threshold).label,
-                "\(printed(mover.speed)) m/s, \(String(format: "%.1f", subject)) m away")
+        return Row(name: mover.name, value: Ladders.shutter(threshold).label,
+                   note: "\(printed(mover.speed)) m/s, \(String(format: "%.1f", subject)) m away")
       })
       para("These are the speeds at which the movement **starts** to show. Two stops faster and it is properly frozen.")
       para("Here is the part worth knowing: framed the same way, a moving subject needs **the same shutter speed on any lens**. A longer lens magnifies the movement, but you also stand further back, and the two cancel exactly. Only camera shake gets worse with a long lens.")
@@ -229,11 +240,11 @@ struct GuideView: View {
       para("The aperture does two jobs at once, and they pull against each other. It sets **how much light gets in** and **how much of the scene is sharp**. You cannot buy one without paying in the other.")
       focalPicker
       heading("Enough depth, at \(printed(focal)) mm")
-      rows(Depths.all.map { depth in
+      rows(Depths.all.map { depth -> Row in
         let subject = depth.at50 * (focal / 50)
         let needed = Depths.aperture(focal: focal, subject: subject, far: subject + depth.gap)
-        return (depth.name, needed.map { Ladders.aperture($0).label } ?? "any",
-                "\(String(format: "%.1f", subject)) m away, \(printed(depth.gap)) m deep")
+        return Row(name: depth.name, value: needed.map { Ladders.aperture($0).label } ?? "any",
+                   note: "\(String(format: "%.1f", subject)) m away, \(printed(depth.gap)) m deep")
       })
       para("Stop down at least this far and everything in that group comes out sharp. Notice how quickly it climbs when the subject is close.")
       heading("The three things that set the blur")
@@ -251,15 +262,15 @@ struct GuideView: View {
     VStack(alignment: .leading, spacing: 0) {
       para("Nine things worth remembering, none of which you have to work out on the spot.")
       rows([
-        ("Sunny 16", "f/16 at 1/ISO", nil),
-        ("One stop", "×2 light", nil),
-        ("Doubling the ISO", "+1 stop", nil),
-        ("Opening one f-stop", "+1 stop", nil),
-        ("Halving the shutter", "−1 stop", nil),
-        ("Hand-held floor", "1 ÷ focal", nil),
-        ("A stabilised lens", "3 stops slower", nil),
-        ("Stars, before they trail", "500 ÷ focal", nil),
-        ("A 10-stop filter", "1/500 → 2s", nil),
+        Row(name: "Sunny 16", value: "f/16 at 1/ISO"),
+        Row(name: "One stop", value: "x2 light"),
+        Row(name: "Doubling the ISO", value: "+1 stop"),
+        Row(name: "Opening one f-stop", value: "+1 stop"),
+        Row(name: "Halving the shutter", value: "-1 stop"),
+        Row(name: "Hand-held floor", value: "1 / focal"),
+        Row(name: "A stabilised lens", value: "3 stops slower"),
+        Row(name: "Stars, before they trail", value: "500 / focal"),
+        Row(name: "A 10-stop filter", value: "1/500 to 2s"),
       ])
       para("Every rule here is a starting point. Your camera's meter and your own eyes outrank all of them, and the histogram outranks your eyes.")
     }
