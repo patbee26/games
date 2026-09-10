@@ -1,0 +1,359 @@
+[
+  {
+    "name": "shake",
+    "kind": "shake",
+    "expects": "Four were slower than your hands hold at 105 mm.",
+    "frames": [
+      {
+        "second": 0,
+        "aperture": 4,
+        "shutter": 0.004,
+        "iso": 400,
+        "focal": 105
+      },
+      {
+        "second": 90,
+        "aperture": 4,
+        "shutter": 0.005,
+        "iso": 400,
+        "focal": 105
+      },
+      {
+        "second": 180,
+        "aperture": 4,
+        "shutter": 0.00625,
+        "iso": 800,
+        "focal": 105
+      },
+      {
+        "second": 270,
+        "aperture": 4,
+        "shutter": 0.016666666666666666,
+        "iso": 1600,
+        "focal": 105
+      },
+      {
+        "second": 360,
+        "aperture": 4,
+        "shutter": 0.025,
+        "iso": 1600,
+        "focal": 105
+      },
+      {
+        "second": 450,
+        "aperture": 4,
+        "shutter": 0.03333333333333333,
+        "iso": 3200,
+        "focal": 105
+      },
+      {
+        "second": 540,
+        "aperture": 4,
+        "shutter": 0.008,
+        "iso": 1600,
+        "focal": 105
+      },
+      {
+        "second": 630,
+        "aperture": 2.8,
+        "shutter": 0.004,
+        "iso": 800,
+        "focal": 105
+      },
+      {
+        "second": 720,
+        "aperture": 4,
+        "shutter": 0.04,
+        "iso": 3200,
+        "focal": 105
+      },
+      {
+        "second": 810,
+        "aperture": 4,
+        "shutter": 0.005,
+        "iso": 1600,
+        "focal": 105
+      }
+    ]
+  },
+  {
+    "name": "grain",
+    "kind": "grain",
+    "expects": "Six were grainier than they needed to be.",
+    "frames": [
+      {
+        "second": 0,
+        "aperture": 5.6,
+        "shutter": 0.008,
+        "iso": 6400,
+        "focal": 50
+      },
+      {
+        "second": 90,
+        "aperture": 5.6,
+        "shutter": 0.008,
+        "iso": 6400,
+        "focal": 50
+      },
+      {
+        "second": 180,
+        "aperture": 4,
+        "shutter": 0.008,
+        "iso": 12800,
+        "focal": 50
+      },
+      {
+        "second": 270,
+        "aperture": 5.6,
+        "shutter": 0.008,
+        "iso": 3200,
+        "focal": 50
+      },
+      {
+        "second": 360,
+        "aperture": 2,
+        "shutter": 0.004,
+        "iso": 1600,
+        "focal": 50
+      },
+      {
+        "second": 450,
+        "aperture": 2.8,
+        "shutter": 0.008,
+        "iso": 2000,
+        "focal": 50
+      },
+      {
+        "second": 540,
+        "aperture": 4,
+        "shutter": 0.00625,
+        "iso": 6400,
+        "focal": 50
+      },
+      {
+        "second": 630,
+        "aperture": 5.6,
+        "shutter": 0.008,
+        "iso": 8000,
+        "focal": 50
+      }
+    ]
+  },
+  {
+    "name": "oneAperture",
+    "kind": "oneAperture",
+    "expects": "Every frame was at f/8.",
+    "frames": [
+      {
+        "second": 0,
+        "aperture": 8,
+        "shutter": 0.002,
+        "iso": 100,
+        "focal": 35
+      },
+      {
+        "second": 90,
+        "aperture": 8,
+        "shutter": 0.002,
+        "iso": 100,
+        "focal": 35
+      },
+      {
+        "second": 180,
+        "aperture": 8,
+        "shutter": 0.004,
+        "iso": 200,
+        "focal": 35
+      },
+      {
+        "second": 270,
+        "aperture": 8,
+        "shutter": 0.004,
+        "iso": 400,
+        "focal": 35
+      },
+      {
+        "second": 360,
+        "aperture": 8,
+        "shutter": 0.008,
+        "iso": 800,
+        "focal": 35
+      },
+      {
+        "second": 450,
+        "aperture": 8,
+        "shutter": 0.008,
+        "iso": 1600,
+        "focal": 35
+      },
+      {
+        "second": 540,
+        "aperture": 8,
+        "shutter": 0.005,
+        "iso": 400,
+        "focal": 35
+      },
+      {
+        "second": 630,
+        "aperture": 8,
+        "shutter": 0.003125,
+        "iso": 200,
+        "focal": 35
+      }
+    ]
+  },
+  {
+    "name": "spread",
+    "kind": "spread",
+    "expects": "You worked 6 stops of aperture across this set.",
+    "frames": [
+      {
+        "second": 0,
+        "aperture": 2,
+        "shutter": 0.001,
+        "iso": 100,
+        "focal": 85
+      },
+      {
+        "second": 90,
+        "aperture": 2.8,
+        "shutter": 0.002,
+        "iso": 100,
+        "focal": 85
+      },
+      {
+        "second": 180,
+        "aperture": 4,
+        "shutter": 0.002,
+        "iso": 200,
+        "focal": 50
+      },
+      {
+        "second": 270,
+        "aperture": 5.6,
+        "shutter": 0.004,
+        "iso": 400,
+        "focal": 50
+      },
+      {
+        "second": 360,
+        "aperture": 8,
+        "shutter": 0.004,
+        "iso": 800,
+        "focal": 35
+      },
+      {
+        "second": 450,
+        "aperture": 11,
+        "shutter": 0.008,
+        "iso": 1600,
+        "focal": 35
+      },
+      {
+        "second": 540,
+        "aperture": 16,
+        "shutter": 0.008,
+        "iso": 1600,
+        "focal": 24
+      },
+      {
+        "second": 630,
+        "aperture": 16,
+        "shutter": 0.016666666666666666,
+        "iso": 1600,
+        "focal": 24
+      }
+    ]
+  },
+  {
+    "name": "steady",
+    "kind": "steady",
+    "expects": "Nothing here was slower than your hands could hold.",
+    "frames": [
+      {
+        "second": 0,
+        "aperture": 2.8,
+        "shutter": 0.016666666666666666,
+        "iso": 1600,
+        "focal": 50
+      },
+      {
+        "second": 90,
+        "aperture": 2.8,
+        "shutter": 0.0125,
+        "iso": 1600,
+        "focal": 50
+      },
+      {
+        "second": 180,
+        "aperture": 4,
+        "shutter": 0.01,
+        "iso": 2500,
+        "focal": 50
+      },
+      {
+        "second": 270,
+        "aperture": 4,
+        "shutter": 0.01,
+        "iso": 2500,
+        "focal": 50
+      },
+      {
+        "second": 360,
+        "aperture": 4,
+        "shutter": 0.008,
+        "iso": 2000,
+        "focal": 50
+      },
+      {
+        "second": 450,
+        "aperture": 5.6,
+        "shutter": 0.008,
+        "iso": 2000,
+        "focal": 50
+      },
+      {
+        "second": 540,
+        "aperture": 5.6,
+        "shutter": 0.00625,
+        "iso": 2500,
+        "focal": 50
+      },
+      {
+        "second": 630,
+        "aperture": 2.8,
+        "shutter": 0.016666666666666666,
+        "iso": 1250,
+        "focal": 50
+      }
+    ]
+  },
+  {
+    "name": "quiet",
+    "kind": null,
+    "expects": "nothing at all",
+    "frames": [
+      {
+        "second": 0,
+        "aperture": 4,
+        "shutter": 0.004,
+        "iso": 400,
+        "focal": 50
+      },
+      {
+        "second": 90,
+        "aperture": 4,
+        "shutter": 0.004,
+        "iso": 400,
+        "focal": 50
+      },
+      {
+        "second": 180,
+        "aperture": 4,
+        "shutter": 0.004,
+        "iso": 400,
+        "focal": 50
+      }
+    ]
+  }
+]

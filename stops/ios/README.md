@@ -17,7 +17,7 @@ piece of lens advice and both computed guide tables are asserted against the
 shipped web app, and that check runs anywhere with a Swift toolchain:
 
 ```
-cd ios/OffAutoKit && swift test      # 27 tests, no Xcode needed
+cd ios/OffAutoKit && swift test      # 29 tests, no Xcode needed
 ```
 
 What no test covers is how any of it **looks**, since there is nothing here that
@@ -138,6 +138,42 @@ has one whole shoot. It reads at most half a megabyte per file, never opens the
 picture, never downloads anything sitting only in iCloud, and skips anything the
 phone itself took. Nothing leaves the device, because there is no code in this
 app that could send it anywhere.
+
+### Seeing it work in the simulator
+
+The simulator's photo library holds Apple's sample pictures and nothing else,
+and the debrief ignores anything the phone itself took, so out of the box there
+is nothing for it to look at. `tools/fake-shoot.mjs` writes an afternoon's worth
+of camera files: real photographs out of the app's own asset catalogue, with an
+exposure block spliced into the head of each one saying what a camera would have
+said.
+
+```
+node ios/tools/fake-shoot.mjs                     # the scenarios, and what each should say
+node ios/tools/fake-shoot.mjs shake
+xcrun simctl addmedia booted /tmp/offauto-shoot/*.jpg
+```
+
+Then in the app: gear page, **Look again**. There is one scenario per finding
+the app can make, plus `quiet`, which is three frames and should produce nothing
+at all.
+
+Two things make this trustworthy rather than a pile of test data:
+
+- **The bytes are read back before they are written.** A second parser in that
+  file, written from the TIFF format rather than from the writer above it,
+  re-reads every frame and refuses to write one that does not say what was
+  asked. An offset wrong by two bytes here would look exactly like a bug in the
+  app and get chased there for an hour.
+- **The promises are asserted.** `--fixture` hands the scenario table to the
+  Swift tests, which run the shipped analysis over the same numbers and check
+  the exact sentence. If a scenario ever drifts onto a different finding, the
+  test fails here rather than in front of a simulator.
+
+The shoot is dated two hours ago with ninety seconds between frames, so it is
+the most recent session on any library. Adding a second scenario without erasing
+the first joins the two into one shoot, and the app will read them as one: use
+`xcrun simctl erase booted` between scenarios, or add one at a time.
 
 ## Light and dark
 

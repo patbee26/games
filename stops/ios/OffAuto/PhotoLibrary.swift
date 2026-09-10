@@ -147,18 +147,36 @@ final class PhotoLibrary: ObservableObject {
     let make = (tiff?[kCGImagePropertyTIFFMake] as? String ?? "").lowercased()
     if make.contains("apple") { return nil }
 
-    guard let aperture = exif[kCGImagePropertyExifFNumber] as? Double,
-          let shutter = exif[kCGImagePropertyExifExposureTime] as? Double,
-          let iso = (exif[kCGImagePropertyExifISOSpeedRatings] as? [Double])?.first,
+    guard let aperture = number(exif, kCGImagePropertyExifFNumber),
+          let shutter = number(exif, kCGImagePropertyExifExposureTime),
           let date = asset.creationDate
     else { return nil }
 
+    // Sensitivity is the one field cameras disagree about: some write a list,
+    // some a single number, and some use the newer tag. Getting this wrong
+    // would drop every frame and look exactly like an empty library.
+    guard let iso = number(exif, kCGImagePropertyExifISOSpeedRatings)
+      ?? number(exif, kCGImagePropertyExifPhotographicSensitivity)
+    else { return nil }
+
     // Full-frame terms, since that is what every scene is written in.
-    let focal = (exif[kCGImagePropertyExifFocalLenIn35mmFilm] as? Double)
-      ?? (exif[kCGImagePropertyExifFocalLength] as? Double)
+    let focal = number(exif, kCGImagePropertyExifFocalLenIn35mmFilm)
+      ?? number(exif, kCGImagePropertyExifFocalLength)
     guard let focal, focal > 0, aperture > 0, shutter > 0, iso > 0 else { return nil }
 
     return Frame(id: asset.localIdentifier, date: date,
                  aperture: aperture, shutter: shutter, iso: iso, focal: focal)
+  }
+
+  /// One number out of an exposure block, whether the file wrote it as a number
+  /// or as a list of one.
+  private nonisolated static func number(_ exif: [CFString: Any], _ key: CFString) -> Double? {
+    switch exif[key] {
+    case let value as Double: return value
+    case let value as NSNumber: return value.doubleValue
+    case let list as [Double]: return list.first
+    case let list as [NSNumber]: return list.first?.doubleValue
+    default: return nil
+    }
   }
 }

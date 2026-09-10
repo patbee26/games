@@ -15,6 +15,6 @@ let package = Package(
   targets: [
     .target(name: "OffAutoKit"),
     .testTarget(name: "OffAutoKitTests", dependencies: ["OffAutoKit"],
-                resources: [.copy("model-fixture.json")]),
+                resources: [.copy("model-fixture.json"), .copy("shoots.json")]),
   ]
 )

@@ -63,7 +63,7 @@ public enum Sessions {
 
 /// What the app noticed about a session. One of these, or none.
 public struct Finding: Identifiable, Sendable {
-  public enum Kind: String, Sendable {
+  public enum Kind: String, CaseIterable, Sendable {
     case shake, grain, oneAperture   // worth fixing
     case spread, steady              // worth saying out loud
   }
@@ -185,7 +185,8 @@ public enum Debrief {
     return Finding(
       kind: .steady,
       headline: "Nothing here was slower than your hands could hold.",
-      body: "\(count(close.count)) of \(frames.count) sat within a couple of stops of the limit, so "
+      body: "\(count(close.count)) of \(count(frames.count).lowercased()) sat within a couple of stops "
+          + "of the limit, so "
           + "this was not a set where the light made it easy. You kept the shutter above it anyway.",
       frames: close)
   }
