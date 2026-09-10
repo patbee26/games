@@ -88,9 +88,16 @@ struct DebriefStrip: View {
     case .ready(let session):
       // Nothing found and nothing to say are the same thing here, and both are
       // silence. An app that announces it has no opinion is noise.
-      if let session, !store.dismissed.contains(session.id),
-         let finding = Debrief.finding(for: session, gear: store.gear) {
-        card(session: session, finding: finding)
+      if let session, let finding = Debrief.finding(for: session, gear: store.gear) {
+        // Read once, it stops being a card and becomes a line. The card is the
+        // notification and has no business coming back every launch; the shoot
+        // itself is still there, and wanting another look at it a week later is
+        // not the same as needing to be told again.
+        if store.dismissed.contains(session.id) {
+          line(session: session, finding: finding)
+        } else {
+          card(session: session, finding: finding)
+        }
       }
     case .noCameraFiles:
       EmptyView()
@@ -134,6 +141,29 @@ struct DebriefStrip: View {
     }
   }
 
+  private func line(session: Session, finding: Finding) -> some View {
+    Button { showFrames = true } label: {
+      HStack(spacing: 7) {
+        Image(systemName: finding.isPraise ? "checkmark.circle" : "eye")
+          .font(.system(size: 12, weight: .medium))
+        Text("Your last shoot, \(Self.when(session.start).lowercased())")
+          .font(.system(size: 13))
+        Spacer(minLength: 0)
+        Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold))
+      }
+      .foregroundStyle(Palette.ink3(scheme))
+      .padding(.horizontal, 14)
+      .padding(.vertical, 11)
+      .frame(maxWidth: .infinity)
+      .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
+        .strokeBorder(Palette.line(scheme)))
+    }
+    .buttonStyle(.plain)
+    .sheet(isPresented: $showFrames) {
+      DebriefSheet(finding: finding, session: session)
+    }
+  }
+
   // MARK: the shell both cards sit in
 
   @ViewBuilder
@@ -168,12 +198,14 @@ struct DebriefStrip: View {
   }
 }
 
-/// The frames the finding is about, so it can be checked rather than believed.
+/// The whole debrief, kept somewhere it can be gone back to.
 ///
-/// Settings only. The photographs themselves are on the phone already and the
-/// app has no business showing them back: the point of this list is to be read
-/// next to the pictures, not instead of them.
-struct FramesView: View {
+/// What the card said, and then the frames it was talking about so it can be
+/// checked rather than believed. Settings only: the photographs themselves are
+/// on the phone already and the app has no business showing them back, since
+/// the point of the list is to be read next to the pictures rather than
+/// instead of them.
+struct DebriefSheet: View {
   @Environment(\.colorScheme) private var scheme
   @Environment(\.dismiss) private var dismiss
   private let finding: Finding
@@ -191,6 +223,11 @@ struct FramesView: View {
             .font(.system(size: 17, weight: .semibold))
             .foregroundStyle(Palette.ink(scheme))
             .lineSpacing(2)
+            .fixedSize(horizontal: false, vertical: true)
+          Text(finding.body)
+            .font(.system(size: 13.4))
+            .foregroundStyle(Palette.ink2(scheme))
+            .lineSpacing(3)
             .fixedSize(horizontal: false, vertical: true)
           Text("Open your photographs to the same times and look at these next to the numbers.")
             .font(.system(size: 13.2))
@@ -214,7 +251,7 @@ struct FramesView: View {
         .padding(.bottom, 24)
       }
       .background(Palette.bg(scheme).ignoresSafeArea())
-      .navigationTitle("The frames")
+      .navigationTitle("Your last shoot")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .confirmationAction) {

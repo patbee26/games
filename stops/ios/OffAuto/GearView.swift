@@ -14,6 +14,7 @@ struct GearView: View {
   @State private var max = ""
   @State private var widest = ""
   @State private var error = ""
+  @State private var reviewing = false
 
   var body: some View {
     ScrollView {
@@ -138,6 +139,13 @@ struct GearView: View {
           .foregroundStyle(Palette.ink3(scheme))
           .lineSpacing(2)
           .fixedSize(horizontal: false, vertical: true)
+        if let session = lastSession, let finding = lastFinding {
+          Button("Read it again") { reviewing = true }
+            .buttonStyle(GhostButton())
+            .sheet(isPresented: $reviewing) {
+              DebriefSheet(finding: finding, session: session)
+            }
+        }
         HStack(spacing: 9) {
           Button("Look again") { Task { await photos.request() } }
             .buttonStyle(GhostButton())
@@ -149,6 +157,18 @@ struct GearView: View {
         }
       }
     }
+  }
+
+  /// The shoot the app last had something to say about, whether or not the card
+  /// announcing it has been read.
+  private var lastSession: Session? {
+    if case .ready(let session) = photos.state { return session }
+    return nil
+  }
+
+  private var lastFinding: Finding? {
+    guard let lastSession else { return nil }
+    return Debrief.finding(for: lastSession, gear: store.gear)
   }
 
   private var photoStatus: String {

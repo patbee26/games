@@ -103,12 +103,15 @@ is how the two apps start disagreeing about what a portrait is shot at.
 The one thing here that the web app cannot do. After you have been out with the
 camera and brought the files across to the phone, the top of the scene list says
 **one** thing about that shoot: three frames slower than your hands hold, or a
-whole afternoon at one aperture, or, just as often, something you did well.
+whole afternoon at one aperture, or, just as often, something you did well. The
+gear page keeps a way back to it as well.
 
 It is a debrief and not a checker, and the difference is the whole design:
 
 - **It is never entered.** There is no mode, no file picker, no button that says
-  analyse. It is waiting when you next open the app, and it goes away once read.
+  analyse. It is waiting when you next open the app, and once read it stops
+  being a card and becomes one quiet line, which reopens it. Wanting another
+  look a week later is not the same as needing to be told again.
 - **One finding, never a list.** If three habits are visible it names the one
   that touched the most frames. A reader handed three corrections fixes none.
 - **It praises as readily as it corrects**, and only when the praise is earned:
