@@ -6,6 +6,7 @@ import OffAutoKit
 /// and the thing worth looking at.
 struct SceneListView: View {
   @Environment(\.colorScheme) private var scheme
+  @EnvironmentObject private var store: Store
 
   init() {}
 
@@ -14,7 +15,26 @@ struct SceneListView: View {
   var body: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 0) {
-        Lockup().padding(.top, 4).padding(.bottom, 12)
+        HStack(alignment: .center) {
+          Lockup()
+          Spacer(minLength: 8)
+          // The theme, one tap away, because this app gets read outdoors and
+          // the right answer changes with the sky rather than with taste.
+          Button {
+            store.appearance = store.appearance.next
+          } label: {
+            Image(systemName: store.appearance.icon)
+              .font(.system(size: 15, weight: .medium))
+              .foregroundStyle(Palette.ink2(scheme))
+              .frame(width: 38, height: 38)
+              .background(Palette.card(scheme), in: Circle())
+              .overlay(Circle().strokeBorder(Palette.line(scheme)))
+          }
+          .buttonStyle(.plain)
+          .accessibilityLabel("Theme: \(store.appearance.name)")
+        }
+        .padding(.top, 4)
+        .padding(.bottom, 12)
         Text("What are you shooting?")
           .font(.system(size: 22, weight: .semibold))
           .foregroundStyle(Palette.ink(scheme))
@@ -24,6 +44,7 @@ struct SceneListView: View {
           .lineSpacing(3)
           .padding(.top, 7)
           .fixedSize(horizontal: false, vertical: true)
+        DebriefStrip().padding(.top, 16)
         LazyVGrid(columns: columns, spacing: 10) {
           ForEach(Lesson.all) { lesson in
             NavigationLink(value: lesson.id) { Tile(lesson: lesson) }

@@ -37,6 +37,10 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: Off Auto
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: >-
+          Off Auto reads the aperture, shutter, ISO and focal length your camera
+          saved with each photograph, so it can tell you one thing about your
+          last shoot. It never opens the pictures and nothing leaves this phone.
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
