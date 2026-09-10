@@ -24,7 +24,7 @@ public struct Frame: Identifiable, Hashable, Sendable {
 
 /// An afternoon out. Frames close together in time, which is as good a
 /// definition of "a shoot" as anything the file can tell us.
-public struct Session: Identifiable, Sendable {
+public struct Session: Identifiable, Hashable, Sendable {
   public let frames: [Frame]
   public var id: String { frames.first?.id ?? "empty" }
   public var start: Date { frames.first?.date ?? .distantPast }

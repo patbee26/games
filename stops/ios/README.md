@@ -17,7 +17,7 @@ piece of lens advice and both computed guide tables are asserted against the
 shipped web app, and that check runs anywhere with a Swift toolchain:
 
 ```
-cd ios/OffAutoKit && swift test      # 26 tests, no Xcode needed
+cd ios/OffAutoKit && swift test      # 27 tests, no Xcode needed
 ```
 
 What no test covers is how any of it **looks**, since there is nothing here that

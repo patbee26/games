@@ -159,6 +159,24 @@ final class DebriefTests: XCTestCase {
     XCTAssertNotNil(found)
   }
 
+  /// The app wraps a session in an enum it declares `Equatable`, so that a
+  /// SwiftUI view can tell one state from another. Nothing in this package
+  /// needs that, which is exactly why it went missing and why the whole build
+  /// failed on a machine this one cannot reach. This is that requirement,
+  /// written down somewhere it gets compiled.
+  private enum StateAsTheAppDeclaresIt: Equatable {
+    case scanning
+    case ready(Session?)
+  }
+
+  func testASessionCanBeComparedTheWayTheAppCompares() {
+    let a = session([frame(0), frame(1, minutesIn: 5)])
+    let b = session([frame(0), frame(1, minutesIn: 5)])
+    XCTAssertEqual(StateAsTheAppDeclaresIt.ready(a), .ready(b))
+    XCTAssertNotEqual(StateAsTheAppDeclaresIt.ready(a), .ready(nil))
+    XCTAssertNotEqual(StateAsTheAppDeclaresIt.ready(a), .scanning)
+  }
+
   func testTheLightIsRecoveredFromTheExposure() {
     // Sunny 16, backwards. This is what lets a wrong choice be told apart from
     // a photograph that was never available.
