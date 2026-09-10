@@ -25,9 +25,14 @@ const page = (size) => `<body style="margin:0">
   </div>
 </body>`;
 
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+// No width or height, only a viewBox, so it scales to whatever box it is put
+// in. With them it rendered at a fixed 64 px and overflowed anything smaller,
+// which is every place a favicon is actually used. The mark is drawn a little
+// larger here than on the home-screen tiles, because this one spends its life
+// at sixteen pixels in a browser tab.
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="14" fill="${BG}"/>
-  <g transform="translate(32 32) scale(0.58) translate(-32 -32)" fill="none">
+  <g transform="translate(32 32) scale(0.68) translate(-32 -32)" fill="none">
     <path d="M48.58 22.82 A20 20 0 1 1 33.40 14.05" stroke="${INK}" stroke-width="3.6" stroke-linecap="round"/>
     <circle cx="42" cy="16.68" r="5" fill="${AMBER}"/>
     <path d="M22.5 42.5 V26.8 L32 36.2 L41.5 26.8 V42.5" stroke="${INK}" stroke-width="3.6"

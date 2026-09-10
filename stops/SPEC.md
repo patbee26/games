@@ -76,16 +76,22 @@ we already have, now saying something a beginner can act on:
 ## 4. The core loop
 
 ```
-Start  →  Pick a scene  →  Pick the light  →  One card: the shot  →  Go shoot
-                                                       ↕
-                                    tap a chip, see the picture change
+Start  →  Pick a scene  →  One card: the shot  →  Go shoot
+                                    ↕
+                 tap a chip, see the picture change
 ```
 
 **Three taps to a card, and the card has no controls on it.** It states the
 shot: this focal length, this aperture, this shutter, because that is how this
 photograph is taken. Nothing on it can be set or tuned.
 
-**The light step stays**, against an earlier draft of this spec that cut it. The
+**The light step is gone after all**, which is where the first draft of this
+spec had it. It was tried and dropped: in M with Auto ISO the light does not
+change what you set, so choosing a condition moved the ISO and left the rest of
+the card identical, and it read as though the step did nothing. What it was
+actually for now lives on the card as a table of what the ISO does across every
+condition the scene is worth shooting in, plus the honest refusals. The argument
+for keeping it, kept here because it is still the reason the table exists: The
 argument for cutting it was that classifying light is the hard part; the
 argument for keeping it is stronger. In M with Auto ISO the light does not
 change what you set. It changes what the camera has to do about it, and the

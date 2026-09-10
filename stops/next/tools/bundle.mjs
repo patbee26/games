@@ -120,6 +120,7 @@ const html = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0B0C0D">
 <title>Off Auto: learn your camera</title>
+<link rel="icon" href="data:image/svg+xml;base64,${Buffer.from(read(here, 'icons/icon.svg')).toString('base64')}">
 <style>${fonts}</style>
 <style>${read(here, 'styles.css')}</style>
 </head>

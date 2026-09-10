@@ -100,7 +100,7 @@ function scenesScreen() {
     </div>`;
 }
 
-/* ── Screen 2: the light ─────────────────────────────────────────────────── */
+/* ── The light a scene assumes ───────────────────────────────────────────── */
 
 // A swatch, so the list can be skimmed by eye before it is read. Warm and
 // bright at the top, cold and dark at the bottom, which is what the day does.
@@ -117,25 +117,7 @@ const SWATCH = {
   'dim-in': 'linear-gradient(145deg,#8A6A44,#3A2C1C)',
 };
 
-function lightScreen() {
-  const scene = lessonFor(state.sceneId);
-  const rows = scene.lights.map((id) => {
-    const l = lightById(id);
-    return `<button class="light" data-act="light" data-id="${id}">
-      <span class="light__sw" style="background:${SWATCH[id] ?? 'var(--card-2)'}"></span>
-      <span><span class="light__name">${esc(l.name)}</span>
-        <span class="light__sub">${esc(l.sub)}</span></span>
-    </button>`;
-  }).join('');
-  return `${header({ title: 'What is the light like?', sub: scene.name, back: 'scenes', home: true })}
-    <div class="wrap">
-      <p class="lede">Look up, not at a meter. The light does not change what you set.
-        It changes what the camera has to do about it.</p>
-      <div class="lights">${rows}</div>
-    </div>`;
-}
-
-/* ── Screen 3: the card ──────────────────────────────────────────────────── */
+/* ── Screen 2: the card ──────────────────────────────────────────────────── */
 
 function cardScreen() {
   const r = shotFor({ sceneId: state.sceneId, lightId: state.lightId, change: state.change });
@@ -144,7 +126,7 @@ function cardScreen() {
 
   const caption = change ? `Changed: ${esc(resultOf(change))}.` : esc(scene.blurb);
 
-  return `${header({ title: scene.name, sub: r.light.name, back: 'light', home: true })}
+  return `${header({ title: scene.name, sub: `Written for ${r.light.name.toLowerCase()}`, back: 'scenes', home: true })}
     <div class="wrap">
       <div class="shot">
         <img class="shot__img" src="${change ? photoSrc(r.photo.src) : scenePhoto(scene.id)}"
@@ -157,6 +139,7 @@ function cardScreen() {
       </div>
       ${idealPanel(r)}
       ${notices(r)}
+      ${lightRange(r)}
       ${lensPanel(r)}
     </div>`;
 }
@@ -280,6 +263,57 @@ function notices(r) {
 const note = (kind, icon, head, body) =>
   `<div class="note note--${kind}"><span class="note__i">${icon}</span>
     <span><b>${esc(head)}</b>${esc(tidy(body))}</span></div>`;
+
+/* ── If the light changes ────────────────────────────────────────────────── */
+
+/**
+ * What the light does, now that there is no step asking about it.
+ *
+ * This is the whole content of the step that used to come before the card, said
+ * in six lines instead of a screen: the aperture and the shutter are the
+ * scene's decision and do not move, and the ISO is the entire visible
+ * consequence of standing in brighter or darker light. Reading it as a column
+ * makes that point better than picking one condition ever did, because the
+ * pattern is the lesson and one row of it is not.
+ *
+ * Where the shot is not available at all in a given light, the row says so
+ * rather than printing an ISO the camera could not reach. On a scene that needs
+ * a filter it says which filter, which turns the waterfall's column into the
+ * most useful table in the app.
+ */
+function lightRange(r) {
+  const scene = r.scene;
+  if (scene.lights.length < 2) return '';
+
+  const rows = scene.lights.map((id) => {
+    const at = shotFor({ sceneId: scene.id, lightId: id });
+    const here = id === r.light.id;
+    let value = String(at.iso.v);
+    let kind = '';
+    if (at.over > 0.6) {
+      value = scene.nd ? `${Math.round(at.over)}-stop ND` : 'too bright';
+      kind = scene.nd ? 'nd' : 'out';
+    } else if (at.under > 0.6) {
+      value = 'too dark';
+      kind = 'out';
+    }
+    return `<div class="range__r ${here ? 'range__r--here' : ''}">
+      <span class="range__sw" style="background:${SWATCH[id] ?? 'var(--card-2)'}"></span>
+      <span class="range__n">${esc(lightById(id).name)}${here ? '<span class="range__tag">this card</span>' : ''}</span>
+      <span class="range__v ${kind ? 'range__v--' + kind : ''}">${esc(value)}</span>
+    </div>`;
+  }).join('');
+
+  return `<section class="range">
+    <div class="range__h">
+      <span class="range__k">If the light changes</span>
+      <p class="range__s">${esc(tidy(`The aperture and the shutter stay exactly where they are, because they are
+        what this photograph needs. The camera moves the ISO instead, and that is the
+        only thing the light changes.`))}</p>
+    </div>
+    ${rows}
+  </section>`;
+}
 
 /* ── Your lens ───────────────────────────────────────────────────────────── */
 
@@ -686,7 +720,6 @@ function render() {
   app.innerHTML = state.tab === 'guide' ? guideScreen()
     : state.tab === 'gear' ? gearScreen()
     : state.step === 'card' ? cardScreen()
-    : state.step === 'light' ? lightScreen()
     : scenesScreen();
   tabsEl.innerHTML = tabs();
 }
@@ -708,8 +741,14 @@ function onClick(event) {
       break;
     case 'intro-done': state.intro = null; seen.set(true); break;
     case 'intro-replay': state.intro = 0; seen.set(false); state.tab = 'shoot'; state.step = 'scenes'; break;
-    case 'scene': state.sceneId = id; state.change = null; state.step = 'light'; break;
-    case 'light': state.lightId = id; state.change = null; state.step = 'card'; break;
+    case 'scene':
+      // Straight to the card. The scene names the light it is written for and
+      // the card shows what the ISO does across the others.
+      state.sceneId = id;
+      state.lightId = lessonFor(id).lights[0];
+      state.change = null;
+      state.step = 'card';
+      break;
     case 'chip':
       // A chip that is already on turns off, so the card is always one tap from
       // the shot it is actually recommending.
@@ -717,7 +756,7 @@ function onClick(event) {
         ? null : { axis, step };
       break;
     case 'chip-off': state.change = null; break;
-    case 'back': state.step = to === 'scenes' ? 'scenes' : 'light'; state.change = null; break;
+    case 'back': state.step = 'scenes'; state.change = null; break;
     case 'home': state.tab = 'shoot'; state.step = 'scenes'; state.change = null; break;
     case 'tab':
       state.tab = id;

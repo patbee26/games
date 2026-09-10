@@ -11,13 +11,26 @@ name it was built under.
 
 ## The shape of it
 
-Three taps and a card:
+Two taps and a card:
 
 ```
-Pick a scene  →  Pick the light  →  One card: the shot  →  Go shoot
-                                             ↕
-                          tap a chip, see the picture change
+Pick a scene  →  One card: the shot  →  Go shoot
+                          ↕
+       tap a chip, see the picture change
 ```
+
+There used to be a step in the middle asking what the light was like, and it
+was dropped because it did not earn its keep. In M with Auto ISO the light does
+not change what you set: the aperture and the shutter are the scene's decision
+and the ISO absorbs everything else, so picking a condition moved one number and
+left the card otherwise identical. The card now states the condition it is
+written for, and carries an **If the light changes** table underneath showing
+what the ISO does across the rest. Reading it as a column makes the point better
+than choosing one row ever did, because the pattern is the lesson.
+
+On a scene that needs a filter that table becomes the most useful thing in the
+app: the waterfall's column reads 6-stop ND, 5-stop, 4-stop, 2-stop down the
+lights, which is the answer to "which filter do I buy".
 
 The card has **no controls**. It states the shot, meaning this focal length, this
 aperture and this shutter, because that is how the photograph is taken. The only

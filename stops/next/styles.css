@@ -364,3 +364,25 @@ button { font: inherit; color: inherit; background: none; border: none;
 
 .h1 { font-size: 22px; font-weight: 600; letter-spacing: -.015em; margin: 12px 0 0; }
 .h1 + .lede { margin-top: 7px; }
+
+/* If the light changes ---------------------------------------------------- */
+.range { margin-top: 12px; border-radius: 13px; background: var(--card);
+         border: 1px solid var(--line); overflow: hidden; }
+.range__h { padding: 13px 14px 12px; }
+.range__k { font-family: var(--data); font-size: 10.5px; letter-spacing: .09em;
+            text-transform: uppercase; color: var(--ink-4); }
+.range__s { font-size: 12.8px; line-height: 1.55; color: var(--ink-3); margin: 7px 0 0; }
+.range__r { display: flex; align-items: center; gap: 11px; padding: 10px 14px;
+            border-top: 1px solid var(--line-soft); }
+.range__r--here { background: var(--card-2); }
+.range__sw { width: 20px; height: 20px; border-radius: 6px; flex: none;
+             border: 1px solid var(--line-2); }
+.range__n { flex: 1 1 auto; font-size: 13.4px; color: var(--ink-2); }
+.range__r--here .range__n { color: var(--ink); font-weight: 600; }
+.range__tag { font-family: var(--data); font-size: 9.5px; letter-spacing: .08em;
+              text-transform: uppercase; color: var(--amber); margin-left: 8px;
+              font-weight: 400; white-space: nowrap; }
+.range__v { font-family: var(--data); font-size: 15px; flex: none; }
+.range__r--here .range__v { color: var(--amber); }
+.range__v--nd { font-size: 12.5px; color: var(--amber-dim); }
+.range__v--out { font-size: 12.5px; color: var(--ink-4); }

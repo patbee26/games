@@ -13,6 +13,13 @@
 // threshold that decides which photograph to show is a thing that can be subtly
 // wrong, and here there is nothing for it to be wrong about.
 //
+// `lights` is the range of conditions the scene is worth shooting in, and the
+// first of them is the one the card assumes. There is no step asking the
+// photographer to classify the light any more: the card states the condition it
+// is written for and then shows, underneath, what the ISO would do across the
+// rest of the list. Classifying light is the hard part, and asking a beginner
+// to do it before being taught it was buying very little.
+//
 // On the aperture axis the scene's own setting is deliberately not one of the
 // three, which gives four pictures rather than three: the dissolved one, the
 // scene's own, the soft one and the sharp one. The three photographs really do
