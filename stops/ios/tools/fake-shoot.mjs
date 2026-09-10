@@ -294,7 +294,8 @@ if (!wanted || !SHOOTS[wanted]) {
     console.log(`  ${name.padEnd(13)} ${shoot.about}`);
     console.log(`  ${''.padEnd(13)} the app should say: ${shoot.expects}\n`);
   }
-  console.log('  node ios/tools/fake-shoot.mjs <name> [output directory]\n');
+  console.log('  node ios/tools/fake-shoot.mjs <name> [output directory]');
+  console.log('  HOURS_AGO=8 node ios/tools/fake-shoot.mjs <name>   # an older shoot\n');
   process.exit(wanted ? 1 : 0);
 }
 
@@ -304,10 +305,16 @@ const photographs = sourcePhotographs(shoot.scene);
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 
-// Two hours ago, ninety seconds between frames. Recent enough to be the latest
-// session on any library, and spaced tightly enough to be one session rather
-// than several.
-const ended = new Date(Date.now() - 2 * 3600 * 1000);
+// Two hours ago by default, ninety seconds between frames. Recent enough to be
+// the latest session on any library, and spaced tightly enough to be one
+// session rather than several.
+//
+// HOURS_AGO moves the whole shoot back, which is how several scenarios can sit
+// in one library without becoming one shoot: the app reads the most recent
+// session, so adding a newer one replaces what it has to say without anything
+// having to be deleted first.
+const hoursAgo = Number(process.env.HOURS_AGO ?? 2);
+const ended = new Date(Date.now() - hoursAgo * 3600 * 1000);
 
 shoot.frames.forEach(([aperture, shutter, iso, focal], index) => {
   const taken = new Date(ended.getTime() - (shoot.frames.length - index) * 90 * 1000);
