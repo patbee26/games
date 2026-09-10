@@ -1,5 +1,9 @@
 node_modules/
 dist/
+# Swift package build output.
+.build/
+*.xcuserdatad
+xcuserdata/
 # The Netlify package, built from sw.js's own precache list. Generated output,
 # reproducible from the tree, and several megabytes of photographs already in it.
 stops-netlify.zip
