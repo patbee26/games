@@ -172,7 +172,7 @@ function cardScreen() {
 function idealPanel(r) {
   const moved = r.change ? { ap: 'aperture', fl: 'focal', sh: 'shutter' }[r.change.axis] : null;
   const dial = (kind, k, v, note) => `
-    <div class="dial ${moved === kind ? 'dial--moved' : ''} ${kind === 'iso' ? 'dial--auto' : ''}">
+    <div class="dial ${moved === kind ? 'dial--moved' : ''}">
       <div class="dial__k">${k}</div><div class="dial__v">${v}</div>
       <div class="dial__n">${esc(note)}</div>
     </div>`;
@@ -185,7 +185,7 @@ function idealPanel(r) {
     <div class="dials">
       ${dial('aperture', 'Aperture', r.aperture.label, apertureNote(r))}
       ${dial('shutter', 'Shutter', r.shutter.label, r.scene.tripod ? 'on a tripod' : 'hand-held')}
-      ${dial('iso', 'ISO', 'Auto', `it will pick ${r.iso.label.replace('ISO ', '')}`)}
+      ${dial('iso', 'ISO', String(r.iso.v), isoNote(r))}
     </div>
     <div class="why">
       ${whyRow('fl', 'Lens', r)}
@@ -197,6 +197,21 @@ function idealPanel(r) {
 
 function apertureNote(r) {
   return r.aperture.N <= 4 ? 'wide open' : r.aperture.N >= 16 ? 'right down' : 'mid-range';
+}
+
+/**
+ * The ISO dial shows the number, not the word "Auto".
+ *
+ * It used to be the other way round: "Auto" in the large slot and the actual
+ * value in grey underneath. That made the light step look broken, because the
+ * two settings that never change with the light were shouting and the one that
+ * does was whispering. The number is the entire visible consequence of the
+ * light and it belongs in the same size as its neighbours.
+ */
+function isoNote(r) {
+  if (r.iso.v >= 6400) return 'Auto, and grainy';
+  if (r.iso.v >= 1600) return 'Auto, grain starts here';
+  return 'Auto, set by the camera';
 }
 
 /**
