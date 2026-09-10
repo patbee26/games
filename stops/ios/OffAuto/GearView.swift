@@ -6,7 +6,7 @@ struct GearView: View {
   @Environment(\.colorScheme) private var scheme
 
   init() {}
-  @Environment(Store.self) private var store
+  @EnvironmentObject private var store: Store
   @State private var editing = false
   @State private var min = ""
   @State private var max = ""
@@ -79,8 +79,8 @@ struct GearView: View {
   }
 
   @ViewBuilder
-  private func card(key: String, name: String, raised: Bool,
-                    @ViewBuilder content: () -> some View) -> some View {
+  private func card<Content: View>(key: String, name: String, raised: Bool,
+                                   @ViewBuilder content: () -> Content) -> some View {
     VStack(alignment: .leading, spacing: 9) {
       Text(key.uppercased()).font(.data(10.5)).kerning(0.9)
         .foregroundStyle(Palette.ink4(scheme))

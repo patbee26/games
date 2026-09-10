@@ -10,12 +10,11 @@ struct OffAutoApp: App {
 
 /// What the app remembers between launches, which is almost nothing: whether
 /// the introduction has been seen, and the one lens the photographer may add.
-@Observable
-final class Store {
-  var seenIntro: Bool {
+final class Store: ObservableObject {
+  @Published var seenIntro: Bool {
     didSet { UserDefaults.standard.set(seenIntro, forKey: "seenIntro") }
   }
-  var gear: Gear {
+  @Published var gear: Gear {
     didSet {
       let data = try? JSONEncoder().encode(gear)
       UserDefaults.standard.set(data, forKey: "gear")
@@ -35,7 +34,7 @@ final class Store {
 
 struct RootView: View {
   @Environment(\.colorScheme) private var scheme
-  @State private var store = Store()
+  @StateObject private var store = Store()
   @State private var tab = Tab.shoot
 
   enum Tab: Hashable { case shoot, guide, gear }
@@ -53,7 +52,7 @@ struct RootView: View {
         .tag(Tab.gear)
     }
     .tint(Palette.amber(scheme))
-    .environment(store)
+    .environmentObject(store)
     .fullScreenCover(isPresented: .init(get: { !store.seenIntro }, set: { if !$0 { store.seenIntro = true } })) {
       IntroView { store.seenIntro = true }
     }

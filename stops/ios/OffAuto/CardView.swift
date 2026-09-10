@@ -8,7 +8,7 @@ import OffAutoKit
 /// to show the answer, one number moves, and the card says what it cost.
 struct CardView: View {
   @Environment(\.colorScheme) private var scheme
-  @Environment(Store.self) private var store
+  @EnvironmentObject private var store: Store
   private let lesson: Lesson
   @State private var change: Change?
 

@@ -34,7 +34,21 @@ Three ways, most reliable last.
    `ios/`. Then drag the `OffAuto` folder in, and add `OffAutoKit` with
    File ▸ Add Package Dependencies ▸ Add Local.
 
-Either way you will need to set your own signing team to run it on a phone.
+Signing is only needed for a physical phone. A simulator needs none.
+
+### If it will not build
+
+Capture what it actually said and send me the file:
+
+```
+cd ios
+xcodebuild -project OffAuto.xcodeproj -scheme OffAuto \
+  -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build \
+  > ~/Desktop/offauto-build.txt 2>&1
+```
+
+There is a shared scheme in the project so that command works without opening
+Xcode first. Everything I need is in that file.
 
 ## How it is laid out
 
