@@ -152,12 +152,10 @@ final class PhotoLibrary: ObservableObject {
           let date = asset.creationDate
     else { return nil }
 
-    // Sensitivity is the one field cameras disagree about: some write a list,
-    // some a single number, and some use the newer tag. Getting this wrong
+    // Sensitivity is the one field cameras disagree about: some write a list of
+    // one number and some write the number. Reading only one of those shapes
     // would drop every frame and look exactly like an empty library.
-    guard let iso = number(exif, kCGImagePropertyExifISOSpeedRatings)
-      ?? number(exif, kCGImagePropertyExifPhotographicSensitivity)
-    else { return nil }
+    guard let iso = number(exif, kCGImagePropertyExifISOSpeedRatings) else { return nil }
 
     // Full-frame terms, since that is what every scene is written in.
     let focal = number(exif, kCGImagePropertyExifFocalLenIn35mmFilm)
