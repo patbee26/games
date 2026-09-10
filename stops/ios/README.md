@@ -4,21 +4,24 @@ A SwiftUI port of the web app in [`../next/`](../next/). Same twelve scenes, sam
 photographs, same numbers, and the numbers are *provably* the same rather than
 apparently the same. See **The fixture** below.
 
-## Read this first
+## What is verified, and by what
 
-**None of the user interface in here has ever been compiled.** It was written on
-a Linux machine with no Xcode and no iOS SDK, so `OffAuto/*.swift` and
-`OffAuto.xcodeproj` are unverified. Expect to fix a few compile errors on the
-first build; tell me what they are and I will fix them properly.
+The app **builds and runs**. It was written on a Linux machine with no Xcode and
+no iOS SDK, so it reached that state through one compiler error rather than
+none: SwiftUI has its own `Axis`, which made the name ambiguous. Everything
+before that was found by reading, and is recorded in the history if the
+reasoning is ever interesting.
 
-What *is* verified, and can be re-verified on any machine with a Swift
-toolchain, is `OffAutoKit`: every scene, every light, every chip, every piece of
-lens advice and both of the guide's computed tables, checked against the shipped
-web app. That is where all the numbers live.
+`OffAutoKit` is checked far harder than "it compiles". Every scene, light, chip,
+piece of lens advice and both computed guide tables are asserted against the
+shipped web app, and that check runs anywhere with a Swift toolchain:
 
 ```
 cd ios/OffAutoKit && swift test      # 11 tests, no Xcode needed
 ```
+
+What no test covers is how any of it **looks**, since there is nothing here that
+can render a view. The layout, the spacing and the mark are eyes-only.
 
 ## Opening it
 
