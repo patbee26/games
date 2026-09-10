@@ -26,9 +26,9 @@ public enum Exposure {
 
 /// A chip: one axis moved to one of its other two settings.
 public struct Change: Hashable, Sendable {
-  public let axis: Axis
+  public let axis: ShotAxis
   public let step: Step
-  public init(axis: Axis, step: Step) { self.axis = axis; self.step = step }
+  public init(axis: ShotAxis, step: Step) { self.axis = axis; self.step = step }
 }
 
 /// The settings for a scene in a light, optionally with one thing changed.

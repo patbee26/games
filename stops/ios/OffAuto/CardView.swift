@@ -161,7 +161,7 @@ struct CardView: View {
   /// changed it is no longer describing what is on the card. That row is
   /// replaced with what the change did and what it was before.
   @ViewBuilder
-  private func why(_ axis: Axis, _ label: String) -> some View {
+  private func why(_ axis: ShotAxis, _ label: String) -> some View {
     HStack(alignment: .top, spacing: 9) {
       Text(label.uppercased())
         .font(.data(10.5)).kerning(0.8)
@@ -191,7 +191,7 @@ struct CardView: View {
     }
   }
 
-  private func reason(_ axis: Axis) -> String {
+  private func reason(_ axis: ShotAxis) -> String {
     switch axis {
     case .focal: return lesson.why.lens
     case .aperture: return lesson.why.aperture

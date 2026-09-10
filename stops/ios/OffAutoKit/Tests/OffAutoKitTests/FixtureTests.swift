@@ -56,7 +56,7 @@ final class FixtureTests: XCTestCase {
   }()
   var fixture: Fixture { Self.fixture }
 
-  private func axis(_ slug: String) -> Axis {
+  private func axis(_ slug: String) -> ShotAxis {
     switch slug {
     case "ap": return .aperture
     case "fl": return .focal
@@ -180,7 +180,7 @@ final class FixtureTests: XCTestCase {
       let before = lesson.shot()
       for chip in lesson.chipGroups.flatMap(\.chips) {
         let after = lesson.shot(change: chip.change)
-        var moved: [Axis] = []
+        var moved: [ShotAxis] = []
         if after.aperture.label != before.aperture.label { moved.append(.aperture) }
         if after.shutter.label != before.shutter.label { moved.append(.shutter) }
         if after.focal != before.focal { moved.append(.focal) }

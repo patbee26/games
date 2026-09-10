@@ -7,7 +7,7 @@ import Foundation
 /// this would look like if I opened the aperture, and answering it swaps the
 /// photograph, moves one number, and says what it cost.
 public struct Chip: Identifiable, Hashable, Sendable {
-  public let axis: Axis
+  public let axis: ShotAxis
   public let step: Step
   /// Which way and how far, said the way a person would say it out loud.
   public let label: String
@@ -21,7 +21,7 @@ public struct Chip: Identifiable, Hashable, Sendable {
 }
 
 public struct ChipGroup: Identifiable, Hashable, Sendable {
-  public let axis: Axis
+  public let axis: ShotAxis
   public let question: String
   public let chips: [Chip]
   public var id: String { axis.rawValue }
@@ -57,7 +57,7 @@ public enum Chips {
   /// actually costs. Focal length is counted as a ratio, because a lens twice
   /// as long is twice as long whatever you started from. Negative is the open,
   /// fast or wide direction.
-  public static func distance(axis: Axis, from: Double, to value: Double) -> Double {
+  public static func distance(axis: ShotAxis, from: Double, to value: Double) -> Double {
     switch axis {
     case .aperture: return 2 * log2(value / from)
     case .shutter: return log2(value / from)
@@ -67,7 +67,7 @@ public enum Chips {
 
   /// Where the boundaries between "a little", "right down" and "all the way"
   /// sit, per axis.
-  static func tiers(_ axis: Axis) -> (Double, Double) {
+  static func tiers(_ axis: ShotAxis) -> (Double, Double) {
     switch axis {
     case .aperture: return (1.6, 3.2)
     case .focal: return (1.8, 3)
@@ -79,7 +79,7 @@ public enum Chips {
   /// four stops and a single "close it down" would have to serve both f/8 and
   /// f/16 on the same card. Two chips reading the same thing is worse than a
   /// clumsy word.
-  public static func label(axis: Axis, distance: Double) -> String {
+  public static func label(axis: ShotAxis, distance: Double) -> String {
     let (near, far) = tiers(axis)
     let magnitude = abs(distance) < near ? 1 : (abs(distance) < far ? 2 : 3)
     let size = distance < 0 ? -magnitude : magnitude
@@ -114,7 +114,7 @@ public enum Chips {
     }
   }
 
-  public static func value(axis: Axis, _ value: Double) -> String {
+  public static func value(axis: ShotAxis, _ value: Double) -> String {
     switch axis {
     case .aperture: return Ladders.aperture(value).label
     case .shutter: return Ladders.shutter(value).label
@@ -127,7 +127,7 @@ public enum Chips {
   /// one sentence serves twelve scenes. Panning is the reason the shutter lines
   /// say "the movement" and never "the background": there it is the background
   /// that streaks, and the same sentence has to be true of both.
-  public static func result(axis: Axis, step: Step) -> String {
+  public static func result(axis: ShotAxis, step: Step) -> String {
     switch (axis, step) {
     case (.aperture, .wide): return "the background dissolves away completely"
     case (.aperture, .mid): return "the background goes soft, but you can still tell what it is"

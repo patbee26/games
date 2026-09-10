@@ -15,7 +15,11 @@ public struct Light: Identifiable, Hashable, Sendable {
 }
 
 /// The three axes a scene can teach on.
-public enum Axis: String, CaseIterable, Hashable, Sendable {
+///
+/// Not `Axis`, which is what it wants to be called, because SwiftUI has a type
+/// of that name and any file importing both is then ambiguous. Every property
+/// is still called `axis`; only the type carries the longer name.
+public enum ShotAxis: String, CaseIterable, Hashable, Sendable {
   case aperture, focal, shutter
 
   /// The order the three photographs on this axis were made in, which is also
@@ -92,11 +96,11 @@ public struct Lesson: Identifiable, Hashable, Sendable {
   /// Conditions worth shooting this in. The first is the one the card assumes.
   public let lights: [String]
   public let why: Why
-  public let axes: [Axis: Steps]
+  public let axes: [ShotAxis: Steps]
 
   public init(id: String, name: String, blurb: String, focal: Double, aperture: Double,
               shutter: Double, tripod: Bool, needsFilter: Bool, lights: [String],
-              why: Why, axes: [Axis: Steps]) {
+              why: Why, axes: [ShotAxis: Steps]) {
     self.id = id; self.name = name; self.blurb = blurb; self.focal = focal
     self.aperture = aperture; self.shutter = shutter; self.tripod = tripod
     self.needsFilter = needsFilter; self.lights = lights; self.why = why; self.axes = axes
@@ -108,7 +112,7 @@ public struct Lesson: Identifiable, Hashable, Sendable {
   public var light: Light { Light.find(lights[0]) ?? Light.all[3] }
 
   /// The setting the card is showing, on a given axis.
-  public func shotValue(_ axis: Axis) -> Double {
+  public func shotValue(_ axis: ShotAxis) -> Double {
     switch axis {
     case .aperture: return aperture
     case .focal: return focal
@@ -117,7 +121,7 @@ public struct Lesson: Identifiable, Hashable, Sendable {
   }
 
   /// The axes this scene teaches, in a stable order.
-  public var teaching: [Axis] { Axis.allCases.filter { axes[$0] != nil } }
+  public var teaching: [ShotAxis] { ShotAxis.allCases.filter { axes[$0] != nil } }
 
   /// What the tile says the scene is about.
   public var teaches: String {
