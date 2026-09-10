@@ -137,7 +137,7 @@ struct DebriefStrip: View {
       .padding(.top, 3)
     }
     .sheet(isPresented: $showFrames) {
-      FramesView(finding: finding, session: session)
+      DebriefSheet(finding: finding, session: session)
     }
   }
 

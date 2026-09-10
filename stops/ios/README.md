@@ -23,6 +23,21 @@ cd ios/OffAutoKit && swift test      # 29 tests, no Xcode needed
 What no test covers is how any of it **looks**, since there is nothing here that
 can render a view. The layout, the spacing and the mark are eyes-only.
 
+The app half cannot be compiled here at all, and three builds in a row failed on
+the same thing: a name that was not there. Twice an Apple symbol recalled rather
+than looked up, once a rename that left a reference behind. Parsing cannot catch
+that, because parsing does not resolve names, so there is a check that does:
+
+```
+node ios/tools/check-symbols.mjs      # every name used, against every name that exists
+```
+
+It gathers the types declared across both halves, gathers the capitalised names
+and `k`-prefixed constants the app refers to, and subtracts. What is left is
+either in `tools/known-symbols.txt`, which holds framework names that have been
+confirmed to exist, or it is a mistake. Both of the real failures above are
+caught by it, at the right line.
+
 ## Opening it
 
 Three ways, most reliable last.
