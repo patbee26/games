@@ -105,6 +105,7 @@ final class Store: ObservableObject {
 
 struct RootView: View {
   @Environment(\.colorScheme) private var scheme
+  @Environment(\.scenePhase) private var phase
   @StateObject private var store = Store()
   @StateObject private var photos = PhotoLibrary()
   @State private var tab = Tab.shoot
@@ -134,6 +135,14 @@ struct RootView: View {
       // Only ever a silent look. Anybody who has not been asked, or who said
       // their files live elsewhere, is left alone.
       if store.photoAnswer == .onPhone { await photos.scanIfAuthorised() }
+    }
+    .onChange(of: phase) { _, now in
+      // Coming back to the app is the moment an import has usually just
+      // finished. The library also reports its own changes, but that only
+      // covers the half of the time the app was running to hear it.
+      if now == .active, store.photoAnswer == .onPhone {
+        Task { await photos.scanIfAuthorised() }
+      }
     }
   }
 }

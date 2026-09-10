@@ -10,7 +10,7 @@ import OffAutoKit
 /// the head of the file and stops. Those are the terms the feature was allowed
 /// to exist on.
 @MainActor
-final class PhotoLibrary: ObservableObject {
+final class PhotoLibrary: NSObject, ObservableObject {
   enum State: Equatable {
     case idle              // not asked, or the photographer said their files live elsewhere
     case denied
@@ -26,6 +26,16 @@ final class PhotoLibrary: ObservableObject {
   /// "nothing there", and the app should not conclude anything from it.
   @Published private(set) var limited = false
 
+  /// How many photographs the last walk opened, and how many of those turned
+  /// out to be camera files.
+  ///
+  /// Only ever shown when the answer is nothing, where the difference between
+  /// "opened none" and "opened fifty and kept none" is the difference between
+  /// an empty library and something wrong with how the files are being read.
+  /// Without it, both look identical from the outside: silence.
+  @Published private(set) var looked = 0
+  @Published private(set) var kept = 0
+
   /// How many of the most recent photographs to look at, at the very most.
   ///
   /// Reading exposure data means reading file bytes, so this is bounded rather
@@ -37,7 +47,10 @@ final class PhotoLibrary: ObservableObject {
   /// Fewer than this together is a test frame and a picture of a cat.
   private let minimumFrames = 5
 
-  nonisolated init() {}
+  private var scanning = false
+  private var observing = false
+
+  override nonisolated init() { super.init() }
 
   var authorised: Bool {
     let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
@@ -47,8 +60,8 @@ final class PhotoLibrary: ObservableObject {
   func request() async {
     let status = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
     switch status {
-    case .authorized: limited = false; await scan()
-    case .limited: limited = true; await scan()
+    case .authorized: limited = false; watch(); await scan()
+    case .limited: limited = true; watch(); await scan()
     default: state = .denied
     }
   }
@@ -62,18 +75,39 @@ final class PhotoLibrary: ObservableObject {
       return
     }
     limited = status == .limited
+    watch()
     await scan()
   }
 
   private func scan() async {
+    guard !scanning else { return }
+    scanning = true
+    defer { scanning = false }
     state = .scanning
-    let frames = await Self.recentCameraFrames(limit: limit, minimum: minimumFrames)
-    if frames.isEmpty {
+
+    let walk = await Self.recentCameraFrames(limit: limit, minimum: minimumFrames)
+    looked = walk.looked
+    kept = walk.frames.count
+    if walk.frames.isEmpty {
       state = .noCameraFiles
     } else {
-      state = .ready(Sessions.latest(frames, minimumFrames: minimumFrames))
+      state = .ready(Sessions.latest(walk.frames, minimumFrames: minimumFrames))
     }
   }
+
+  // MARK: noticing
+
+  /// Photographs arrive on a phone long after the app was last opened, and the
+  /// obvious moment is the worst one: you plug the card in, the import runs,
+  /// and the app is sitting in the background the whole time. So it listens
+  /// rather than waiting to be launched again.
+  private func watch() {
+    guard !observing else { return }
+    observing = true
+    PHPhotoLibrary.shared().register(self)
+  }
+
+  deinit { PHPhotoLibrary.shared().unregisterChangeObserver(self) }
 
   // MARK: reading the files
 
@@ -83,7 +117,9 @@ final class PhotoLibrary: ObservableObject {
   /// is the last one. Once a gap of more than a few hours opens up behind a run
   /// of frames, that run is a shoot and there is no reason to keep reading
   /// files: the usual case costs a few dozen reads rather than two hundred.
-  private nonisolated static func recentCameraFrames(limit: Int, minimum: Int) async -> [Frame] {
+  struct Walk { let frames: [Frame]; let looked: Int }
+
+  private nonisolated static func recentCameraFrames(limit: Int, minimum: Int) async -> Walk {
     let options = PHFetchOptions()
     options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
     options.fetchLimit = limit
@@ -92,7 +128,9 @@ final class PhotoLibrary: ObservableObject {
 
     var frames: [Frame] = []
     var run: [Frame] = []
+    var looked = 0
     for index in 0..<assets.count {
+      looked += 1
       guard let frame = await self.frame(from: assets.object(at: index)) else { continue }
       // The gap is measured against the previous frame this walk kept, so a
       // week of phone snapshots sitting in between two camera outings neither
@@ -104,7 +142,7 @@ final class PhotoLibrary: ObservableObject {
       run.append(frame)
       frames.append(frame)
     }
-    return frames
+    return Walk(frames: frames, looked: looked)
   }
 
   /// Reads only the head of the file.
@@ -176,5 +214,14 @@ final class PhotoLibrary: ObservableObject {
     case let list as [NSNumber]: return list.first?.doubleValue
     default: return nil
     }
+  }
+}
+
+/// The library changed while the app was open or in the background. Almost
+/// always somebody else's photograph and nothing to do with this, so the walk
+/// itself decides whether there is anything new to say.
+extension PhotoLibrary: PHPhotoLibraryChangeObserver {
+  nonisolated func photoLibraryDidChange(_ changeInstance: PHChange) {
+    Task { @MainActor in await self.scanIfAuthorised() }
   }
 }

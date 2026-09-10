@@ -158,12 +158,16 @@ struct GearView: View {
     case .scanning:
       return "Reading the settings off your last few photographs."
     case .noCameraFiles:
-      return photos.limited
-        ? "None of the photographs you picked came from a camera. Allowing the whole library would give it something to work with."
-        : "Nothing from a camera on this phone yet. Bring some across and the scene list will have something to say about your last shoot."
+      if photos.limited {
+        return "None of the \(photos.looked) photographs you picked came from a camera. Allowing the whole library would give this something to work with."
+      }
+      if photos.looked == 0 {
+        return "There are no photographs on this phone to look at yet. Bring some across from the camera and the scene list will have something to say about your last shoot."
+      }
+      return "Opened the last \(photos.looked) photographs and none of them came off a camera. Anything the phone itself took is skipped on purpose, so this is what an album of snapshots looks like."
     case .ready(let session):
       guard let session else {
-        return "Camera files found, but not enough of them together to call a shoot. Five frames in one afternoon is the bar."
+        return "Found \(photos.kept) camera frames in the last \(photos.looked) photographs, but not enough of them close together to call a shoot. Five frames in one afternoon is the bar."
       }
       return "Your last shoot was \(DebriefStrip.when(session.start).lowercased()), \(session.count) frames. The scene list says the one thing worth saying about it."
     case .idle:
