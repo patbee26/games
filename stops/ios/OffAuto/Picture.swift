@@ -18,22 +18,28 @@ struct AssetImage: View {
     case picture(UIImage)
     case notOnPhone      // the original is in iCloud, and we do not go and get it
     case gone            // deleted since the shoot was read
+
+    var isPicture: Bool {
+      if case .picture = self { return true }
+      return false
+    }
   }
 
   private let id: String
   private let size: CGSize
-  private let fast: Bool
+  private let full: Bool
   @State private var loaded: Loaded = .waiting
 
-  /// `fast` asks for whatever is already lying around, which is what a row of
-  /// thumbnails wants. Full screen asks for the real thing.
-  init(id: String, size: CGSize, fast: Bool = true) {
-    self.id = id; self.size = size; self.fast = fast
+  /// `full` asks for the real thing, which is what the whole screen wants. A
+  /// row of thumbnails does not, and takes whatever comes first.
+  init(id: String, size: CGSize, full: Bool = false) {
+    self.id = id; self.size = size; self.full = full
   }
 
   var body: some View {
     content
-      .task(id: id) { loaded = await Self.load(id: id, size: size, fast: fast) }
+      .onAppear(perform: start)
+      .onChange(of: id) { _, _ in loaded = .waiting; start() }
   }
 
   @ViewBuilder
@@ -42,54 +48,81 @@ struct AssetImage: View {
     case .picture(let image):
       Image(uiImage: image).resizable().scaledToFit()
     case .waiting:
-      Color.clear
+      Placeholder(icon: nil, note: nil, size: size)
     case .notOnPhone:
-      Missing(icon: "icloud", note: "Only in iCloud")
+      Placeholder(icon: "icloud", note: "Only in iCloud", size: size)
     case .gone:
-      Missing(icon: "questionmark", note: "No longer on this phone")
+      Placeholder(icon: "questionmark", note: "No longer on this phone", size: size)
     }
   }
 
-  private struct Missing: View {
+  /// Whatever is there instead of the photograph, and never nothing.
+  ///
+  /// An empty tile and a tile that failed look identical, which is exactly the
+  /// hole this fell into once already: a thumbnail that did not arrive showed
+  /// as blank space rather than as a thumbnail that did not arrive. At row size
+  /// there is no room for a sentence, so the icon carries it alone.
+  private struct Placeholder: View {
     @Environment(\.colorScheme) private var scheme
-    let icon: String
-    let note: String
+    let icon: String?
+    let note: String?
+    let size: CGSize
+
+    private var roomy: Bool { min(size.width, size.height) > 200 }
 
     var body: some View {
-      VStack(spacing: 6) {
-        Image(systemName: icon).font(.system(size: 15))
-        Text(note).font(.system(size: 11)).multilineTextAlignment(.center)
+      ZStack {
+        Palette.card2(scheme)
+        VStack(spacing: 6) {
+          Image(systemName: icon ?? "photo")
+            .font(.system(size: roomy ? 20 : 13))
+          if roomy, let note {
+            Text(note).font(.system(size: 11)).multilineTextAlignment(.center)
+          }
+        }
+        .foregroundStyle(Palette.ink4(scheme))
+        .opacity(icon == nil ? 0.4 : 1)
       }
-      .foregroundStyle(Palette.ink4(scheme))
-      .padding(6)
       .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .background(Palette.card2(scheme))
     }
   }
 
-  private static func load(id: String, size: CGSize, fast: Bool) async -> Loaded {
+  private func start() {
     let assets = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
-    guard let asset = assets.firstObject else { return .gone }
+    guard let asset = assets.firstObject else { loaded = .gone; return }
 
     let options = PHImageRequestOptions()
+    // The one rule this feature was built under. A photograph that lives only
+    // in iCloud is reported as such rather than fetched: no data spent, and
+    // nothing to wait on when there is no signal.
     options.isNetworkAccessAllowed = false
-    options.deliveryMode = fast ? .fastFormat : .highQualityFormat
+    // Opportunistic rather than fast: fast returns only a rendition that
+    // happens to be cached already, and hands back nothing at all for a
+    // photograph that has just arrived on the phone, which is precisely when
+    // somebody is most likely to be looking at it. This asks for something now
+    // and something better afterwards, so it may call back twice.
+    options.deliveryMode = full ? .highQualityFormat : .opportunistic
     options.resizeMode = .fast
     options.isSynchronous = false
 
-    return await withCheckedContinuation { continuation in
-      // Both of these delivery modes call back exactly once, which is the only
-      // reason a continuation is safe here.
-      PHImageManager.default().requestImage(
-        for: asset, targetSize: size, contentMode: .aspectFit, options: options
-      ) { image, info in
-        if let image {
-          continuation.resume(returning: .picture(image))
-        } else if (info?[PHImageResultIsInCloudKey] as? Bool) == true {
-          continuation.resume(returning: .notOnPhone)
-        } else {
-          continuation.resume(returning: .gone)
-        }
+    PHImageManager.default().requestImage(
+      for: asset, targetSize: size, contentMode: .aspectFit, options: options
+    ) { image, info in
+      let next: Loaded
+      if let image {
+        next = .picture(image)
+      } else if (info?[PHImageResultIsInCloudKey] as? Bool) == true {
+        next = .notOnPhone
+      } else if (info?[PHImageCancelledKey] as? Bool) == true {
+        return
+      } else {
+        next = .gone
+      }
+      Task { @MainActor in
+        // A second callback carrying nothing must not wipe out a picture the
+        // first one already delivered.
+        if loaded.isPicture, !next.isPicture { return }
+        loaded = next
       }
     }
   }
@@ -129,7 +162,7 @@ struct FrameView: View {
         ForEach(frames) { frame in
           VStack(spacing: 0) {
             Spacer(minLength: 0)
-            AssetImage(id: frame.id, size: CGSize(width: 2000, height: 2000), fast: false)
+            AssetImage(id: frame.id, size: CGSize(width: 2000, height: 2000), full: true)
               .frame(maxWidth: .infinity)
             Spacer(minLength: 0)
             settings(frame)

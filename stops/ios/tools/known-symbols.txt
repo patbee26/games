@@ -69,6 +69,7 @@ PHAssetResourceManager
 PHAssetResourceRequestOptions
 PHChange
 PHFetchOptions
+PHImageCancelledKey
 PHImageManager
 PHImageRequestOptions
 PHImageResultIsInCloudKey
