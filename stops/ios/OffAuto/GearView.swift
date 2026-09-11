@@ -143,7 +143,7 @@ struct GearView: View {
           Button("Read it again") { reviewing = true }
             .buttonStyle(GhostButton())
             .sheet(isPresented: $reviewing) {
-              DebriefSheet(finding: finding, session: session)
+              DebriefSheet(finding: finding, session: session, assets: photos.assets)
             }
         }
         HStack(spacing: 9) {

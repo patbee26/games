@@ -37,6 +37,14 @@ final class PhotoLibrary: NSObject, ObservableObject {
   @Published private(set) var looked = 0
   @Published private(set) var kept = 0
 
+  /// The photographs behind the frames, kept rather than looked up again.
+  ///
+  /// The scan has these objects in its hands already. Throwing them away and
+  /// asking the library to find them again by identifier is both wasteful and
+  /// a thing that can fail, and a row that cannot produce a thumbnail is worse
+  /// than a row that never tried.
+  @Published private(set) var assets: [String: PHAsset] = [:]
+
   /// How many of the most recent photographs to look at, at the very most.
   ///
   /// Reading exposure data means reading file bytes, so this is bounded rather
@@ -89,6 +97,7 @@ final class PhotoLibrary: NSObject, ObservableObject {
     let walk = await Self.recentCameraFrames(limit: limit, minimum: minimumFrames)
     looked = walk.looked
     kept = walk.frames.count
+    assets = walk.assets
     if walk.frames.isEmpty {
       state = .noCameraFiles
     } else {
@@ -118,7 +127,7 @@ final class PhotoLibrary: NSObject, ObservableObject {
   /// is the last one. Once a gap of more than a few hours opens up behind a run
   /// of frames, that run is a shoot and there is no reason to keep reading
   /// files: the usual case costs a few dozen reads rather than two hundred.
-  struct Walk { let frames: [Frame]; let looked: Int }
+  struct Walk { let frames: [Frame]; let looked: Int; let assets: [String: PHAsset] }
 
   private nonisolated static func recentCameraFrames(limit: Int, minimum: Int) async -> Walk {
     let options = PHFetchOptions()
@@ -130,9 +139,12 @@ final class PhotoLibrary: NSObject, ObservableObject {
     var frames: [Frame] = []
     var run: [Frame] = []
     var looked = 0
+    var kept: [String: PHAsset] = [:]
     for index in 0..<assets.count {
       looked += 1
-      guard let frame = await self.frame(from: assets.object(at: index)) else { continue }
+      let asset = assets.object(at: index)
+      guard let frame = await self.frame(from: asset) else { continue }
+      kept[frame.id] = asset
       // The gap is measured against the previous frame this walk kept, so a
       // week of phone snapshots sitting in between two camera outings neither
       // splits a shoot nor joins two of them.
@@ -143,7 +155,7 @@ final class PhotoLibrary: NSObject, ObservableObject {
       run.append(frame)
       frames.append(frame)
     }
-    return Walk(frames: frames, looked: looked)
+    return Walk(frames: frames, looked: looked, assets: kept)
   }
 
   /// Reads only the head of the file.

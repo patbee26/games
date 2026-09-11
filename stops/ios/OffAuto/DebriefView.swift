@@ -1,4 +1,5 @@
 import SwiftUI
+import Photos
 import OffAutoKit
 
 /// What the app has to say about the last time you went out.
@@ -137,7 +138,7 @@ struct DebriefStrip: View {
       .padding(.top, 3)
     }
     .sheet(isPresented: $showFrames) {
-      DebriefSheet(finding: finding, session: session)
+      DebriefSheet(finding: finding, session: session, assets: photos.assets)
     }
   }
 
@@ -160,7 +161,7 @@ struct DebriefStrip: View {
     }
     .buttonStyle(.plain)
     .sheet(isPresented: $showFrames) {
-      DebriefSheet(finding: finding, session: session)
+      DebriefSheet(finding: finding, session: session, assets: photos.assets)
     }
   }
 
@@ -210,11 +211,14 @@ struct DebriefSheet: View {
   @Environment(\.dismiss) private var dismiss
   private let finding: Finding
   private let session: Session
+  /// Handed in rather than read from the environment: a sheet that is missing
+  /// an environment object does not fail to build, it crashes on the device.
+  private let assets: [String: PHAsset]
   @State private var opened: Frame?
   @State private var trouble: String?
 
-  init(finding: Finding, session: Session) {
-    self.finding = finding; self.session = session
+  init(finding: Finding, session: Session, assets: [String: PHAsset]) {
+    self.finding = finding; self.session = session; self.assets = assets
   }
 
   var body: some View {
@@ -268,7 +272,8 @@ struct DebriefSheet: View {
       .navigationTitle("Your last shoot")
       .navigationBarTitleDisplayMode(.inline)
       .fullScreenCover(item: $opened) { frame in
-        FrameView(frames: finding.frames, kind: finding.kind, start: frame.id)
+        FrameView(frames: finding.frames, kind: finding.kind, start: frame.id,
+                  assets: assets)
       }
       .toolbar {
         ToolbarItem(placement: .confirmationAction) {
@@ -284,7 +289,8 @@ struct DebriefSheet: View {
   /// explains it are in front of you together.
   private func row(_ frame: Frame) -> some View {
     HStack(spacing: 12) {
-      AssetImage(id: frame.id, size: CGSize(width: 132, height: 132),
+      AssetImage(asset: assets[frame.id], id: frame.id,
+                 size: CGSize(width: 132, height: 132),
                  trouble: { trouble = $0 })
         .frame(width: 46, height: 46)
         .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))

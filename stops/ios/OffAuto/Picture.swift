@@ -26,18 +26,24 @@ struct AssetImage: View {
     }
   }
 
+  private let asset: PHAsset?
   private let id: String
   private let size: CGSize
   private let full: Bool
   private let trouble: ((String) -> Void)?
   @State private var loaded: Loaded = .waiting
 
+  /// The asset comes from the scan that found it in the first place. Looking it
+  /// up again by identifier is the fallback, not the plan.
+  ///
   /// `full` asks for a picture worth filling a screen with. `trouble` is how a
   /// tile the size of a thumbnail says what went wrong: there is no room for a
   /// sentence inside one, so it hands the sentence to whatever has the width to
   /// print it.
-  init(id: String, size: CGSize, full: Bool = false, trouble: ((String) -> Void)? = nil) {
-    self.id = id; self.size = size; self.full = full; self.trouble = trouble
+  init(asset: PHAsset?, id: String, size: CGSize,
+       full: Bool = false, trouble: ((String) -> Void)? = nil) {
+    self.asset = asset; self.id = id; self.size = size
+    self.full = full; self.trouble = trouble
   }
 
   var body: some View {
@@ -94,8 +100,12 @@ struct AssetImage: View {
   }
 
   private func start() {
-    let assets = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
-    guard let asset = assets.firstObject else { loaded = .notInLibrary; return }
+    let found = asset ?? PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil).firstObject
+    guard let found else {
+      loaded = .notInLibrary
+      trouble?("The library has no photograph with the identifier \(id).")
+      return
+    }
 
     let options = PHImageRequestOptions()
     // The one rule this feature was built under. A photograph that lives only
@@ -113,28 +123,36 @@ struct AssetImage: View {
     options.isSynchronous = false
 
     PHImageManager.default().requestImage(
-      for: asset, targetSize: size, contentMode: .aspectFit, options: options
+      for: found, targetSize: size, contentMode: .aspectFit, options: options
     ) { image, info in
       let next: Loaded
       if let image {
         next = .picture(image)
-      } else if (info?[PHImageResultIsInCloudKey] as? Bool) == true {
-        next = .notOnPhone
       } else if (info?[PHImageCancelledKey] as? Bool) == true {
         return
+      } else if (info?[PHImageResultIsInCloudKey] as? Bool) == true {
+        next = .notOnPhone
       } else if let error = info?[PHImageErrorKey] as? NSError {
         // Whatever the library actually objected to, said out loud. Guessing at
-        // this from the other side of a zip file has cost two rounds already.
+        // this from the other side of a zip file has cost three rounds already.
         next = .failed(error.localizedDescription)
       } else {
-        next = .failed("The library returned no picture and no reason.")
+        next = .failed("No picture and no reason, at \(Int(size.width)) points.")
       }
       Task { @MainActor in
         // A second callback carrying nothing must not wipe out a picture the
         // first one already delivered.
         if loaded.isPicture, !next.isPicture { return }
         loaded = next
-        if case .failed(let why) = next { trouble?(why) }
+        // Every outcome that is not a photograph reports itself. Last time only
+        // refusals did, so the one that actually happened stayed silent and
+        // looked like the feature simply not working.
+        switch next {
+        case .failed(let why): trouble?(why)
+        case .notOnPhone: trouble?("The original is in iCloud and is not fetched.")
+        case .notInLibrary: trouble?("The photograph is no longer in the library.")
+        case .picture, .waiting: break
+        }
       }
     }
   }
@@ -150,10 +168,12 @@ struct FrameView: View {
   @Environment(\.dismiss) private var dismiss
   private let frames: [Frame]
   private let kind: Finding.Kind
+  private let assets: [String: PHAsset]
   @State private var showing: String
+  @State private var trouble: String?
 
-  init(frames: [Frame], kind: Finding.Kind, start: String) {
-    self.frames = frames; self.kind = kind
+  init(frames: [Frame], kind: Finding.Kind, start: String, assets: [String: PHAsset]) {
+    self.frames = frames; self.kind = kind; self.assets = assets
     _showing = State(initialValue: start)
   }
 
@@ -174,7 +194,9 @@ struct FrameView: View {
         ForEach(frames) { frame in
           VStack(spacing: 0) {
             Spacer(minLength: 0)
-            AssetImage(id: frame.id, size: CGSize(width: 2000, height: 2000), full: true)
+            AssetImage(asset: assets[frame.id], id: frame.id,
+                       size: CGSize(width: 2000, height: 2000), full: true,
+                       trouble: { trouble = $0 })
               .frame(maxWidth: .infinity)
             Spacer(minLength: 0)
             settings(frame)
@@ -209,6 +231,14 @@ struct FrameView: View {
       Text("\(printed(frame.focal.rounded())) mm, \(frame.date.formatted(date: .omitted, time: .shortened))")
         .font(.system(size: 12))
         .foregroundStyle(.white.opacity(0.55))
+      if let trouble {
+        Text(trouble)
+          .font(.system(size: 11))
+          .foregroundStyle(Palette.hex(0xE0704F))
+          .multilineTextAlignment(.center)
+          .padding(.horizontal, 24)
+          .fixedSize(horizontal: false, vertical: true)
+      }
     }
     .padding(.top, 16)
     .padding(.bottom, 44)
