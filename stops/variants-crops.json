@@ -1,13 +1,42 @@
 {
   "street": {
-    "order": ["base", "ap-wide", "ap-mid", "ap-deep", "fl-long", "fl-wide"]
+    "order": [
+      "base",
+      "ap-wide",
+      "ap-mid",
+      "ap-deep",
+      "fl-long",
+      "fl-wide"
+    ]
   },
   "portrait": {
-    "fl-wide": { "scale": 1.37, "cy": 0.45 },
-    "fl-norm": { "scale": 1.17, "cy": 0.45 }
+    "fl-wide": {
+      "scale": 1.37,
+      "cy": 0.45
+    },
+    "fl-norm": {
+      "scale": 1.17,
+      "cy": 0.45
+    }
   },
   "architecture": {
-    "fl-wide": { "scale": 1.91, "cy": 0.45 },
-    "fl-long": { "scale": 1.20, "cy": 0.52 }
-  }
+    "fl-wide": {
+      "scale": 1.91,
+      "cy": 0.45
+    },
+    "fl-long": {
+      "scale": 1.2,
+      "cy": 0.52
+    }
+  },
+  "water": {
+    "base": "sh-slow"
+  },
+  "nightcity": {
+    "base": "sh-slow"
+  },
+  "panning": {
+    "base": "sh-slow"
+  },
+  "_note": "A base is the photograph at the card's own setting, so it has to be the variant at the matching step. The generator gave all three slow-shutter scenes a short exposure for the base and filed the real one under sh-slow, where the app never draws it. tools/check-photos.mjs asserts this now."
 }
