@@ -210,6 +210,7 @@ struct DebriefSheet: View {
   @Environment(\.dismiss) private var dismiss
   private let finding: Finding
   private let session: Session
+  @State private var opened: Frame?
 
   init(finding: Finding, session: Session) {
     self.finding = finding; self.session = session
@@ -229,14 +230,17 @@ struct DebriefSheet: View {
             .foregroundStyle(Palette.ink2(scheme))
             .lineSpacing(3)
             .fixedSize(horizontal: false, vertical: true)
-          Text("Open your photographs to the same times and look at these next to the numbers.")
+          Text("Tap one to see it, with the setting this is about picked out.")
             .font(.system(size: 13.2))
             .foregroundStyle(Palette.ink3(scheme))
             .lineSpacing(3)
             .fixedSize(horizontal: false, vertical: true)
 
           VStack(spacing: 0) {
-            ForEach(finding.frames) { frame in row(frame) }
+            ForEach(finding.frames) { frame in
+              Button { opened = frame } label: { row(frame) }
+                .buttonStyle(.plain)
+            }
           }
           .background(Palette.card(scheme))
           .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
@@ -253,6 +257,9 @@ struct DebriefSheet: View {
       .background(Palette.bg(scheme).ignoresSafeArea())
       .navigationTitle("Your last shoot")
       .navigationBarTitleDisplayMode(.inline)
+      .fullScreenCover(item: $opened) { frame in
+        FrameView(frames: finding.frames, kind: finding.kind, start: frame.id)
+      }
       .toolbar {
         ToolbarItem(placement: .confirmationAction) {
           Button("Done") { dismiss() }
@@ -261,28 +268,42 @@ struct DebriefSheet: View {
     }
   }
 
+  /// The picture first, then the numbers. Reading a column of settings and
+  /// matching it to an afternoon by timestamp was work the app was leaving to
+  /// the reader, and the lesson only lands when the frame and the figure that
+  /// explains it are in front of you together.
   private func row(_ frame: Frame) -> some View {
-    HStack(spacing: 10) {
-      Text(frame.date.formatted(date: .omitted, time: .shortened))
-        .font(.system(size: 12))
+    HStack(spacing: 12) {
+      AssetImage(id: frame.id, size: CGSize(width: 132, height: 132))
+        .frame(width: 46, height: 46)
+        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous)
+          .strokeBorder(Palette.line2(scheme)))
+
+      VStack(alignment: .leading, spacing: 3) {
+        HStack(spacing: 10) {
+          Text(Ladders.aperture(frame.aperture).label)
+            .font(.data(13.5))
+            .foregroundStyle(Palette.ink(scheme))
+          Text(Ladders.shutter(frame.shutter).label)
+            .font(.data(13.5))
+            .foregroundStyle(Palette.ink(scheme))
+          Text("ISO \(Ladders.iso(frame.iso).label)")
+            .font(.data(12))
+            .foregroundStyle(Palette.ink3(scheme))
+        }
+        Text("\(printed(frame.focal.rounded())) mm, \(frame.date.formatted(date: .omitted, time: .shortened))")
+          .font(.system(size: 11.5))
+          .foregroundStyle(Palette.ink4(scheme))
+      }
+      Spacer(minLength: 4)
+      Image(systemName: "chevron.right")
+        .font(.system(size: 11, weight: .semibold))
         .foregroundStyle(Palette.ink4(scheme))
-        .frame(width: 62, alignment: .leading)
-      Text("\(printed(frame.focal.rounded())) mm")
-        .font(.data(13))
-        .foregroundStyle(Palette.ink2(scheme))
-      Spacer(minLength: 6)
-      Text(Ladders.aperture(frame.aperture).label)
-        .font(.data(13.5))
-        .foregroundStyle(Palette.ink(scheme))
-      Text(Ladders.shutter(frame.shutter).label)
-        .font(.data(13.5))
-        .foregroundStyle(Palette.ink(scheme))
-      Text("ISO \(Ladders.iso(frame.iso).label)")
-        .font(.data(12))
-        .foregroundStyle(Palette.ink3(scheme))
     }
     .padding(.horizontal, 13)
     .padding(.vertical, 10)
+    .contentShape(Rectangle())
     .overlay(alignment: .top) { Rectangle().fill(Palette.line(scheme)).frame(height: 1) }
   }
 }

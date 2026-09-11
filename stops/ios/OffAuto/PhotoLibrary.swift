@@ -5,10 +5,11 @@ import OffAutoKit
 
 /// Reading the settings out of the photographs on this phone.
 ///
-/// Two things this deliberately does not do. It never uploads anything, and it
-/// never looks at the picture: it reads the exposure block a camera writes into
-/// the head of the file and stops. Those are the terms the feature was allowed
-/// to exist on.
+/// Two things this deliberately does not do. It never touches the network, and
+/// the scan never opens a picture: it reads the exposure block a camera writes
+/// into the head of the file and stops there. A photograph is only ever decoded
+/// when somebody taps one to look at it, and even then it is never fetched from
+/// iCloud. Those are the terms the feature was allowed to exist on.
 @MainActor
 final class PhotoLibrary: NSObject, ObservableObject {
   enum State: Equatable {

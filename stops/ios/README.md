@@ -133,6 +133,10 @@ It is a debrief and not a checker, and the difference is the whole design:
   holding 1/1000 in bright sun is praising the sun, so that one does not count.
 - **It knows what you own.** It will not tell you to open up to f/2 on a lens
   that stops at f/4, which is exactly the failure that would make it worthless.
+- **It shows you the frames it means.** Reading a column of settings and
+  matching it back to an afternoon by timestamp is work, and it was work the app
+  was leaving to the reader. Tap a frame and it fills the screen with the one
+  setting the finding is about picked out against the others.
 
 The trick underneath is that the light can be recovered from the file:
 `EV = log2(N²/t) - log2(ISO/100)`. With the light known, a wrong choice can be
@@ -152,10 +156,15 @@ dialog at all, and does not.
 
 If you say the files come to the phone, it reads the aperture, shutter, ISO and
 focal length out of the head of each file, newest first, and stops as soon as it
-has one whole shoot. It reads at most half a megabyte per file, never opens the
-picture, never downloads anything sitting only in iCloud, and skips anything the
-phone itself took. Nothing leaves the device, because there is no code in this
-app that could send it anywhere.
+has one whole shoot. It reads at most half a megabyte per file, skips anything
+the phone itself took, and the scan never opens a picture.
+
+Photographs are decoded only where you asked to see one: the thumbnails in the
+frame list, and the frame you tapped. Every one of those requests has network
+access switched off, so a picture whose original has been offloaded says it is
+only in iCloud rather than being quietly fetched. Nothing leaves the device and
+nothing is fetched to it, because there is no code in this app that touches the
+network at all.
 
 ### Seeing it work in the simulator
 

@@ -69,6 +69,9 @@ PHAssetResourceManager
 PHAssetResourceRequestOptions
 PHChange
 PHFetchOptions
+PHImageManager
+PHImageRequestOptions
+PHImageResultIsInCloudKey
 PHPhotoLibrary
 PHPhotoLibraryChangeObserver
 Path
@@ -95,6 +98,8 @@ Task
 Text
 TextField
 ToolbarItem
+UIImage
+UIKit
 UInt32
 UserDefaults
 VStack
