@@ -17,7 +17,8 @@ struct AssetImage: View {
     case waiting
     case picture(UIImage)
     case notOnPhone      // the original is in iCloud, and we do not go and get it
-    case gone            // deleted since the shoot was read
+    case notInLibrary    // no photograph with that identifier any more
+    case failed(String)  // the library refused, and said why
 
     var isPicture: Bool {
       if case .picture = self { return true }
@@ -28,12 +29,15 @@ struct AssetImage: View {
   private let id: String
   private let size: CGSize
   private let full: Bool
+  private let trouble: ((String) -> Void)?
   @State private var loaded: Loaded = .waiting
 
-  /// `full` asks for the real thing, which is what the whole screen wants. A
-  /// row of thumbnails does not, and takes whatever comes first.
-  init(id: String, size: CGSize, full: Bool = false) {
-    self.id = id; self.size = size; self.full = full
+  /// `full` asks for a picture worth filling a screen with. `trouble` is how a
+  /// tile the size of a thumbnail says what went wrong: there is no room for a
+  /// sentence inside one, so it hands the sentence to whatever has the width to
+  /// print it.
+  init(id: String, size: CGSize, full: Bool = false, trouble: ((String) -> Void)? = nil) {
+    self.id = id; self.size = size; self.full = full; self.trouble = trouble
   }
 
   var body: some View {
@@ -51,8 +55,10 @@ struct AssetImage: View {
       Placeholder(icon: nil, note: nil, size: size)
     case .notOnPhone:
       Placeholder(icon: "icloud", note: "Only in iCloud", size: size)
-    case .gone:
-      Placeholder(icon: "questionmark", note: "No longer on this phone", size: size)
+    case .notInLibrary:
+      Placeholder(icon: "questionmark", note: "Not in the library any more", size: size)
+    case .failed(let why):
+      Placeholder(icon: "exclamationmark.triangle", note: why, size: size)
     }
   }
 
@@ -89,19 +95,20 @@ struct AssetImage: View {
 
   private func start() {
     let assets = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
-    guard let asset = assets.firstObject else { loaded = .gone; return }
+    guard let asset = assets.firstObject else { loaded = .notInLibrary; return }
 
     let options = PHImageRequestOptions()
     // The one rule this feature was built under. A photograph that lives only
     // in iCloud is reported as such rather than fetched: no data spent, and
     // nothing to wait on when there is no signal.
     options.isNetworkAccessAllowed = false
-    // Opportunistic rather than fast: fast returns only a rendition that
-    // happens to be cached already, and hands back nothing at all for a
-    // photograph that has just arrived on the phone, which is precisely when
-    // somebody is most likely to be looking at it. This asks for something now
-    // and something better afterwards, so it may call back twice.
-    options.deliveryMode = full ? .highQualityFormat : .opportunistic
+    // The same delivery mode at both sizes, deliberately. Fast format was tried
+    // for the rows and returns only a rendition that happens to be cached
+    // already, which is nothing at all for a photograph that has just arrived.
+    // Opportunistic was tried after it. Since the full screen has worked from
+    // the start, the row now asks for exactly what the full screen asks for and
+    // differs from it in nothing but the size wanted.
+    options.deliveryMode = .highQualityFormat
     options.resizeMode = .fast
     options.isSynchronous = false
 
@@ -115,14 +122,19 @@ struct AssetImage: View {
         next = .notOnPhone
       } else if (info?[PHImageCancelledKey] as? Bool) == true {
         return
+      } else if let error = info?[PHImageErrorKey] as? NSError {
+        // Whatever the library actually objected to, said out loud. Guessing at
+        // this from the other side of a zip file has cost two rounds already.
+        next = .failed(error.localizedDescription)
       } else {
-        next = .gone
+        next = .failed("The library returned no picture and no reason.")
       }
       Task { @MainActor in
         // A second callback carrying nothing must not wipe out a picture the
         // first one already delivered.
         if loaded.isPicture, !next.isPicture { return }
         loaded = next
+        if case .failed(let why) = next { trouble?(why) }
       }
     }
   }

@@ -211,6 +211,7 @@ struct DebriefSheet: View {
   private let finding: Finding
   private let session: Session
   @State private var opened: Frame?
+  @State private var trouble: String?
 
   init(finding: Finding, session: Session) {
     self.finding = finding; self.session = session
@@ -250,6 +251,15 @@ struct DebriefSheet: View {
           Text("Out of \(session.count) frames from \(DebriefStrip.when(session.start).lowercased()).")
             .font(.system(size: 12))
             .foregroundStyle(Palette.ink4(scheme))
+
+          // A thumbnail that will not load has no room to explain itself, so
+          // the explanation surfaces here instead of being swallowed.
+          if let trouble {
+            Text("Some of these could not be shown. \(trouble)")
+              .font(.system(size: 12))
+              .foregroundStyle(Palette.warn(scheme))
+              .fixedSize(horizontal: false, vertical: true)
+          }
         }
         .padding(.horizontal, 18)
         .padding(.bottom, 24)
@@ -274,7 +284,8 @@ struct DebriefSheet: View {
   /// explains it are in front of you together.
   private func row(_ frame: Frame) -> some View {
     HStack(spacing: 12) {
-      AssetImage(id: frame.id, size: CGSize(width: 132, height: 132))
+      AssetImage(id: frame.id, size: CGSize(width: 132, height: 132),
+                 trouble: { trouble = $0 })
         .frame(width: 46, height: 46)
         .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous)

@@ -54,6 +54,7 @@ Layout
 LazyVGrid
 LinearGradient
 MainActor
+NSError
 NSNumber
 NSObject
 NSPredicate
@@ -70,6 +71,7 @@ PHAssetResourceRequestOptions
 PHChange
 PHFetchOptions
 PHImageCancelledKey
+PHImageErrorKey
 PHImageManager
 PHImageRequestOptions
 PHImageResultIsInCloudKey
