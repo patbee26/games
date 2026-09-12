@@ -17,7 +17,8 @@
     "fl-norm": {
       "scale": 1.17,
       "cy": 0.45
-    }
+    },
+    "base": "fl-long"
   },
   "architecture": {
     "fl-wide": {
@@ -27,7 +28,8 @@
     "fl-long": {
       "scale": 1.2,
       "cy": 0.52
-    }
+    },
+    "base": "fl-wide"
   },
   "water": {
     "base": "sh-slow"
@@ -38,5 +40,14 @@
   "panning": {
     "base": "sh-slow"
   },
-  "_note": "A base is the photograph at the card's own setting, so it has to be the variant at the matching step. The generator gave all three slow-shutter scenes a short exposure for the base and filed the real one under sh-slow, where the app never draws it. tools/check-photos.mjs asserts this now."
+  "_note": "A base is the photograph at the card's own setting, so where a variant step lands on that setting they are the same photograph and must be the same file. The generator did not do this: it gave every such base a different frame and filed the right one under the step, where the app never draws it because the card is already there. Six of eight were wrong. check-photos.mjs enforces it.",
+  "landscape": {
+    "base": "fl-wide"
+  },
+  "kids": {
+    "base": "sh-fast"
+  },
+  "sports": {
+    "base": "sh-fast"
+  }
 }

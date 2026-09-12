@@ -7,12 +7,17 @@
 // are the shot at f/4, or at one second, or at 105 mm. So they must be the same
 // file.
 //
-// This is not pedantry. The generator gave all three slow-shutter scenes a short
-// exposure for their base and filed the real long exposure under sh-slow, where
-// the app never draws it, because the card is already at that setting. The
-// waterfall card, whose entire subject is water turned to silk, shipped showing
-// water that was not. Nothing caught it: the file existed, the name was right,
-// and only the picture was wrong.
+// This is not pedantry. The generator did not do it once. Six of the eight
+// scenes where a step lands on the card's own setting had a different frame in
+// the base, with the right one filed under the step where the app never draws
+// it. The waterfall card, whose entire subject is water turned to silk, shipped
+// showing water that was not. Landscape's "longer lens" chip showed the same
+// picture as the card it was meant to differ from. Nothing caught any of it:
+// the files existed, the names were right, and only the pictures were wrong.
+//
+// An earlier version of this check reported these rather than failing on them,
+// on the theory that a base and a variant at the same setting might just be two
+// separate renders of the same thing. That theory was comfortable and wrong.
 //
 //   node next/tools/check-photos.mjs
 
@@ -24,10 +29,7 @@ import { LESSONS } from '../js/lessons.js';
 const photos = new URL('../../app/photos/', import.meta.url);
 const digest = (url) => createHash('md5').update(readFileSync(url)).digest('hex');
 
-const declared = JSON.parse(readFileSync(new URL('../../variants-crops.json', import.meta.url), 'utf8'));
-
 const problems = [];
-const eyeball = [];
 let pinned = 0;
 
 for (const scene of LESSONS) {
@@ -44,23 +46,12 @@ for (const scene of LESSONS) {
       // A twentieth of a stop of slack, since the ladders are not exact ratios.
       if (Math.abs(Math.log2(value / own)) > 0.05) continue;
 
-      // Declared in variants-crops.json: the base was wrong once and was pinned
-      // to this variant. That pinning is what gets enforced, so a re-ingest
-      // cannot quietly put the short exposure back.
-      if (declared[scene.id]?.base === `${axis}-${step}`) {
-        pinned += 1;
-        if (digest(file) !== digest(base)) {
-          problems.push(
-            `${scene.id}: the base is pinned to ${axis}-${step} and no longer matches it. `
-            + `cp app/photos/variants/${name}.jpg app/photos/bases/${scene.id}.jpg`);
-        }
-        continue;
+      pinned += 1;
+      if (digest(file) !== digest(base)) {
+        problems.push(
+          `${scene.id}: the card is already at ${axis}-${step}, so the base must be that `
+          + `photograph and is not. cp app/photos/variants/${name}.jpg app/photos/bases/${scene.id}.jpg`);
       }
-
-      // Not pinned: the base and this variant are two renders of the same
-      // setting, which is fine, or the base is wrong, which is not, and no
-      // amount of hashing can tell the two apart. Only eyes can.
-      if (digest(file) !== digest(base)) eyeball.push(`${scene.id}: base and ${axis}-${step} are both at ${scene.id === 'architecture' ? 'this setting but the variant was crop-corrected' : 'the same setting'}`);
     }
   }
 }
@@ -69,8 +60,4 @@ if (problems.length) {
   console.error('\n' + problems.join('\n') + '\n');
   process.exit(1);
 }
-console.log(`${LESSONS.length} scenes, every variant present, ${pinned} bases pinned and matching.`);
-if (eyeball.length) {
-  console.log('\nNot enforced, worth an eye on the contact sheet if the set is ever regenerated:');
-  for (const line of eyeball) console.log(`  ${line}`);
-}
+console.log(`${LESSONS.length} scenes, every variant present, ${pinned} bases pinned to the step they sit on.`);
