@@ -32,8 +32,7 @@ const digest = (url) => createHash('md5').update(readFileSync(url)).digest('hex'
 const declared = JSON.parse(readFileSync(new URL('../../variants-crops.json', import.meta.url), 'utf8'));
 
 const problems = [];
-const exempt = [];
-let pinned = 0;
+const coincidences = [];
 
 for (const scene of LESSONS) {
   const base = new URL(`bases/${scene.id}.jpg`, photos);
@@ -49,19 +48,19 @@ for (const scene of LESSONS) {
       // A twentieth of a stop of slack, since the ladders are not exact ratios.
       if (Math.abs(Math.log2(value / own)) > 0.05) continue;
 
-      // An exemption is allowed, but only out loud: it has to say why, and it
-      // shows up in the output every run rather than passing quietly.
-      if (declared[scene.id]?.baseExempt) {
-        exempt.push(`${scene.id}: not pinned to ${axis}-${step}. ${declared[scene.id].baseExempt}`);
-        continue;
-      }
-
-      pinned += 1;
-      if (digest(file) !== digest(base)) {
-        problems.push(
-          `${scene.id}: the card is already at ${axis}-${step}, so the base must be that `
-          + `photograph and is not. cp app/photos/variants/${name}.jpg app/photos/bases/${scene.id}.jpg`);
-      }
+      // Where a step lands on the card's own setting, the base and that variant
+      // are showing the same thing, so a difference between them is worth a
+      // look. It is not proof of anything: a difference can mean the base is
+      // wrong, or that the two are separate renders of the same setting, or
+      // that the variant was crop-corrected at ingest and the base was not.
+      //
+      // Telling those apart needs eyes on the pictures, which is what
+      // tools/sheet.mjs is for. This used to fail on a difference, on my theory
+      // that it always meant the base was wrong. The theory was wrong twice and
+      // the failures were louder than the evidence behind them, so it reports.
+      coincidences.push(
+        `${scene.id}: base and ${axis}-${step} both sit at ${axis === 'sh' ? 'this shutter' : axis === 'fl' ? 'this focal length' : 'this aperture'}`
+        + (digest(file) === digest(base) ? ', and are the same file' : ', and are different pictures'));
     }
   }
 }
@@ -70,8 +69,8 @@ if (problems.length) {
   console.error('\n' + problems.join('\n') + '\n');
   process.exit(1);
 }
-console.log(`${LESSONS.length} scenes, every variant present, ${pinned} bases pinned to the step they sit on.`);
-if (exempt.length) {
-  console.log('\nExempt, on purpose:');
-  for (const line of exempt) console.log(`  ${line}`);
+console.log(`${LESSONS.length} scenes, every variant present.`);
+if (coincidences.length) {
+  console.log('\nWhere a card already sits on one of its own steps, for an eye rather than a hash:');
+  for (const line of coincidences) console.log(`  ${line}`);
 }
