@@ -95,6 +95,22 @@ struct GearView: View {
           .fixedSize(horizontal: false, vertical: true)
         Button("Show the introduction again") { store.seenIntro = false }
           .buttonStyle(GhostButton())
+
+        Text("Off Auto")
+          .font(.system(size: 17, weight: .semibold))
+          .foregroundStyle(Palette.ink(scheme))
+          .padding(.top, 14)
+        VStack(alignment: .leading, spacing: 5) {
+          Text("Designed and built by Patrick Beeharry.")
+          Text("Copyright \u{00A9} \(year) Patrick Beeharry. All rights reserved.")
+          Link("info@offauto.net", destination: URL(string: "mailto:info@offauto.net")!)
+            .foregroundStyle(Palette.amber(scheme))
+          Link("offauto.net", destination: URL(string: "https://www.offauto.net")!)
+            .foregroundStyle(Palette.amber(scheme))
+        }
+        .font(.system(size: 14))
+        .foregroundStyle(Palette.ink2(scheme))
+        .fixedSize(horizontal: false, vertical: true)
       }
       .padding(.horizontal, 18)
       .padding(.bottom, 24)
@@ -169,6 +185,10 @@ struct GearView: View {
   private var lastFinding: Finding? {
     guard let lastSession else { return nil }
     return Debrief.finding(for: lastSession, gear: store.gear)
+  }
+
+  private var year: String {
+    String(Calendar.current.component(.year, from: Date()))
   }
 
   private var photoStatus: String {

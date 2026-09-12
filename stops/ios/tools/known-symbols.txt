@@ -53,6 +53,7 @@ Label
 Layout
 LazyVGrid
 LinearGradient
+Link
 MainActor
 NSError
 NSNumber
@@ -104,6 +105,7 @@ ToolbarItem
 UIImage
 UIKit
 UInt32
+URL
 UserDefaults
 VStack
 View

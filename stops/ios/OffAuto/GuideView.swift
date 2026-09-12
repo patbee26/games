@@ -163,6 +163,7 @@ struct GuideView: View {
       para("So: **put the camera in M and set the ISO to Auto.** You take the two decisions that matter and the camera takes the one that does not. Cap it at about 6400 while you are learning.")
       heading("Why the f-numbers look backwards")
       para("f/2 is a **wider** opening than f/8. The number is a fraction of the lens's focal length, so a bigger number means a smaller hole. It is the one genuinely confusing piece of notation in photography and everyone trips on it. Smaller number, more light, blurrier background.")
+      IrisRow()
       heading("The lens is not a zoom ring")
       para("Changing focal length while standing still just crops. The lesson in this app is the other one: **change the focal length and move your feet so the subject stays the same size in the frame.** Do that and the background swells or shrinks behind them. That is the real difference between a wide lens and a long one, and it has nothing to do with how much fits in the frame.")
     }
@@ -213,6 +214,7 @@ struct GuideView: View {
 
   private var shutter: some View {
     VStack(alignment: .leading, spacing: 0) {
+      ShutterDial(marked: 125)
       para("There are two different blurs and beginners usually fix the wrong one. **Camera shake** smears the whole frame and comes from your hands. **Subject movement** smears only the thing that moved. The shutter has to beat whichever is worse.")
       focalPicker
       heading("Camera shake, at \(printed(focal)) mm")
@@ -237,6 +239,7 @@ struct GuideView: View {
 
   private var aperture: some View {
     VStack(alignment: .leading, spacing: 0) {
+      IrisRow()
       para("The aperture does two jobs at once, and they pull against each other. It sets **how much light gets in** and **how much of the scene is sharp**. You cannot buy one without paying in the other.")
       focalPicker
       heading("Enough depth, at \(printed(focal)) mm")
