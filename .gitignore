@@ -18,3 +18,4 @@ stops/next/deploy/
 .supabase/
 .DS_Store
 *.log
+stops/contact-sheet.html
