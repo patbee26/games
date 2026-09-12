@@ -29,7 +29,10 @@ import { LESSONS } from '../js/lessons.js';
 const photos = new URL('../../app/photos/', import.meta.url);
 const digest = (url) => createHash('md5').update(readFileSync(url)).digest('hex');
 
+const declared = JSON.parse(readFileSync(new URL('../../variants-crops.json', import.meta.url), 'utf8'));
+
 const problems = [];
+const exempt = [];
 let pinned = 0;
 
 for (const scene of LESSONS) {
@@ -46,6 +49,13 @@ for (const scene of LESSONS) {
       // A twentieth of a stop of slack, since the ladders are not exact ratios.
       if (Math.abs(Math.log2(value / own)) > 0.05) continue;
 
+      // An exemption is allowed, but only out loud: it has to say why, and it
+      // shows up in the output every run rather than passing quietly.
+      if (declared[scene.id]?.baseExempt) {
+        exempt.push(`${scene.id}: not pinned to ${axis}-${step}. ${declared[scene.id].baseExempt}`);
+        continue;
+      }
+
       pinned += 1;
       if (digest(file) !== digest(base)) {
         problems.push(
@@ -61,3 +71,7 @@ if (problems.length) {
   process.exit(1);
 }
 console.log(`${LESSONS.length} scenes, every variant present, ${pinned} bases pinned to the step they sit on.`);
+if (exempt.length) {
+  console.log('\nExempt, on purpose:');
+  for (const line of exempt) console.log(`  ${line}`);
+}

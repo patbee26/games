@@ -29,7 +29,7 @@
       "scale": 1.2,
       "cy": 0.52
     },
-    "base": "fl-wide"
+    "baseExempt": "Its fl-wide was crop-corrected 1.91x at ingest to normalise the building's size across the focal set. That crop narrows the field of view and costs resolution, so pinning the base to it gave the card that promises a building shown whole a tighter, softer frame with the building cut at both edges. Neither file here is an uncropped 24 mm frame; the base is the one that shows the building whole, and this scene needs regenerating to be properly right."
   },
   "water": {
     "base": "sh-slow"
